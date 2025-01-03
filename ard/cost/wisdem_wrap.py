@@ -100,13 +100,17 @@ class TurbineCapitalCosts(om.ExplicitComponent):
         self.add_input("machine_rating", 0.0, units="kW")
         self.add_input("tcc_per_kW", 0.0, units="USD/kW")
         self.add_input("offset_tcc_per_kW", 0.0, units="USD/kW")
-        self.add_discrete_input("turbine_number", 0)
+        self.add_discrete_input("turbine_number", 1)
         self.add_output("tcc", 0.0, units="USD")
 
     def setup_partials(self):
         """Derivative setup for OM component."""
         # complex step for simple gradients
-        self.declare_partials("*", "*", method="cs")
+        self.declare_partials(
+            ["tcc"],
+            ["machine_rating", "tcc_per_kW", "offset_tcc_per_kW"],
+            method="exact",
+        )
 
     def compute(self, inputs, outputs, discrete_inputs=None, discrete_outputs=None):
         """Computation for the OM compoent."""
@@ -115,6 +119,18 @@ class TurbineCapitalCosts(om.ExplicitComponent):
         n_turbine = discrete_inputs["turbine_number"]
         tcc_per_kW = inputs["tcc_per_kW"] + inputs["offset_tcc_per_kW"]
         outputs["tcc"] = n_turbine * tcc_per_kW * t_rating
+
+    def compute_partials(self, inputs, partials, discrete_inputs=None):
+
+        partials["tcc", "machine_rating"] = discrete_inputs["turbine_number"] * (
+            inputs["tcc_per_kW"] + inputs["offset_tcc_per_kW"]
+        )
+        partials["tcc", "tcc_per_kW"] = (
+            discrete_inputs["turbine_number"] * inputs["machine_rating"]
+        )
+        partials["tcc", "offset_tcc_per_kW"] = (
+            discrete_inputs["turbine_number"] * inputs["machine_rating"]
+        )
 
 
 class OperatingExpenses(om.ExplicitComponent):
@@ -144,13 +160,13 @@ class OperatingExpenses(om.ExplicitComponent):
         """Setup of OM component."""
         self.add_input("machine_rating", 0.0, units="kW")
         self.add_input("opex_per_kW", 0.0, units="USD/kW/yr")
-        self.add_discrete_input("turbine_number", 0)
+        self.add_discrete_input("turbine_number", 1)
         self.add_output("opex", 0.0, units="USD/yr")
 
     def setup_partials(self):
         """Derivative setup for OM component."""
         # complex step for simple gradients
-        self.declare_partials("*", "*", method="cs")
+        self.declare_partials("opex", ["machine_rating", "opex_per_kW"], method="exact")
 
     def compute(self, inputs, outputs, discrete_inputs=None, discrete_outputs=None):
         """Computation for the OM compoent."""
@@ -159,6 +175,15 @@ class OperatingExpenses(om.ExplicitComponent):
         n_turbine = discrete_inputs["turbine_number"]
         opex_per_kW = inputs["opex_per_kW"]
         outputs["opex"] = n_turbine * opex_per_kW * t_rating
+
+    def compute_partials(self, inputs, partials, discrete_inputs=None):
+        # Unpack parameters
+        partials["opex", "machine_rating"] = (
+            discrete_inputs["turbine_number"] * inputs["opex_per_kW"]
+        )
+        partials["opex", "opex_per_kW"] = (
+            discrete_inputs["turbine_number"] * inputs["machine_rating"]
+        )
 
 
 def LandBOSSE_setup_latents(prob, modeling_options):
