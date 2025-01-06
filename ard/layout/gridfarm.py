@@ -150,7 +150,7 @@ class GridFarmLayout(templates.LayoutTemplate):
         outputs["x_turbines"] = xyp[0, :].tolist()
         outputs["y_turbines"] = xyp[1, :].tolist()
 
-        outputs["spacing_effective_secondary"] = inputs["spacing_primary"]
+        outputs["spacing_effective_primary"] = inputs["spacing_primary"]
         outputs["spacing_effective_secondary"] = np.sqrt(
             inputs["spacing_secondary"] ** 2.0 / np.cos(angle_skew) ** 2.0
         )
