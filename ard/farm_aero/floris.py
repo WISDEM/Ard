@@ -176,8 +176,8 @@ class FLORISBatchPower(templates.BatchFarmPowerTemplate, FLORISFarmComponent):
 
         # set up and run the floris model
         self.fmodel.set(
-            layout_x=inputs["x_turbines"] * 1e3,  # convert to meters for FLORIS
-            layout_y=inputs["y_turbines"] * 1e3,  # convert to meters for FLORIS
+            layout_x=inputs["x_turbines"]*1e3,  # convert to meters for FLORIS
+            layout_y=inputs["y_turbines"]*1e3,  # convert to meters for FLORIS
             wind_data=self.time_series,
             yaw_angles=np.array([inputs["yaw_turbines"]]),
         )
@@ -190,15 +190,9 @@ class FLORISBatchPower(templates.BatchFarmPowerTemplate, FLORISFarmComponent):
         FLORISFarmComponent.dump_floris_yamlfile(self, self.dir_floris)
 
         # FLORIS computes the powers
-        outputs["power_farm"] = (
-            FLORISFarmComponent.get_power_farm(self) / 1e6
-        )  # convert from FLORIS W to output MW
-        outputs["power_turbines"] = (
-            FLORISFarmComponent.get_power_turbines(self) / 1e6
-        )  # convert from FLORIS W to output MW
-        outputs["thrust_turbines"] = (
-            FLORISFarmComponent.get_thrust_turbines(self) / 1e3
-        )  # convert from FLORIS N to output kN
+        outputs["power_farm"] = FLORISFarmComponent.get_power_farm(self)/1e6  # convert from FLORIS W to output MW
+        outputs["power_turbines"] = FLORISFarmComponent.get_power_turbines(self)/1e6  # convert from FLORIS W to output MW
+        outputs["thrust_turbines"] = FLORISFarmComponent.get_thrust_turbines(self)/1e3  # convert from FLORIS N to output kN
 
 
 class FLORISAEP(templates.FarmAEPTemplate, FLORISFarmComponent):
@@ -270,8 +264,8 @@ class FLORISAEP(templates.FarmAEPTemplate, FLORISFarmComponent):
 
         # set up and run the floris model
         self.fmodel.set(
-            layout_x=inputs["x_turbines"] * 1e3,
-            layout_y=inputs["y_turbines"] * 1e3,
+            layout_x=inputs["x_turbines"]*1e3,
+            layout_y=inputs["y_turbines"]*1e3,
             wind_data=self.wind_rose,
             yaw_angles=np.array([inputs["yaw_turbines"]]),
         )
@@ -284,18 +278,11 @@ class FLORISAEP(templates.FarmAEPTemplate, FLORISFarmComponent):
         FLORISFarmComponent.dump_floris_yamlfile(self, self.dir_floris)
 
         # FLORIS computes the powers
-        outputs["AEP_farm"] = (
-            FLORISFarmComponent.get_AEP_farm(self) / 1e9
-        )  # convert from FLORIS W*h to output GW*h
-        outputs["power_farm"] = (
-            FLORISFarmComponent.get_power_farm(self) / 1e6
-        )  # convert from FLORIS W to output MW
-        outputs["power_turbines"] = (
-            FLORISFarmComponent.get_power_turbines(self) / 1e6
-        )  # convert from FLORIS W to output MW
-        outputs["thrust_turbines"] = (
-            FLORISFarmComponent.get_thrust_turbines(self) / 1e3
-        )  # convert from FLORIS N to output kN
+        outputs["AEP_farm"] = FLORISFarmComponent.get_AEP_farm(self)/1e9  # convert from FLORIS W*h to output GW*h
+        outputs["power_farm"] = FLORISFarmComponent.get_power_farm(self)/1e6  # convert from FLORIS W to output MW
+        outputs["power_turbines"] = FLORISFarmComponent.get_power_turbines(self)/1e6  # convert from FLORIS W to output MW
+        outputs["thrust_turbines"] = FLORISFarmComponent.get_thrust_turbines(self)/1e3  # convert from FLORIS N to output kN
+
 
     def setup_partials(self):
         FLORISFarmComponent.setup_partials(self)
