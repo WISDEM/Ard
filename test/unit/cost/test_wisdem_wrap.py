@@ -18,14 +18,12 @@ class TestLandBOSSE:
     def setup_method(self):
 
         # specify the configuration/specification files to use
-        filename_turbine_spec = os.path.abspath(
-            os.path.join(
-                os.path.split(ard.__file__)[0],
-                "..",
-                "examples",
-                "data",
-                "turbine_spec_IEA-3p4-130-RWT.yaml",
-            )
+        filename_turbine_spec = Path(
+            os.path.split(ard.__file__)[0],
+            "..",
+            "examples",
+            "data",
+            "turbine_spec_IEA-3p4-130-RWT.yaml",
         )  # toolset generalized turbine specification
 
         # load the turbine specification
@@ -62,7 +60,6 @@ class TestLandBOSSE:
 
         # setup the latent variables for LandBOSSE and FinanceSE
         wcost.LandBOSSE_setup_latents(self.prob, self.modeling_options)
-        # wcost.FinanceSE_setup_latents(self.prob, self.modeling_options)
 
     def test_baseline_farm(self):
 
@@ -74,7 +71,7 @@ class TestLandBOSSE:
         self.prob.run_model()
 
         # use a file of pyrite-standard data to validate against
-        fn_pyrite = os.path.join(
+        fn_pyrite = Path(
             os.path.split(__file__)[0],
             "test_wisdem_wrap_baseline_farm.npz",
         )

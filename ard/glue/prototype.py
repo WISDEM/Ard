@@ -59,12 +59,27 @@ def create_setup_OM_problem(
     group_layout2aep.add_subsystem(  # layout component
         "layout",
         gridfarm.GridFarmLayout(modeling_options=modeling_options),
-        promotes=["*"],
+        promotes_inputs=[
+            "spacing_primary",
+            "spacing_secondary",
+            "angle_orientation",
+            "angle_skew",
+        ],
+        promotes_outputs=[
+            "spacing_effective_primary",
+            "spacing_effective_secondary",
+        ],
     )
     group_layout2aep.add_subsystem(  # landuse component
         "landuse",
         gridfarm.GridFarmLanduse(modeling_options=modeling_options),
-        promotes_inputs=["*"],
+        promotes_inputs=[
+            "spacing_primary",
+            "spacing_secondary",
+            "angle_orientation",
+            "angle_skew",
+        ],
+        promotes_outputs=["area_tight"],
     )
     group_layout2aep.add_subsystem(  # FLORIS AEP component
         "aepFLORIS",
@@ -73,13 +88,11 @@ def create_setup_OM_problem(
             wind_rose=wind_rose,
             case_title="letsgo",
         ),
-        # promotes=["AEP_farm"],
-        promotes=["x_turbines", "y_turbines", "AEP_farm"],
+        promotes_outputs=["AEP_farm"],
     )
-    group_layout2aep.approx_totals(
-        method="fd", step=1e-3, form="central", step_calc="rel_avg"
-    )
-    model.add_subsystem(
+    group_layout2aep.connect("layout.x_turbines", "aepFLORIS.x_turbines")
+    group_layout2aep.connect("layout.y_turbines", "aepFLORIS.y_turbines")
+    g_l2a = model.add_subsystem(
         "layout2aep",
         group_layout2aep,
         promotes=[
@@ -91,6 +104,9 @@ def create_setup_OM_problem(
             "spacing_effective_secondary",
             "AEP_farm",
         ],
+    )
+    g_l2a.approx_totals(
+        method="fd", step=1.0e-1, form="forward", step_calc="abs",
     )
     model.add_subsystem(  # turbine capital costs component
         "tcc",
@@ -135,6 +151,13 @@ def create_setup_OM_problem(
     )
     model.connect("AEP_farm", "financese.plant_aep_in")
     model.connect("landbosse.bos_capex_kW", "financese.bos_per_kW")
+
+    # set default number of turbines to one
+    model.set_input_defaults('turbine_number', val=1)
+
+    model.approx_totals(
+        method="fd", step=1e-1, form="forward", step_calc="abs",
+    )  # DEBUG!!!!!
 
     # build out the problem based on this model
     prob = om.Problem(model)

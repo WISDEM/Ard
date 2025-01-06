@@ -77,15 +77,19 @@ class TestGridFarm:
 
             self.prob.run_model()
 
-            x_turbines = spacing2 * 130.0 * np.arange(-2, 2 + 1, 1)
-            y_turbines = spacing1 * 130.0 * np.arange(-2, 2 + 1, 1)
+            x_turbines = spacing2 * 130.0 / 1e3 * np.arange(-2, 2 + 1, 1)
+            y_turbines = spacing1 * 130.0 / 1e3 * np.arange(-2, 2 + 1, 1)
             Y, X = np.meshgrid(y_turbines, x_turbines)
 
             assert np.all(
-                np.isclose(self.prob.get_val("gridfarm.x_turbines"), X.flatten())
+                np.isclose(
+                    self.prob.get_val("gridfarm.x_turbines", units="km"), X.flatten()
+                )
             )
             assert np.all(
-                np.isclose(self.prob.get_val("gridfarm.y_turbines"), Y.flatten())
+                np.isclose(
+                    self.prob.get_val("gridfarm.y_turbines", units="km"), Y.flatten()
+                )
             )
 
     def test_compute_rotatedfarm(self):
@@ -103,8 +107,8 @@ class TestGridFarm:
 
             self.prob.run_model()
 
-            x_turbines = spacing2 * 130.0 * np.arange(-2, 2 + 1, 1)
-            y_turbines = spacing1 * 130.0 * np.arange(-2, 2 + 1, 1)
+            x_turbines = spacing2 * 130.0 / 1e3 * np.arange(-2, 2 + 1, 1)
+            y_turbines = spacing1 * 130.0 / 1e3 * np.arange(-2, 2 + 1, 1)
             Y, X = np.meshgrid(y_turbines, x_turbines)
             Xr = (
                 np.cos(np.radians(angle_orientation)) * X
@@ -116,10 +120,14 @@ class TestGridFarm:
             )
 
             assert np.all(
-                np.isclose(self.prob.get_val("gridfarm.x_turbines"), Xr.flatten())
+                np.isclose(
+                    self.prob.get_val("gridfarm.x_turbines", units="km"), Xr.flatten()
+                )
             )
             assert np.all(
-                np.isclose(self.prob.get_val("gridfarm.y_turbines"), Yr.flatten())
+                np.isclose(
+                    self.prob.get_val("gridfarm.y_turbines", units="km"), Yr.flatten()
+                )
             )
 
     def test_compute_skewedfarm(self):
@@ -137,18 +145,22 @@ class TestGridFarm:
 
             self.prob.run_model()
 
-            x_turbines = spacing2 * 130.0 * np.arange(-2, 2 + 1, 1)
-            y_turbines = spacing1 * 130.0 * np.arange(-2, 2 + 1, 1)
+            x_turbines = spacing2 * 130.0 / 1e3 * np.arange(-2, 2 + 1, 1)
+            y_turbines = spacing1 * 130.0 / 1e3 * np.arange(-2, 2 + 1, 1)
             Y, X = np.meshgrid(y_turbines, x_turbines)
             Xs = X
             Ys = X * np.tan(-np.radians(angle_skew)) + Y
             Xr, Yr = Xs, Ys
 
             assert np.all(
-                np.isclose(self.prob.get_val("gridfarm.x_turbines"), Xr.flatten())
+                np.isclose(
+                    self.prob.get_val("gridfarm.x_turbines", units="km"), Xr.flatten()
+                )
             )
             assert np.all(
-                np.isclose(self.prob.get_val("gridfarm.y_turbines"), Yr.flatten())
+                np.isclose(
+                    self.prob.get_val("gridfarm.y_turbines", units="km"), Yr.flatten()
+                )
             )
 
     def test_compute_rotatedskewedfarm(self):
@@ -165,8 +177,8 @@ class TestGridFarm:
 
             self.prob.run_model()
 
-            x_turbines = spacing2 * 130.0 * np.arange(-2, 2 + 1, 1)
-            y_turbines = spacing1 * 130.0 * np.arange(-2, 2 + 1, 1)
+            x_turbines = spacing2 * 130.0 / 1e3 * np.arange(-2, 2 + 1, 1)
+            y_turbines = spacing1 * 130.0 / 1e3 * np.arange(-2, 2 + 1, 1)
             Y, X = np.meshgrid(y_turbines, x_turbines)
             Xs = X
             Ys = -np.tan(np.radians(angle_skew)) * X + Y
@@ -180,10 +192,14 @@ class TestGridFarm:
             )
 
             assert np.all(
-                np.isclose(self.prob.get_val("gridfarm.x_turbines"), Xr.flatten())
+                np.isclose(
+                    self.prob.get_val("gridfarm.x_turbines", units="km"), Xr.flatten()
+                )
             )
             assert np.all(
-                np.isclose(self.prob.get_val("gridfarm.y_turbines"), Yr.flatten())
+                np.isclose(
+                    self.prob.get_val("gridfarm.y_turbines", units="km"), Yr.flatten()
+                )
             )
 
 

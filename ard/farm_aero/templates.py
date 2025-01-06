@@ -43,8 +43,8 @@ class FarmAeroTemplate(om.ExplicitComponent):
         self.N_turbines = self.modeling_options["farm"]["N_turbines"]
 
         # set up inputs and outputs for farm layout
-        self.add_input("x_turbines", np.zeros((self.N_turbines,)), units="m")
-        self.add_input("y_turbines", np.zeros((self.N_turbines,)), units="m")
+        self.add_input("x_turbines", np.zeros((self.N_turbines,)), units="km")
+        self.add_input("y_turbines", np.zeros((self.N_turbines,)), units="km")
         self.add_input(
             "yaw_turbines",
             np.zeros((self.N_turbines,)),
@@ -138,17 +138,17 @@ class BatchFarmPowerTemplate(FarmAeroTemplate):
         self.add_output(
             "power_farm",
             np.zeros((self.N_wind_conditions,)),
-            units="W",
+            units="MW",
         )
         self.add_output(
             "power_turbines",
             np.zeros((self.N_turbines, self.N_wind_conditions)),
-            units="W",
+            units="MW",
         )
         self.add_output(
             "thrust_turbines",
             np.zeros((self.N_turbines, self.N_wind_conditions)),
-            units="N",
+            units="kN",
         )
 
     def setup_partials(self):
@@ -244,22 +244,22 @@ class FarmAEPTemplate(FarmAeroTemplate):
         self.add_output(
             "AEP_farm",
             0.0,
-            units="W*h",
+            units="GW*h",
         )
         self.add_output(
             "power_farm",
             np.zeros((self.N_wind_conditions,)),
-            units="W",
+            units="MW",
         )
         self.add_output(
             "power_turbines",
             np.zeros((self.N_turbines, self.N_wind_conditions)),
-            units="W",
+            units="MW",
         )
         self.add_output(
             "thrust_turbines",
             np.zeros((self.N_turbines, self.N_wind_conditions)),
-            units="N",
+            units="kN",
         )
         # ... more outputs can be added here
 

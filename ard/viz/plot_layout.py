@@ -18,13 +18,13 @@ class OutputLayout(om.ExplicitComponent):
         self.add_input(
             "x_turbines",
             np.zeros((self.N_turbines,)),
-            units="m",
+            units="km",
             desc="turbine location in x-direction",
         )
         self.add_input(
             "y_turbines",
             np.zeros((self.N_turbines,)),
-            units="m",
+            units="km",
             desc="turbine location in y-direction",
         )
 

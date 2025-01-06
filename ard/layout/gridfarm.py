@@ -96,7 +96,7 @@ class GridFarmLayout(templates.LayoutTemplate):
     def compute(self, inputs, outputs):
         """Computation for the OM component."""
 
-        D_rotor = self.modeling_options["turbine"]["geometry"]["diameter_rotor"]
+        D_rotor = self.modeling_options["turbine"]["geometry"]["diameter_rotor"] / 1e3  # in km for later computation
         lengthscale_spacing_streamwise = inputs["spacing_primary"] * D_rotor
         lengthscale_spacing_spanwise = inputs["spacing_secondary"] * D_rotor
 
@@ -240,7 +240,7 @@ class GridFarmLanduse(templates.LanduseTemplate):
     def compute(self, inputs, outputs):
         """Computation for the OM component."""
 
-        D_rotor = self.modeling_options["turbine"]["geometry"]["diameter_rotor"]
+        D_rotor = self.modeling_options["turbine"]["geometry"]["diameter_rotor"] / 1e3
         lengthscale_spacing_streamwise = inputs["spacing_primary"] * D_rotor
         lengthscale_spacing_spanwise = inputs["spacing_secondary"] * D_rotor
         lengthscale_layback = inputs["distance_layback_diameters"] * D_rotor
@@ -352,6 +352,6 @@ class GridFarmLanduse(templates.LanduseTemplate):
         area_enclosingsquare_compass = (
             length_enclosing_farm_x + 2 * lengthscale_layback
         ) * (length_enclosing_farm_y + 2 * lengthscale_layback)
-        outputs["area_tight"] = area_parallelopiped / (1e3) ** 2
-        outputs["area_aligned_parcel"] = area_enclosingsquare_farmoriented / (1e3) ** 2
-        outputs["area_compass_parcel"] = area_enclosingsquare_compass / (1e3) ** 2
+        outputs["area_tight"] = area_parallelopiped
+        outputs["area_aligned_parcel"] = area_enclosingsquare_farmoriented
+        outputs["area_compass_parcel"] = area_enclosingsquare_compass

@@ -56,13 +56,13 @@ class LayoutTemplate(om.ExplicitComponent):
         self.add_output(
             "x_turbines",
             np.zeros((self.N_turbines,)),
-            units="m",
+            units="km",
             desc="turbine location in x-direction",
         )
         self.add_output(
             "y_turbines",
             np.zeros((self.N_turbines,)),
-            units="m",
+            units="km",
             desc="turbine location in y-direction",
         )
         self.add_output(
@@ -137,7 +137,6 @@ class LanduseTemplate(om.ExplicitComponent):
         self.add_input(
             "distance_layback_diameters",
             0.0,
-            units=None,
             desc="number of diameters of layback necessary for landuse",
         )
 

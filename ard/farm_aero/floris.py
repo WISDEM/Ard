@@ -28,6 +28,8 @@ class FLORISFarmComponent:
         a "title" for the case, used to disambiguate runs in practice
     """
 
+    eval_count = 0  # an evaluation counter for FLORIS calls
+
     def initialize(self):
         """Initialization-time FLORIS management."""
         self.options.declare("case_title")
@@ -174,25 +176,26 @@ class FLORISBatchPower(templates.BatchFarmPowerTemplate, FLORISFarmComponent):
 
         # set up and run the floris model
         self.fmodel.set(
-            layout_x=inputs["x_turbines"],
-            layout_y=inputs["y_turbines"],
+            layout_x=inputs["x_turbines"]*1e3,  # convert to meters for FLORIS
+            layout_y=inputs["y_turbines"]*1e3,  # convert to meters for FLORIS
             wind_data=self.time_series,
             yaw_angles=np.array([inputs["yaw_turbines"]]),
         )
         self.fmodel.set_operation_model("peak-shaving")
 
         self.fmodel.run()
+        self.eval_count += 1
 
         # dump the yaml to re-run this case on demand
         FLORISFarmComponent.dump_floris_yamlfile(self, self.dir_floris)
 
         # FLORIS computes the powers
-        outputs["power_farm"] = FLORISFarmComponent.get_power_farm(self)
-        outputs["power_turbines"] = FLORISFarmComponent.get_power_turbines(self)
-        outputs["thrust_turbines"] = FLORISFarmComponent.get_thrust_turbines(self)
+        outputs["power_farm"] = FLORISFarmComponent.get_power_farm(self)/1e6  # convert from FLORIS W to output MW
+        outputs["power_turbines"] = FLORISFarmComponent.get_power_turbines(self)/1e6  # convert from FLORIS W to output MW
+        outputs["thrust_turbines"] = FLORISFarmComponent.get_thrust_turbines(self)/1e3  # convert from FLORIS N to output kN
 
 
-class FLORISAEP(templates.FarmAEPTemplate):
+class FLORISAEP(templates.FarmAEPTemplate, FLORISFarmComponent):
     """
     Component class for computing an AEP analysis using FLORIS.
 
@@ -261,23 +264,25 @@ class FLORISAEP(templates.FarmAEPTemplate):
 
         # set up and run the floris model
         self.fmodel.set(
-            layout_x=inputs["x_turbines"],
-            layout_y=inputs["y_turbines"],
+            layout_x=inputs["x_turbines"]*1e3,
+            layout_y=inputs["y_turbines"]*1e3,
             wind_data=self.wind_rose,
             yaw_angles=np.array([inputs["yaw_turbines"]]),
         )
         self.fmodel.set_operation_model("peak-shaving")
 
         self.fmodel.run()
+        self.eval_count += 1
 
         # dump the yaml to re-run this case on demand
         FLORISFarmComponent.dump_floris_yamlfile(self, self.dir_floris)
 
         # FLORIS computes the powers
-        outputs["AEP_farm"] = FLORISFarmComponent.get_AEP_farm(self)
-        outputs["power_farm"] = FLORISFarmComponent.get_power_farm(self)
-        outputs["power_turbines"] = FLORISFarmComponent.get_power_turbines(self)
-        outputs["thrust_turbines"] = FLORISFarmComponent.get_thrust_turbines(self)
+        outputs["AEP_farm"] = FLORISFarmComponent.get_AEP_farm(self)/1e9
+        outputs["power_farm"] = FLORISFarmComponent.get_power_farm(self)/1e6  # convert from FLORIS W to output MW
+        outputs["power_turbines"] = FLORISFarmComponent.get_power_turbines(self)/1e6  # convert from FLORIS W to output MW
+        outputs["thrust_turbines"] = FLORISFarmComponent.get_thrust_turbines(self)/1e3  # convert from FLORIS N to output kN
+
 
     def setup_partials(self):
         FLORISFarmComponent.setup_partials(self)
