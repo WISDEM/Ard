@@ -1,11 +1,9 @@
+import os
 from pathlib import Path
 
 import numpy as np
 
 import floris
-import openmdao.api as om
-
-from wisdem.optimization_drivers.nlopt_driver import NLoptDriver
 
 import ard
 import ard.test_utils
@@ -32,7 +30,6 @@ class TestLCOEstack:
         wind_rose_wrg.set_wd_step(90.0)
         wind_rose_wrg.set_wind_speeds(np.array([5.0, 10.0, 15.0, 20.0]))
         wind_rose = wind_rose_wrg.get_wind_rose_at_point(0.0, 0.0)
-        wind_query = wq.WindQuery.from_FLORIS_WindData(wind_rose)
 
         # specify the configuration/specification files to use
         filename_turbine_spec = Path(
@@ -85,7 +82,9 @@ class TestLCOEstack:
         # check the data against a pyrite file
         ard.test_utils.pyrite_validator(
             test_data,
-            "test_LCOE_stack_pyrite.npz",
+            Path(
+                os.path.split(__file__)[0],
+                "test_LCOE_stack_pyrite.npz"),
             # rewrite=True,  # uncomment to write new pyrite file
             rtol_val=5e-3,
         )
