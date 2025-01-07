@@ -3,6 +3,7 @@ data/FLORISturbine_IEA-3p4-130-RWT.yaml
 FLORIS_power_comp/case_files
 FLORIS_power_comp/power_comp_out
 FLORIS_power_comp/AEP_comp_out
+FLORIS_power_comp/AEP_opt*_out
 
 LCOE_stack/LCOE_demo_out
 

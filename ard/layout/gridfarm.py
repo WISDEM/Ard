@@ -96,7 +96,9 @@ class GridFarmLayout(templates.LayoutTemplate):
     def compute(self, inputs, outputs):
         """Computation for the OM component."""
 
-        D_rotor = self.modeling_options["turbine"]["geometry"]["diameter_rotor"] / 1e3  # in km for later computation
+        D_rotor = (
+            self.modeling_options["turbine"]["geometry"]["diameter_rotor"] / 1e3
+        )  # in km for later computation
         lengthscale_spacing_streamwise = inputs["spacing_primary"] * D_rotor
         lengthscale_spacing_spanwise = inputs["spacing_secondary"] * D_rotor
 

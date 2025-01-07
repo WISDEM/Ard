@@ -92,7 +92,8 @@ def create_setup_OM_problem(
     )
     group_layout2aep.connect("layout.x_turbines", "aepFLORIS.x_turbines")
     group_layout2aep.connect("layout.y_turbines", "aepFLORIS.y_turbines")
-    g_l2a = model.add_subsystem(
+
+    model.add_subsystem(
         "layout2aep",
         group_layout2aep,
         promotes=[
@@ -105,9 +106,13 @@ def create_setup_OM_problem(
             "AEP_farm",
         ],
     )
-    g_l2a.approx_totals(
-        method="fd", step=1.0e-1, form="forward", step_calc="abs",
+    group_layout2aep.approx_totals(
+        method="fd",
+        step=5.0e0,
+        form="forward",
+        step_calc="rel_avg",
     )
+
     model.add_subsystem(  # turbine capital costs component
         "tcc",
         cost_wisdem.TurbineCapitalCosts(),
@@ -118,10 +123,12 @@ def create_setup_OM_problem(
             "offset_tcc_per_kW",
         ],
     )
+
     model.add_subsystem(  # LandBOSSE component
         "landbosse",
         cost_wisdem.LandBOSSE(),
     )
+
     model.add_subsystem(  # operational expenditures component
         "opex",
         cost_wisdem.OperatingExpenses(),
@@ -153,10 +160,13 @@ def create_setup_OM_problem(
     model.connect("landbosse.bos_capex_kW", "financese.bos_per_kW")
 
     # set default number of turbines to one
-    model.set_input_defaults('turbine_number', val=1)
+    model.set_input_defaults("turbine_number", val=1)
 
     model.approx_totals(
-        method="fd", step=1e-1, form="forward", step_calc="abs",
+        method="fd",
+        step=1e-1,
+        form="forward",
+        step_calc="abs",
     )  # DEBUG!!!!!
 
     # build out the problem based on this model

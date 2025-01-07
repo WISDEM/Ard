@@ -42,9 +42,20 @@ class FarmAeroTemplate(om.ExplicitComponent):
         self.modeling_options = self.options["modeling_options"]
         self.N_turbines = self.modeling_options["farm"]["N_turbines"]
 
+        # grab rotor diameter
+        D_rotor = self.modeling_options["turbine"]["geometry"]["diameter_rotor"]
+
         # set up inputs and outputs for farm layout
-        self.add_input("x_turbines", np.zeros((self.N_turbines,)), units="km")
-        self.add_input("y_turbines", np.zeros((self.N_turbines,)), units="km")
+        self.add_input(
+            "x_turbines",
+            np.zeros((self.N_turbines,)),
+            units="km",
+        )
+        self.add_input(
+            "y_turbines",
+            np.zeros((self.N_turbines,)),
+            units="km",
+        )
         self.add_input(
             "yaw_turbines",
             np.zeros((self.N_turbines,)),
@@ -139,16 +150,19 @@ class BatchFarmPowerTemplate(FarmAeroTemplate):
             "power_farm",
             np.zeros((self.N_wind_conditions,)),
             units="MW",
+            ref=5.0 * self.N_turbines,  # normalize to 5 MW
         )
         self.add_output(
             "power_turbines",
             np.zeros((self.N_turbines, self.N_wind_conditions)),
             units="MW",
+            ref=5.0,  # normalize to 5 MW
         )
         self.add_output(
             "thrust_turbines",
             np.zeros((self.N_turbines, self.N_wind_conditions)),
             units="kN",
+            ref=500.0,  # normalize to 500 kN
         )
 
     def setup_partials(self):
@@ -245,21 +259,25 @@ class FarmAEPTemplate(FarmAeroTemplate):
             "AEP_farm",
             0.0,
             units="GW*h",
+            ref=0.30 * 8760 * 5.0 * self.N_turbines,  # normalize to 30%CF @ 5 MW
         )
         self.add_output(
             "power_farm",
             np.zeros((self.N_wind_conditions,)),
             units="MW",
+            ref=5.0 * self.N_turbines,  # normalize to 5 MW
         )
         self.add_output(
             "power_turbines",
             np.zeros((self.N_turbines, self.N_wind_conditions)),
             units="MW",
+            ref=5.0,  # normalize to 5 MW
         )
         self.add_output(
             "thrust_turbines",
             np.zeros((self.N_turbines, self.N_wind_conditions)),
             units="kN",
+            ref=500.0,  # normalize to 500 kN
         )
         # ... more outputs can be added here
 

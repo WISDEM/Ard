@@ -98,7 +98,10 @@ class TestFLORISBatchPower:
 
     def test_compute_pyrite(self):
 
-        X, Y = 130.0 / 1e3 * self.farm_spec["xD_farm"], 130.0 / 1e3 * self.farm_spec["yD_farm"]
+        X, Y = (
+            130.0 / 1e3 * self.farm_spec["xD_farm"],
+            130.0 / 1e3 * self.farm_spec["yD_farm"],
+        )
         yaw_turbines = np.zeros_like(X)
         self.prob.set_val("batchFLORIS.x_turbines", X, units="km")
         self.prob.set_val("batchFLORIS.y_turbines", Y, units="km")
@@ -213,7 +216,10 @@ class TestFLORISAEP:
 
     def test_compute_pyrite(self):
 
-        X, Y = 130.0 / 1e3 * self.farm_spec["xD_farm"], 130.0 / 1e3 * self.farm_spec["yD_farm"]
+        X, Y = (
+            130.0 / 1e3 * self.farm_spec["xD_farm"],
+            130.0 / 1e3 * self.farm_spec["yD_farm"],
+        )
         yaw_turbines = np.zeros_like(X)
         self.prob.set_val("aepFLORIS.x_turbines", X, units="km")
         self.prob.set_val("aepFLORIS.y_turbines", Y, units="km")
@@ -322,7 +328,10 @@ class TestFLORISBatchPowerDerivatives:
 
     def test_compute_pyrite(self):
 
-        X, Y = 130.0 / 1e3 * self.farm_spec["xD_farm"], 130.0 / 1e3 * self.farm_spec["yD_farm"]
+        X, Y = (
+            130.0 / 1e3 * self.farm_spec["xD_farm"],
+            130.0 / 1e3 * self.farm_spec["yD_farm"],
+        )
         yaw_turbines = np.zeros_like(X)
         self.prob.set_val("batchFLORIS.x_turbines", X, units="km")
         self.prob.set_val("batchFLORIS.y_turbines", Y, units="km")
@@ -355,7 +364,10 @@ class TestFLORISBatchPowerDerivatives:
 
     def test_compute_totals_pyrite(self):
 
-        X, Y = 130.0 / 1e3 * self.farm_spec["xD_farm"], 130.0 / 1e3 * self.farm_spec["yD_farm"]
+        X, Y = (
+            130.0 / 1e3 * self.farm_spec["xD_farm"],
+            130.0 / 1e3 * self.farm_spec["yD_farm"],
+        )
         yaw_turbines = np.zeros_like(X)
         self.prob.set_val("batchFLORIS.x_turbines", X, units="km")
         self.prob.set_val("batchFLORIS.y_turbines", Y, units="km")
@@ -481,7 +493,10 @@ class TestFLORISAEPDerivatives:
 
     def test_compute_pyrite(self):
 
-        X, Y = 130.0 / 1e3 * self.farm_spec["xD_farm"], 130.0 / 1e3 * self.farm_spec["yD_farm"]
+        X, Y = (
+            130.0 / 1e3 * self.farm_spec["xD_farm"],
+            130.0 / 1e3 * self.farm_spec["yD_farm"],
+        )
         yaw_turbines = np.zeros_like(X)
         self.prob.set_val("aepFLORIS.x_turbines", X, units="km")
         self.prob.set_val("aepFLORIS.y_turbines", Y, units="km")
@@ -513,7 +528,10 @@ class TestFLORISAEPDerivatives:
 
     def test_compute_totals_pyrite(self):
 
-        X, Y = 130.0 / 1e3 * self.farm_spec["xD_farm"], 130.0 / 1e3 * self.farm_spec["yD_farm"]
+        X, Y = (
+            130.0 / 1e3 * self.farm_spec["xD_farm"],
+            130.0 / 1e3 * self.farm_spec["yD_farm"],
+        )
         yaw_turbines = np.zeros_like(X)
         self.prob.set_val("aepFLORIS.x_turbines", X, units="km")
         self.prob.set_val("aepFLORIS.y_turbines", Y, units="km")
