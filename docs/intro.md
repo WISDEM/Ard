@@ -1,7 +1,7 @@
 
 # Ard
 
-**Dig into wind farm design.**
+**Dig in to wind farm design.**
 
 <!-- The (aspirationally) foolproof tool for preparing wind farm layouts. -->
 
