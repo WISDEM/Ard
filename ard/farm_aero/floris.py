@@ -284,8 +284,10 @@ class FLORISAEP(templates.FarmAEPTemplate, FLORISFarmComponent):
         )
         self.fmodel.set_operation_model("peak-shaving")
 
+        print("RUNNING A FLORIS! ...", end="", flush=True)  # DEBUG!!!!!
         self.fmodel.run()
         self.eval_count += 1
+        print(" DONE!", flush=True)  # DEBUG!!!!!
 
         # dump the yaml to re-run this case on demand
         FLORISFarmComponent.dump_floris_yamlfile(self, self.dir_floris)
