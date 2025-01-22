@@ -284,7 +284,7 @@ class FarmAEPTemplate(FarmAeroTemplate):
     def setup_partials(self):
         """Derivative setup for OM component."""
         # the default (but not preferred!) derivatives are FDM
-        self.declare_partials("*", "*", method="fd")
+        self.declare_partials("*", "*")
 
     def compute(self, inputs, outputs):
         """

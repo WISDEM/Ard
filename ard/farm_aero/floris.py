@@ -64,9 +64,10 @@ class FLORISFarmComponent:
     def setup_partials(self):
         """Derivative setup for OM component."""
         # for FLORIS, no derivatives. use FD because FLORIS is cheap
+        self.declare_partials("*", "*")
         self.declare_partials(
             of="*",
-            wrt="*_turbines",
+            wrt=["x_turbines", "y_turbines"],
             method="fd",
             form="forward",
             step=1.0e-1,  # step by 100m for FD
@@ -270,7 +271,7 @@ class FLORISAEP(templates.FarmAEPTemplate, FLORISFarmComponent):
         FLORISFarmComponent.setup(self)  # setup a FLORIS run
 
     def setup_partials(self):
-        super().setup_partials()
+        FLORISFarmComponent().setup_partials()
 
     def compute(self, inputs, outputs):
 

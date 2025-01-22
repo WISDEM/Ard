@@ -15,8 +15,10 @@ import ard.cost.wisdem_wrap as cost_wisdem
 
 # create the wind query
 wind_rose_wrg = floris.wind_data.WindRoseWRG(Path("..", "data", "wrg_example.wrg"))
-wind_rose_wrg.set_wd_step(1.0)
-wind_rose_wrg.set_wind_speeds(np.arange(0, 30, 0.5)[1:])
+wind_rose_wrg.set_wd_step(5.0)  # DEBUG!!!!!
+wind_rose_wrg.set_wind_speeds(np.arange(0, 30, 2.5)[1:])  # DEBUG!!!!!
+# wind_rose_wrg.set_wd_step(1.0)
+# wind_rose_wrg.set_wind_speeds(np.arange(0, 30, 0.5)[1:])
 wind_rose = wind_rose_wrg.get_wind_rose_at_point(0.0, 0.0)
 wind_query = wq.WindQuery.from_FLORIS_WindData(wind_rose)
 
@@ -58,17 +60,41 @@ if False:  # set true to run one-shot analysis
 else:
 
     # set up the working/design variables
-    prob.model.add_design_var("spacing_primary", lower=1.0, upper=13.0)
-    prob.model.add_design_var("spacing_secondary", lower=1.0, upper=13.0)
-    prob.model.add_design_var("angle_orientation", lower=-90.0, upper=90.0)
-    prob.model.add_design_var("angle_skew", lower=-90.0, upper=90.0)
-    prob.model.add_objective("financese.lcoe")
+    prob.model.add_design_var(
+        "spacing_primary",
+        lower=1.0,
+        upper=13.0,
+        ref=7.0,
+    )
+    prob.model.add_design_var(
+        "spacing_secondary",
+        lower=1.0,
+        upper=13.0,
+        ref=7.0,
+    )
+    prob.model.add_design_var(
+        "angle_orientation",
+        lower=-90.0,
+        upper=90.0,
+        ref=90.0,
+    )
+    prob.model.add_design_var(
+        "angle_skew",
+        lower=-90.0,
+        upper=90.0,
+        ref=90.0,
+    )
+    prob.model.add_objective(
+        "financese.lcoe",
+        units="USD/MW/h",
+        ref=30.0,  # use $30/MWh as base value
+    )
     # prob.model.add_objective("landuse.area_tight")
 
     # setup an optimization
     if False:  # for SLSQP from pyoptsparse
         prob.driver = om.pyOptSparseDriver(optimizer="SLSQP")
-    elif True:  # use COBYLA from NLopt via WISDEM
+    elif False:  # use COBYLA from NLopt via WISDEM
         prob.driver = NLoptDriver(optimizer="LN_COBYLA")
         prob.driver.options["debug_print"] = ["desvars", "nl_cons", "ln_cons", "objs"]
         prob.driver.options["maxiter"] = 25

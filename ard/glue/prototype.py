@@ -1,3 +1,5 @@
+import numpy as np
+
 import openmdao.api as om
 
 import floris.wind_data
@@ -53,9 +55,31 @@ def create_setup_OM_problem(
     if wind_rose is None:
         raise NotImplementedError("this wind rose configuration is not implemented.")
 
+    # build out the problem based on this model
+    prob = om.Problem()
+
     # create the OpenMDAO model
-    model = om.Group()
+    model = prob.model
+
+    # create a group to encapsulate the layout to AEP calculations and remove
+    # need for approximating each d(AEP)/d(xy_turbines) for chain rule by doing
+    # outer finite difference on group
     group_layout2aep = om.Group()
+
+    # in order to avoid excess differencing, we want to localize the independent
+    # variables to inside this group, so we create an explicit IVC components
+    for var, val, uni in [
+        ("spacing_primary", 7.0, None),
+        ("spacing_secondary", 7.0, None),
+        ("angle_orientation", 0.0, "deg"),
+        ("angle_skew", 0.0, "deg"),
+        ("distance_layback_diameters", 0.0, None),
+        ("yaw_turbines", np.zeros((modeling_options["farm"]["N_turbines"],)), "deg"),
+    ]:
+        group_layout2aep.add_subsystem(
+            f"iv_{var}", om.IndepVarComp(var, val, units=uni), promotes=[var]
+        )
+
     group_layout2aep.add_subsystem(  # layout component
         "layout",
         gridfarm.GridFarmLayout(modeling_options=modeling_options),
@@ -79,8 +103,11 @@ def create_setup_OM_problem(
             "angle_orientation",
             "angle_skew",
         ],
-        promotes_outputs=["area_tight"],
+        promotes_outputs=[
+            "area_tight",
+        ],
     )
+
     group_layout2aep.add_subsystem(  # FLORIS AEP component
         "aepFLORIS",
         farmaero_floris.FLORISAEP(
@@ -101,22 +128,18 @@ def create_setup_OM_problem(
             "angle_skew",
             "spacing_primary",
             "spacing_secondary",
+            # ],
+            # promotes_outputs=[
             "spacing_effective_primary",
             "spacing_effective_secondary",
             "AEP_farm",
         ],
     )
-    group_layout2aep.approx_totals(
-        method="fd",
-        step=5.0e0,
-        form="forward",
-        step_calc="rel_avg",
-    )
 
     model.add_subsystem(  # turbine capital costs component
         "tcc",
         cost_wisdem.TurbineCapitalCosts(),
-        promotes_inputs=[
+        promotes=[
             "turbine_number",
             "machine_rating",
             "tcc_per_kW",
@@ -132,7 +155,7 @@ def create_setup_OM_problem(
     model.add_subsystem(  # operational expenditures component
         "opex",
         cost_wisdem.OperatingExpenses(),
-        promotes_inputs=[
+        promotes=[
             "turbine_number",
             "machine_rating",
             "opex_per_kW",
@@ -148,7 +171,7 @@ def create_setup_OM_problem(
     model.add_subsystem(  # cost metrics component
         "financese",
         cost_wisdem.PlantFinance(),
-        promotes_inputs=[
+        promotes=[
             "turbine_number",
             "machine_rating",
             "tcc_per_kW",
@@ -162,16 +185,28 @@ def create_setup_OM_problem(
     # set default number of turbines to one
     model.set_input_defaults("turbine_number", val=1)
 
-    model.approx_totals(
+    prob.setup()
+
+    print("DEBUG!!!!!")
+    group_layout2aep.list_inputs(val=False)  # DEBUG!!!!!
+    print("DEBUG!!!!!")
+    model.list_inputs(val=False)  # DEBUG!!!!!
+    print("DEBUG!!!!!")
+
+    # configure FD approximation on FLORIS component
+    # group_layout2aep.approx_totals(
+    prob.model.layout2aep.approx_totals(
         method="fd",
-        step=1e-1,
+        step=1e-0,
         form="forward",
         step_calc="abs",
-    )  # DEBUG!!!!!
-
-    # build out the problem based on this model
-    prob = om.Problem(model)
-    prob.setup()
+    )
+    # prob.model.approx_totals(
+    #         method="fd",
+    #         step=1e-0,
+    #         form="forward",
+    #         step_calc="abs",
+    #     )  # DEBUG!!!!!
 
     # return the problem
     return prob
