@@ -79,7 +79,9 @@ class TestBatchFarmPowerTemplate:
         self.wq = wq.WindQuery(
             np.array([0.0, 180.0, 360.0]),
             np.array([1.0, 10.0, 30.0]),
+            0.06,
         )
+        print(f"DEBUG!!!!! self.wq.N_conditions: {self.wq.N_conditions}")
 
         self.model = om.Group()
         self.bfp_temp = self.model.add_subsystem(

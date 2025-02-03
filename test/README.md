@@ -10,3 +10,12 @@ Two paradigms of testing are used herein:
 
 The testing suite is run using the `pytest` package, with coverage testing.
 Acceptance criteria for new code using our CI/CD process is 80% coverage for both unit and system-level testing.
+
+For local testing purposes, from the `Ard` root directory, one can run
+```shell
+source test/run_local_test_unit.sh
+```
+for the unit tests and the following for the system tests:
+```shell
+source test/run_local_test_system.sh
+```

@@ -3,6 +3,7 @@ import warnings
 import openmdao.api as om
 from wisdem.plant_financese.plant_finance import PlantFinance as PlantFinance_orig
 from wisdem.landbosse.landbosse_omdao.landbosse import LandBOSSE as LandBOSSE_orig
+from wisdem.orbit.api.wisdem import Orbit as Orbit_orig
 
 
 class LandBOSSE(LandBOSSE_orig):
@@ -34,6 +35,48 @@ class LandBOSSE(LandBOSSE_orig):
             [
                 "bos_capex_kW",
                 "total_capex",
+            ],
+            method="fd",
+        )
+
+    def compute(self, inputs, outputs, discrete_inputs=None, discrete_outputs=None):
+        """Computation for the OM compoent."""
+        warnings.filterwarnings("ignore", category=FutureWarning)
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
+        with warnings.catch_warnings():
+            return super().compute(inputs, outputs, discrete_inputs, discrete_outputs)
+
+
+class Orbit(Orbit_orig):
+    """
+    Wrapper for WISDEM's Orbit offshore BOS calculators.
+
+    A thin wrapper of `wisdem.orbit.api.wisdem`
+    that traps warning messages that are recognized not to be issues.
+
+    See: https://github.com/WISDEM/Orbit
+    """
+
+    def setup(self):
+        """Setup of OM component."""
+        warnings.filterwarnings("ignore", category=FutureWarning)
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
+        with warnings.catch_warnings():
+            return super().setup()
+
+    def setup_partials(self):
+        """Derivative setup for OM component."""
+
+        # finite difference WISDEM tools for gradients
+        self.declare_partials(
+            [
+                "turbine_spacing_rotor_diameters",
+                "row_spacing_rotor_diameters",
+            ],
+            [
+                "bos_capex_kW",
+                "total_capex",
+                "installation_capex",
             ],
             method="fd",
         )
@@ -263,12 +306,12 @@ def LandBOSSE_setup_latents(prob, modeling_options):
         modeling_options["turbine"]["costs"]["foundation_height"],
     )
     prob.set_val(
-        comp2promotion_map["landbosse.landbosse.commissioning_pct"],
-        modeling_options["turbine"]["costs"]["commissioning_pct"],
+        comp2promotion_map["landbosse.landbosse.commissioning_cost_kW"],
+        modeling_options["turbine"]["costs"]["commissioning_cost_kW"],
     )
     prob.set_val(
-        comp2promotion_map["landbosse.landbosse.decommissioning_pct"],
-        modeling_options["turbine"]["costs"]["decommissioning_pct"],
+        comp2promotion_map["landbosse.landbosse.decommissioning_cost_kW"],
+        modeling_options["turbine"]["costs"]["decommissioning_cost_kW"],
     )
     prob.set_val(
         comp2promotion_map["landbosse.landbosse.trench_len_to_substation_km"],
@@ -284,6 +327,218 @@ def LandBOSSE_setup_latents(prob, modeling_options):
     )
 
 
+def Orbit_setup_latents(prob, modeling_options):
+    """
+    A function to set up the Orbit latent variables using modeling options.
+
+    Parameters
+    ----------
+    prob : openmdao.api.Problem
+        an OpenMDAO problem for which we want to setup the Orbit latent
+        variables
+    modeling_options : dict
+        a modeling options dictionary
+    """
+
+    # get a map from the component variables to the promotion variables
+    comp2promotion_map = {
+        v[0]: v[-1]["prom_name"]
+        for v in prob.model.list_vars(val=False, out_stream=None)
+    }
+
+    # set latent/non-design inputs to Orbit using values in modeling_options
+    prob.set_val(
+        comp2promotion_map["orbit.orbit.turbine_rating"],
+        modeling_options["turbine"]["nameplate"]["power_rated"],
+    )
+    prob.set_val(
+        comp2promotion_map["orbit.orbit.site_depth"],
+        modeling_options["site_depth"],
+    )
+    prob.set_val(
+        comp2promotion_map["orbit.orbit.number_of_turbines"],
+        modeling_options["farm"]["N_turbines"],
+    )
+    prob.set_val(
+        comp2promotion_map["orbit.orbit.number_of_blades"],
+        modeling_options["turbine"]["geometry"]["num_blades"],
+    )
+    prob.set_val(
+        comp2promotion_map["orbit.orbit.hub_height"],
+        modeling_options["turbine"]["geometry"]["height_hub"],
+    )
+    prob.set_val(
+        comp2promotion_map["orbit.orbit.turbine_rotor_diameter"],
+        modeling_options["turbine"]["geometry"]["diameter_rotor"],
+    )
+    prob.set_val(
+        comp2promotion_map["orbit.orbit.tower_length"],
+        modeling_options["turbine"]["geometry"]["tower_length"],
+    )
+    prob.set_val(
+        comp2promotion_map["orbit.orbit.tower_mass"],
+        modeling_options["turbine"]["costs"]["tower_mass"],
+    )
+    prob.set_val(
+        comp2promotion_map["orbit.orbit.nacelle_mass"],
+        modeling_options["turbine"]["costs"]["nacelle_mass"],
+    )
+    prob.set_val(
+        comp2promotion_map["orbit.orbit.blade_mass"],
+        modeling_options["turbine"]["costs"]["blade_mass"],
+    )
+    prob.set_val(
+        comp2promotion_map["orbit.orbit.turbine_capex"],
+        modeling_options["turbine"]["costs"]["turbine_capex"],
+    )
+    prob.set_val(
+        comp2promotion_map["orbit.orbit.site_mean_windspeed"],
+        modeling_options["turbine"]["costs"]["site_mean_windspeed"],
+    )
+    prob.set_val(
+        comp2promotion_map["orbit.orbit.turbine_rated_windspeed"],
+        modeling_options["turbine"]["costs"]["turbine_rated_windspeed"],
+    )
+    prob.set_val(
+        comp2promotion_map["orbit.orbit.commissioning_cost_kW"],
+        modeling_options["turbine"]["costs"]["commissioning_cost_kW"],
+    )
+    prob.set_val(
+        comp2promotion_map["orbit.orbit.decommissioning_cost_kW"],
+        modeling_options["turbine"]["costs"]["decommissioning_cost_kW"],
+    )
+    prob.set_val(
+        comp2promotion_map["orbit.orbit.plant_substation_distance"],
+        modeling_options["turbine"]["costs"]["plant_substation_distance"],
+    )
+    prob.set_val(
+        comp2promotion_map["orbit.orbit.interconnection_distance"],
+        modeling_options["turbine"]["costs"]["interconnection_distance"],
+    )
+    prob.set_val(
+        comp2promotion_map["orbit.orbit.site_distance"],
+        modeling_options["turbine"]["costs"]["site_distance"],
+    )
+    prob.set_val(
+        comp2promotion_map["orbit.orbit.site_distance_to_landfall"],
+        modeling_options["turbine"]["costs"]["site_distance_to_landfall"],
+    )
+    prob.set_val(
+        comp2promotion_map["orbit.orbit.port_cost_per_month"],
+        modeling_options["turbine"]["costs"]["port_cost_per_month"],
+    )
+    prob.set_val(
+        comp2promotion_map["orbit.orbit.construction_insurance"],
+        modeling_options["turbine"]["costs"]["construction_insurance"],
+    )
+    prob.set_val(
+        comp2promotion_map["orbit.orbit.construction_financing"],
+        modeling_options["turbine"]["costs"]["construction_financing"],
+    )
+    prob.set_val(
+        comp2promotion_map["orbit.orbit.contingency"],
+        modeling_options["turbine"]["costs"]["contingency"],
+    )
+    prob.set_val(
+        comp2promotion_map["orbit.orbit.site_auction_price"],
+        modeling_options["turbine"]["costs"]["site_auction_price"],
+    )
+    prob.set_val(
+        comp2promotion_map["orbit.orbit.site_assessment_cost"],
+        modeling_options["turbine"]["costs"]["site_assessment_cost"],
+    )
+    prob.set_val(
+        comp2promotion_map["orbit.orbit.construction_plan_cost"],
+        modeling_options["turbine"]["costs"]["construction_plan_cost"],
+    )
+    prob.set_val(
+        comp2promotion_map["orbit.orbit.installation_plan_cost"],
+        modeling_options["turbine"]["costs"]["installation_plan_cost"],
+    )
+    prob.set_val(
+        comp2promotion_map["orbit.orbit.boem_review_cost"],
+        modeling_options["turbine"]["costs"]["boem_review_cost"],
+    )
+
+    if modeling_options["floating"]:
+        prob.set_val(
+            comp2promotion_map["orbit.orbit.num_mooring_lines"],
+            modeling_options["turbine"]["costs"]["num_mooring_lines"],
+        )
+        prob.set_val(
+            comp2promotion_map["orbit.orbit.mooring_line_mass"],
+            modeling_options["turbine"]["costs"]["mooring_line_mass"],
+        )
+        prob.set_val(
+            comp2promotion_map["orbit.orbit.mooring_line_diameter"],
+            modeling_options["turbine"]["costs"]["mooring_line_diameter"],
+        )
+        prob.set_val(
+            comp2promotion_map["orbit.orbit.mooring_line_length"],
+            modeling_options["turbine"]["costs"]["mooring_line_length"],
+        )
+        prob.set_val(
+            comp2promotion_map["orbit.orbit.anchor_mass"],
+            modeling_options["turbine"]["costs"]["anchor_mass"],
+        )
+        prob.set_val(
+            comp2promotion_map["orbit.orbit.transition_piece_mass"],
+            modeling_options["turbine"]["costs"]["transition_piece_mass"],
+        )
+        prob.set_val(
+            comp2promotion_map["orbit.orbit.transition_piece_cost"],
+            modeling_options["turbine"]["costs"]["transition_piece_cost"],
+        )
+        prob.set_val(
+            comp2promotion_map["orbit.orbit.floating_substructure_cost"],
+            modeling_options["turbine"]["costs"]["floating_substructure_cost"],
+        )
+    else:
+        prob.set_val(
+            comp2promotion_map["orbit.orbit.monopile_mass"],
+            modeling_options["turbine"]["costs"]["monopile_mass"],
+        )
+        prob.set_val(
+            comp2promotion_map["orbit.orbit.monopile_cost"],
+            modeling_options["turbine"]["costs"]["monopile_cost"],
+        )
+        prob.set_val(
+            comp2promotion_map["orbit.orbit.monopile_length"],
+            modeling_options["turbine"]["geometry"]["monopile_length"],
+        )
+        prob.set_val(
+            comp2promotion_map["orbit.orbit.monopile_diameter"],
+            modeling_options["turbine"]["geometry"]["monopile_diameter"],
+        )
+        prob.set_val(
+            comp2promotion_map["orbit.orbit.transition_piece_mass"],
+            modeling_options["turbine"]["costs"]["transition_piece_mass"],
+        )
+        prob.set_val(
+            comp2promotion_map["orbit.orbit.transition_piece_cost"],
+            modeling_options["turbine"]["costs"]["transition_piece_cost"],
+        )
+    # # if jacket
+    # prob.set_val(
+    #     comp2promotion_map["orbit.orbit.jacket_r_foot"],
+    #     modeling_options["turbine"]["costs"]["jacket_r_foot"])
+    # prob.set_val(
+    #     comp2promotion_map["orbit.orbit.jacket_length"],
+    #     modeling_options["turbine"]["costs"]["jacket_length"])
+    # prob.set_val(
+    #     comp2promotion_map["orbit.orbit.jacket_mass"],
+    #     modeling_options["turbine"]["costs"]["jacket_mass"])
+    # prob.set_val(
+    #     comp2promotion_map["orbit.orbit.jacket_cost"],
+    #     modeling_options["turbine"]["costs"]["jacket_cost"])
+    # prob.set_val(
+    #     comp2promotion_map["orbit.orbit.transition_piece_mass"],
+    #     modeling_options["turbine"]["costs"]["transition_piece_mass"])
+    # prob.set_val(
+    #     comp2promotion_map["orbit.orbit.transition_piece_cost"],
+    #     modeling_options["turbine"]["costs"]["transition_piece_cost"])
+
+
 def FinanceSE_setup_latents(prob, modeling_options):
     """
     A function to set up the FinanceSE latent variables using modeling options.
@@ -291,7 +546,7 @@ def FinanceSE_setup_latents(prob, modeling_options):
     Parameters
     ----------
     prob : openmdao.api.Problem
-        an OpenMDAO problem for which we want to setup the LandBOSSE latent
+        an OpenMDAO problem for which we want to setup the FinanceSE latent
         variables
     modeling_options : dict
         a modeling options dictionary

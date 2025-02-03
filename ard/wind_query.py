@@ -1,3 +1,5 @@
+from __future__ import annotations  # for type hinting annotation fix...
+
 import numpy as np
 
 from floris.wind_data import WindDataBase
@@ -46,7 +48,7 @@ class WindQuery:
         if TIs is not None:
             self.set_TIs(TIs)
 
-    def set_directions(self, directions: np.ndarray):
+    def set_directions(self, directions: np.ndarray) -> None:
         """
         Set the directions on a WindQuery object.
 
@@ -58,10 +60,15 @@ class WindQuery:
 
         self.directions = directions
         self.N_conditions = (
-            None if self.directions.size != self.speeds.size else self.directions.size
+            None
+            if (
+                (self.directions.size != self.speeds.size)
+                or (self.directions.size != self.TIs.size)
+            )
+            else self.directions.size
         )
 
-    def set_speeds(self, speeds: np.ndarray):
+    def set_speeds(self, speeds: np.ndarray) -> None:
         """
         Set the wind speeds on a WindQuery object.
 
@@ -73,10 +80,15 @@ class WindQuery:
 
         self.speeds = speeds
         self.N_conditions = (
-            None if self.directions.size != self.speeds.size else self.directions.size
+            None
+            if (
+                (self.directions.size != self.speeds.size)
+                or (self.directions.size != self.TIs.size)
+            )
+            else self.directions.size
         )
 
-    def set_TIs(self, TIs: float | np.ndarray):
+    def set_TIs(self, TIs: float | np.ndarray) -> None:
         """
         Set the turbulence intensities on a WindQuery object.
 
@@ -91,19 +103,35 @@ class WindQuery:
         TIs = np.array(TIs)
         if (np.array(TIs).size == 1) and (self.N_conditions is not None):
             TIs = TIs * np.ones((self.N_conditions,))
+        elif np.array(TIs).size == 1:
+            assert np.all(
+                self.directions.shape == self.speeds.shape
+            ), "to set TIs automatically direction and speed must be set, and consistently"
+            TIs = TIs * np.ones_like(self.directions)
         else:
-            assert (
-                TIs.size == self.N_conditions
-            ), "mismatch in TI size vs. direction/speed"
+            assert np.all(TIs.shape == self.directions.shape) and np.all(
+                TIs.shape == self.speeds.shape
+            ), "mismatch in TI size vs. direction"
+            assert np.all(
+                TIs.shape == self.speeds.shape
+            ), "mismatch in TI size vs. speed"
         self.TIs = TIs
+        self.N_conditions = (
+            None
+            if (
+                (self.directions.size != self.speeds.size)
+                or (self.directions.size != self.TIs.size)
+            )
+            else self.directions.size
+        )
 
-    def set_TI_using_IEC_method(self):
+    def set_TI_using_IEC_method(self) -> None:
         """
         Re-set the turbulence intensities using the FLORIS IEC method interface.
         """
 
-        assert self.directions is not None, "directions must be set"
-        assert self.speeds is not None, "speeds must be set"
+        assert self.directions.size != 0, "directions must be set"
+        assert self.speeds.size != 0, "speeds must be set"
         # use a temporary FLORIS time series to get the IEC TIs
         ts_temp = TimeSeries(
             wind_directions=self.directions,
@@ -117,39 +145,47 @@ class WindQuery:
         _, _, TIs_new, _, _, _ = ts_temp.unpack()
         self.set_TIs(TIs_new)
 
-    def get_directions(self):
+    def get_directions(self) -> np.ndarray:
         """Get the directions from the wind query object."""
         assert self.is_valid(), "mismatch in direction/speed vectors"
         return self.directions
 
-    def get_speeds(self):
+    def get_speeds(self) -> np.ndarray:
         """Get the wind speeds from the wind query object."""
         assert self.is_valid(), "mismatch in direction/speed vectors"
         return self.speeds
 
-    def get_TIs(self):
+    def get_TIs(self) -> np.ndarray:
         """Get the turbulence intensities from the wind query object."""
         assert self.is_valid(), "mismatch in direction/speed vectors"
         return self.TIs
 
-    def is_valid(self):
+    def is_valid(self) -> bool:
         """Ensure that the specified wind conditions are valid."""
 
         # first, not a valid query if the directions and speeds aren't specified
-        if (self.directions is None) or (self.speeds is None):
+        if (self.directions.size == 0) or (self.speeds.size == 0):
             return False
         # next, to be valid the directions and speeds should be the same size and shape
         if not np.all(np.equal(self.directions.shape, self.speeds.shape)):
+            return False
+        # next, to be valid the TIs should also be the same size and shape. or empty
+        if (not np.all(np.equal(self.directions.shape, self.TIs.shape))) and (
+            self.TIs.shape != ()
+        ):
             return False
         # to be valid, directions should be on [0, 360]
         if np.any((self.directions < 0.0) | (self.directions > 360.0)):
             return False
         # to be valid, velocity should be on [0, +inf)
-        if np.any(self.directions < 0.0):
+        if np.any(self.speeds < 0.0):
+            return False
+        # to be valid, TI should be on [0, +inf)
+        if np.any(self.TIs < 0.0):
             return False
         return True
 
-    def from_FLORIS_WindData(winddata_FLORIS: WindDataBase):
+    def from_FLORIS_WindData(winddata_FLORIS: WindDataBase) -> WindQuery:
         """
         Turn a FLORIS WindData object into a (more general) WindQuery object.
 

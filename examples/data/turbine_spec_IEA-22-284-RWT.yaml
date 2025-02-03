@@ -1,0 +1,77 @@
+description:
+  name: IEA-22-284-RWT
+geometry:
+  height_hub: 170.0 # m
+  diameter_rotor: 284.0 # m
+  radius_hub: 8.4 # m
+  num_blades: 3 #
+  orientation_rotor: upwind  # future-proofing
+  tower_length: 149.386 # (m)
+  monopile_length: 94. # (m)
+  monopile_diameter: 10. # (m) (max)
+nameplate:
+  power_rated: 22.0 # MW
+  power_rated_aero: 22.86 # MW
+  turbine_class: I # future-proofing
+  turbulence_class: B # future-proofing
+  drivetrain: direct-drive # future-proofing
+  TSR: 9.153211158238001 # -, tip speed ratio
+model_specifications:
+  WindSE:
+    type: power_disk # WindSE actuator model
+    thickness_actuator: 28.4 # m (typically 10% of diameter_rotor)
+    factor_axial_induction: 0.333 # -
+    force: sine # radial force distribution type
+    power_disk_control:
+      CPprime0: 1.022       # turbine power curve spec
+      CTprime0: 1.319       # turbine power curve spec
+      Prated: 2570282.74287 # turbine power curve spec
+      Trated: 368163.26530  # turbine power curve spec
+  FLORIS:
+    exponent_penalty_yaw: 1.88 # -, cosine exponent for power loss due to yaw misalignment
+    exponent_penalty_tilt: 1.88 # -, cosine exponent for power loss due to tilt misalignment
+    fraction_peak_shaving: 0.4 # -, peak thrust reduction by peak shaving
+    # fraction_peak_shaving: 0.3 # -, peak thrust reduction by peak shaving
+performance_data_ccblade:
+    density_ref_cp_ct: 1.225 # kg/m^3
+    tilt_ref_cp_ct: 5 # degrees
+    power_thrust_csv: power_thrust_table_ccblade_IEA-22-284-RWT.csv
+costs:
+    tower_mass: 1574.04487111 # (t)
+    nacelle_mass: 849.1432357 # (t)
+    blade_mass: 83.30831171 # (t)
+    turbine_capex: 1397.17046735 # (USD/kW)
+    site_mean_windspeed: 10. # (m/s)
+    turbine_rated_windspeed: 11.13484394 # (m/s)
+    commissioning_cost_kW: 44. # ($/kW)
+    decommissioning_cost_kW: 58. # ($/kW)
+    plant_substation_distance: 1. # (km)
+    interconnection_distance: 8.5 # (km)
+    site_distance: 115.  # km
+    site_distance_to_landfall: 50.  # km
+    port_cost_per_month: 2000000.0 # $/mo
+    construction_insurance: 44.  # $/kW
+    construction_financing: 183. # $/kW
+    contingency: 316.  # $/kW
+    site_auction_price: 100000000.0  # $
+    site_assessment_cost: 50000000.0  # $
+    construction_plan_cost: 250000.0  # $
+    installation_plan_cost: 1000000.0  # $
+    boem_review_cost: 0.0  # $
+    
+    transition_piece_mass: 100. # (ton)
+    transition_piece_cost: 0. # (USD)
+
+    # Fixed bottom configuration
+    monopile_mass: 2097.21115974 # (t)
+    monopile_cost: 4744119.28172591 # (USD)
+    tcc_per_kW: 1397.17046735 # (USD/kW)
+    opex_per_kW: 110. # (USD/kWh)
+    
+    # Floating configuration
+    num_mooring_lines: 3 # (-)
+    mooring_line_mass: 843225.1875 # (kg)
+    mooring_line_diameter: 0.225 # (m)
+    mooring_line_length: 837. # (m)
+    anchor_mass: 0. # (kg)
+    floating_substructure_cost: 11803978.242949858 # (USD)
