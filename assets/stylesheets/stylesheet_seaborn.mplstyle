@@ -1,0 +1,52 @@
+
+# seaborn base settings
+
+# figure.facecolor: white
+# axes.labelcolor: 0.15
+
+xtick.direction: out
+ytick.direction: out
+# xtick.color: 0.15
+# ytick.color: 0.15
+
+axes.axisbelow: True
+grid.linestyle: -
+
+# text.color: 0.15
+# font.family: ['sans-serif']
+# font.sans-serif: ["Arial", "DejaVu Sans", "Liberation Sans", "Bitstream Vera Sans", "sans-serif"],
+
+lines.solid_capstyle: round
+# patch.edgecolor: w
+patch.force_edgecolor: True
+
+image.cmap: rocket
+
+xtick.top: False
+ytick.right: False
+
+# seaborn plotting context
+
+font.size: 12
+axes.labelsize: 12
+axes.titlesize: 12
+xtick.labelsize: 11
+ytick.labelsize: 11
+legend.fontsize: 11
+legend.title_fontsize: 12
+
+axes.linewidth: 1.25
+grid.linewidth: 1
+lines.linewidth: 1.5
+lines.markersize: 6
+patch.linewidth: 1
+
+xtick.major.width: 1.25
+ytick.major.width: 1.25
+xtick.minor.width: 1.0
+ytick.minor.width: 1.0
+
+xtick.major.size: 6.0
+ytick.major.size: 6.0
+xtick.minor.size: 4.0
+ytick.minor.size: 4.0
