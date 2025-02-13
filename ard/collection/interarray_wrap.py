@@ -86,7 +86,7 @@ class InterarrayCollection(templates.CollectionTemplate):
 
         self.declare_partials("*", "*", method="exact")
 
-    def compute(self, inputs, outputs):
+    def compute(self, inputs, outputs, discrete_inputs=None, discrete_outputs=None):
         """
         Computation for the OM component.
 
@@ -174,6 +174,8 @@ class InterarrayCollection(templates.CollectionTemplate):
         outputs["load_cables"] = np.array(loads)
         outputs["total_length_cables"] = np.sum(outputs["length_cables"])
         outputs["max_load_cables"] = np.max(outputs["load_cables"])
+
+        discrete_outputs["edges"] = np.array(edges, int)
 
     def compute_partials(self, inputs, J):
 

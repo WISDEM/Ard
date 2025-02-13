@@ -13,6 +13,7 @@ def create_setup_OM_problem(
     wind_rose: floris.wind_data.WindRose = None,
     aero_backend: str = "FLORIS",
     layout_type: str = "gridfarm",
+    case_title: str = "layout_AEP_case",
     setup_glue=True,
 ):
     """
@@ -94,7 +95,7 @@ def create_setup_OM_problem(
         farmaero_floris.FLORISAEP(
             modeling_options=modeling_options,
             wind_rose=wind_rose,
-            case_title="letsgo",
+            case_title=case_title,
         ),
         # promotes=["AEP_farm"],
         promotes=["x_turbines", "y_turbines", "AEP_farm"],

@@ -29,10 +29,17 @@ class OutputLayout(om.ExplicitComponent):
         )
 
     def compute(self, inputs, outputs):
+
         fig, ax = plt.subplots()
 
-        ax.scatter(inputs["x_turbines"], inputs["y_turbines"])
-        for idx, (x, y) in enumerate(zip(inputs["x_turbines"], inputs["y_turbines"])):
-            ax.text(x, y, str(idx), ha="right", va="bottom")
-        ax.axis("square")
+        # plot the turbine locations
+        ax.scatter(inputs["x_turbines"]/1.0e3, inputs["y_turbines"]/1.0e3, label="turbine")
+        # add the turbine identity onto the plot
+        for idx, (x, y) in enumerate(zip(inputs["x_turbines"]/1.0e3, inputs["y_turbines"]/1.0e3)):
+            ax.text(x, y, str(idx), alpha=0.5, ha="right", va="bottom")
+        ax.axis("equal")
+
+        ax.set_xlabel("relative easting, $x$ (km)")
+        ax.set_ylabel("relative northing, $y$ (km)")
+
         # plt.show()

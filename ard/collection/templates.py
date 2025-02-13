@@ -59,8 +59,8 @@ class CollectionTemplate(om.ExplicitComponent):
         # set up inputs for farm layout
         self.add_input("x_turbines", np.zeros((self.N_turbines,)), units="m")
         self.add_input("y_turbines", np.zeros((self.N_turbines,)), units="m")
-        self.add_input("x_substations", np.zeros((self.N_substations,)))
-        self.add_input("y_substations", np.zeros((self.N_substations,)))
+        self.add_input("x_substations", np.zeros((self.N_substations,)), units="m")
+        self.add_input("y_substations", np.zeros((self.N_substations,)), units="m")
 
         # set up outputs for the collection system
         self.add_output("length_cables", np.zeros((self.N_turbines,)), units="m")
@@ -68,7 +68,16 @@ class CollectionTemplate(om.ExplicitComponent):
         self.add_output("total_length_cables", 0.0, units="m")
         self.add_output("max_load_cables", 0.0)
 
-    def compute(self, inputs, outputs):
+        # add discrete outputs
+        self.add_discrete_output("edges", np.zeros((self.N_turbines, 2), int))
+
+    def setup_partials(self):
+        self.declare_partials("length_cables", "*", method="exact")
+        self.declare_partials("load_cables", "*", method="exact")
+        self.declare_partials("total_length_cables", "*", method="exact")
+        self.declare_partials("max_load_cables", "*", method="exact")
+
+    def compute(self, inputs, outputs, discrete_inputs=None, discrete_outputs=None):
         """
         Computation for the OM component.
 

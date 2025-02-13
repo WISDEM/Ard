@@ -48,7 +48,7 @@ model.add_subsystem(
     farmaero_floris.FLORISBatchPower(
         modeling_options=modeling_options,
         wind_query=wind_query,
-        case_title="letsgo",
+        case_title="power_example",
     ),
 )
 

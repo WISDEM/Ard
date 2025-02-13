@@ -63,7 +63,7 @@ model.add_subsystem(
     farmaero_floris.FLORISAEP(
         modeling_options=modeling_options,
         wind_rose=wind_rose,
-        case_title="letsgo",
+        case_title="floris_aep_example",
     ),
     promotes=["x_turbines", "y_turbines"],
 )

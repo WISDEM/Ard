@@ -63,7 +63,7 @@ class TestFLORISBatchPower:
             farmaero_floris.FLORISBatchPower(
                 modeling_options=modeling_options,
                 wind_query=wind_query,
-                case_title="letsgo",
+                case_title="farmaero_batchpower_unit",
             ),
         )
 
@@ -180,7 +180,7 @@ class TestFLORISAEP:
             farmaero_floris.FLORISAEP(
                 modeling_options=modeling_options,
                 wind_rose=wind_rose,
-                case_title="letsgo",
+                case_title="farmaero_aep_unit",
             ),
         )
 

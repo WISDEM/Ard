@@ -75,7 +75,7 @@ class TestInterarrayLayout:
             farmaero_floris.FLORISAEP(
                 modeling_options=self.modeling_options,
                 wind_rose=wind_rose,
-                case_title="letsgo",
+                case_title="interarray_example",
             ),
             # promotes=["AEP_farm"],
             promotes=["x_turbines", "y_turbines", "AEP_farm"],
