@@ -31,7 +31,7 @@ class GeomorphologyGridData:
         ), "x and depth mesh must be the same shape"
         assert (
             np.all(self.x_mesh.shape == self.material_mesh.shape)
-            or len(self.material_mesh) == 1
+            or (self.material_mesh.size == 1)
         ), "x and material mesh must be the same shape or material mesh must be a singleton"
 
         return True
