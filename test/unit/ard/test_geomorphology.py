@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import numpy as np
 import pytest
 
@@ -89,6 +91,7 @@ class TestGeomorphologyGridData:
         assert np.allclose(self.geomorphology.x_mesh, x_mesh)
         assert np.allclose(self.geomorphology.y_mesh, y_mesh)
         assert np.allclose(self.geomorphology.depth_mesh, depth_mesh)
+        assert np.allclose(self.geomorphology.get_depth_data(), depth_mesh)
         assert np.all(self.geomorphology.get_shape() == x_mesh.shape)
         assert self.geomorphology.material_mesh.size == 1
         assert self.geomorphology.material_mesh == "soil"  # default value
@@ -118,10 +121,33 @@ class TestGeomorphologyGridData:
         assert np.allclose(self.geomorphology.x_mesh, x_mesh)
         assert np.allclose(self.geomorphology.y_mesh, y_mesh)
         assert np.allclose(self.geomorphology.depth_mesh, depth_mesh)
+        assert np.allclose(self.geomorphology.get_depth_data(), depth_mesh)
         assert np.all(self.geomorphology.material_mesh == material_mesh)
         assert np.all(self.geomorphology.get_shape() == x_mesh.shape)
 
         assert self.geomorphology.check_valid()  # check if the data is valid
+
+    def test_evaluate_depth(self):
+
+        # create a mesh and try to upload it
+        y_mesh, x_mesh = np.meshgrid([-1.0, 0.0, 1.0], [0.0, 2.0])
+        depth_mesh = np.ones_like(x_mesh)
+
+        # set up a geomorphology grid data object
+        self.geomorphology = ard.geomorphology.GeomorphologyGridData()
+        # set the values
+        self.geomorphology.set_values(
+            x_mesh_in=x_mesh,
+            y_mesh_in=y_mesh,
+            depth_mesh_in=depth_mesh,
+        )
+
+        with pytest.raises(NotImplementedError):
+            # make sure the evaluate_depth method has notimplemented protection
+            depth = self.geomorphology.evaluate_depth(0.5, 0.5)
+        with pytest.raises(NotImplementedError):
+            # and similarly when using an undefined interpolation method
+            depth = self.geomorphology.evaluate_depth(0.5, 0.5, interp_method="magic")
 
 
 class TestTopographyGridData(TestGeomorphologyGridData):
@@ -156,7 +182,33 @@ class TestBathymetryGridData(TestGeomorphologyGridData):
     def setup_method(self):
 
         # create a specialized geomorphology object before each test
-        self.geomorphology = ard.geomorphology.BathymetryGridData()
+        self.bathymetry = ard.geomorphology.BathymetryGridData()
 
     def test_load_moorpy_bathymetry(self):
-        pass
+
+        # path to the example MoorPy bathymetry grid file
+        file_bathy = (
+            Path(ard.__file__).parents[1]
+            / "examples"
+            / "data"
+            / "GulfOfMaine_bathymetry_100x99.txt"
+        )
+
+        # load the bathymetry data
+        self.bathymetry.load_moorpy_bathymetry(file_bathymetry=file_bathy)
+
+        # check the shape of the data
+        assert np.all(self.bathymetry.get_shape() == np.array([100, 99]))
+
+        # make sure the data matches the statisical properties of the original data
+        validation_data = {
+            "min": np.min(self.bathymetry.depth_mesh),
+            "max": np.max(self.bathymetry.depth_mesh),
+            "mean": np.mean(self.bathymetry.depth_mesh),
+            "std": np.std(self.bathymetry.depth_mesh),
+        }
+        ard.test_utils.pyrite_validator(
+            validation_data,
+            Path(__file__).parent / "test_geomorphology_bathymetry_pyrite.npz",
+            # rewrite=True,  # uncomment to write new pyrite file
+        )
