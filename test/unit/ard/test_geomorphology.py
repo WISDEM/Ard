@@ -35,7 +35,7 @@ class TestGeomorphologyGridData:
         # set up a geomorphology grid data object
         self.geomorphology = ard.geomorphology.GeomorphologyGridData()
 
-        for idx_case in range(3):
+        for idx_case in range(4):
 
             # do a setup that should fail because of check_valid
             with pytest.raises(AssertionError):
