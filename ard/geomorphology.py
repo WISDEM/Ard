@@ -19,15 +19,23 @@ class GeomorphologyData:
     material_mesh = np.array(["soil"])  # bed material at each point
 
     def is_valid(self):
-      assert np.all(x_mesh.shape == y_mesh.shape), "x and y mesh must be the same shape"
-      assert np.all(x_mesh.shape == depth_mesh.shape), "x and depth mesh must be the same shape"
-      assert np.all(x_mesh.shape == material_mesh.shape) or len(material_mesh) == 1, "x and material mesh must be the same shape or material mesh must be a singleton"
+        """Check if the geomorphology data is valid."""
+        assert np.all(
+            x_mesh.shape == y_mesh.shape
+        ), "x and y mesh must be the same shape"
+        assert np.all(
+            x_mesh.shape == depth_mesh.shape
+        ), "x and depth mesh must be the same shape"
+        assert (
+            np.all(x_mesh.shape == material_mesh.shape) or len(material_mesh) == 1
+        ), "x and material mesh must be the same shape or material mesh must be a singleton"
 
     def set_values(
-      self,
-      x_mesh_in, y_mesh_in,
-      depth_mesh_in,
-      material_mesh_in=None,
+        self,
+        x_mesh_in,
+        y_mesh_in,
+        depth_mesh_in,
+        material_mesh_in=None,
     ):
         """
         Set the values of the geomorphology data.
@@ -53,9 +61,29 @@ class GeomorphologyData:
 
         assert self.is_valid()  # ensure that the input data is valid
 
-    def get_depth(self):
+    def get_depth_data(self):
         """Get the depth at a given location."""
         return self.depth_mesh
+
+    def evaluate_depth(self, x_query, y_query, return_derivs=False):
+        """
+        Evaluate the depth at a given location.
+
+        Parameters
+        ----------
+        x_query : np.array
+            The x locations to sample in km
+        y_query : np.array
+            The y locations to sample in km
+
+        Returns
+        -------
+        np.array
+            The depth at the given locations
+        """
+        raise NotImplementedError(
+            "interpolation scheme for evaluate_depth not implemented yet. -cfrontin"
+        )
 
 
 class BathymetryData(GeomorphologyData):
@@ -63,18 +91,19 @@ class BathymetryData(GeomorphologyData):
     A class to represent bathymetry data for a given wind farm site domain.
 
     Represents the bathymetry data for offshore sites. Can be used for floating
-    mooring system anchors or for fixed-bottom foundations.
+    mooring system anchors or for fixed-bottom foundations. Should specialize
+    geomorphology data for bathymetry-specific considerations.
     """
 
     pass
 
 
 class TopographyData(GeomorphologyData):
-  """
-  A class to represent terrain data for a given wind farm site domain.
+    """
+    A class to represent terrain data for a given wind farm site domain.
 
-  Represents the terrain data for onshore sites.
+    Represents the terrain data for onshore sites. Should specialize
+    geomorphology data for topography-specific considerations.
+    """
 
-  """
-
-  pass
+    pass
