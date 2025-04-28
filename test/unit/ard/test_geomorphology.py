@@ -26,9 +26,9 @@ class TestGeomorphologyGridData:
     def test_check_valid(self):
 
         # create a mesh and try to upload it
-        y_mesh, x_mesh = np.meshgrid([-1.0, 0.0, 1.0], [0.0, 2.0])
-        depth_mesh = np.ones_like(x_mesh)
-        material_mesh = np.array(
+        y_data, x_data = np.meshgrid([-1.0, 0.0, 1.0], [0.0, 2.0])
+        depth_data = np.ones_like(x_data)
+        material_data = np.array(
             [["soil", "rock"], ["rock", "soil"], ["rock", "soil"]]
         ).T
 
@@ -40,31 +40,31 @@ class TestGeomorphologyGridData:
             # do a setup that should fail because of check_valid
             with pytest.raises(AssertionError):
                 self.geomorphology.set_values(
-                    x_mesh_in=x_mesh if idx_case != 0 else x_mesh[:1, :],
-                    y_mesh_in=y_mesh if idx_case != 1 else y_mesh[:1, :],
-                    depth_mesh_in=depth_mesh if idx_case != 2 else depth_mesh[:1, :],
-                    material_mesh_in=(
-                        material_mesh if idx_case != 3 else material_mesh[:1, :]
+                    x_data_in=x_data if idx_case != 0 else x_data[:1, :],
+                    y_data_in=y_data if idx_case != 1 else y_data[:1, :],
+                    depth_data_in=depth_data if idx_case != 2 else depth_data[:1, :],
+                    material_data_in=(
+                        material_data if idx_case != 3 else material_data[:1, :]
                     ),
                 )
 
             # reset to a legitimate setup
             self.geomorphology.set_values(
-                x_mesh_in=x_mesh,
-                y_mesh_in=y_mesh,
-                depth_mesh_in=depth_mesh,
-                material_mesh_in=material_mesh,
+                x_data_in=x_data,
+                y_data_in=y_data,
+                depth_data_in=depth_data,
+                material_data_in=material_data,
             )
 
             # override one of the values to be invalid
             if idx_case == 0:
-                self.geomorphology.x_mesh = self.geomorphology.x_mesh[:1, :]
+                self.geomorphology.x_data = self.geomorphology.x_data[:1, :]
             elif idx_case == 1:
-                self.geomorphology.y_mesh = self.geomorphology.y_mesh[:1, :]
+                self.geomorphology.y_data = self.geomorphology.y_data[:1, :]
             elif idx_case == 2:
-                self.geomorphology.depth_mesh = self.geomorphology.depth_mesh[:1, :]
+                self.geomorphology.depth_data = self.geomorphology.depth_data[:1, :]
             else:
-                self.geomorphology.material_mesh = self.geomorphology.material_mesh[
+                self.geomorphology.material_data = self.geomorphology.material_data[
                     :1, :
                 ]
 
@@ -75,35 +75,35 @@ class TestGeomorphologyGridData:
     def test_set_values(self):
 
         # create a mesh and try to upload it
-        y_mesh, x_mesh = np.meshgrid([-1.0, 0.0, 1.0], [0.0, 2.0])
-        depth_mesh = np.ones_like(x_mesh)
+        y_data, x_data = np.meshgrid([-1.0, 0.0, 1.0], [0.0, 2.0])
+        depth_data = np.ones_like(x_data)
 
         # set up a geomorphology grid data object
         self.geomorphology = ard.geomorphology.GeomorphologyGridData()
         # set the values
         self.geomorphology.set_values(
-            x_mesh_in=x_mesh,
-            y_mesh_in=y_mesh,
-            depth_mesh_in=depth_mesh,
+            x_data_in=x_data,
+            y_data_in=y_data,
+            depth_data_in=depth_data,
         )
 
         # make sure the values are set in correctly
-        assert np.allclose(self.geomorphology.x_mesh, x_mesh)
-        assert np.allclose(self.geomorphology.y_mesh, y_mesh)
-        assert np.allclose(self.geomorphology.depth_mesh, depth_mesh)
-        assert np.allclose(self.geomorphology.get_depth_data(), depth_mesh)
-        assert np.all(self.geomorphology.get_shape() == x_mesh.shape)
-        assert self.geomorphology.material_mesh.size == 1
-        assert self.geomorphology.material_mesh == "soil"  # default value
+        assert np.allclose(self.geomorphology.x_data, x_data)
+        assert np.allclose(self.geomorphology.y_data, y_data)
+        assert np.allclose(self.geomorphology.depth_data, depth_data)
+        assert np.allclose(self.geomorphology.get_depth_data(), depth_data)
+        assert np.all(self.geomorphology.get_shape() == x_data.shape)
+        assert self.geomorphology.material_data.size == 1
+        assert self.geomorphology.material_data == "soil"  # default value
 
         assert self.geomorphology.check_valid()  # check if the data is valid
 
     def test_set_values_material(self):
 
         # create a mesh and try to upload it
-        y_mesh, x_mesh = np.meshgrid([-1.0, 0.0, 1.0], [0.0, 2.0])
-        depth_mesh = np.ones_like(x_mesh)
-        material_mesh = np.array(
+        y_data, x_data = np.meshgrid([-1.0, 0.0, 1.0], [0.0, 2.0])
+        depth_data = np.ones_like(x_data)
+        material_data = np.array(
             [["soil", "rock"], ["rock", "soil"], ["rock", "soil"]]
         ).T
 
@@ -111,37 +111,37 @@ class TestGeomorphologyGridData:
         self.geomorphology = ard.geomorphology.GeomorphologyGridData()
         # set the values
         self.geomorphology.set_values(
-            x_mesh_in=x_mesh,
-            y_mesh_in=y_mesh,
-            depth_mesh_in=depth_mesh,
-            material_mesh_in=material_mesh,
+            x_data_in=x_data,
+            y_data_in=y_data,
+            depth_data_in=depth_data,
+            material_data_in=material_data,
         )
 
         # make sure the values are set in correctly
-        assert np.allclose(self.geomorphology.x_mesh, x_mesh)
-        assert np.allclose(self.geomorphology.y_mesh, y_mesh)
-        assert np.allclose(self.geomorphology.depth_mesh, depth_mesh)
-        assert np.allclose(self.geomorphology.get_depth_data(), depth_mesh)
-        assert np.all(self.geomorphology.material_mesh == material_mesh)
-        assert np.all(self.geomorphology.get_shape() == x_mesh.shape)
+        assert np.allclose(self.geomorphology.x_data, x_data)
+        assert np.allclose(self.geomorphology.y_data, y_data)
+        assert np.allclose(self.geomorphology.depth_data, depth_data)
+        assert np.allclose(self.geomorphology.get_depth_data(), depth_data)
+        assert np.all(self.geomorphology.material_data == material_data)
+        assert np.all(self.geomorphology.get_shape() == x_data.shape)
 
         assert self.geomorphology.check_valid()  # check if the data is valid
 
     def test_evaluate_depth_default(self):
 
         # create a mesh and try to upload it
-        y_mesh, x_mesh = np.meshgrid(
+        y_data, x_data = np.meshgrid(
             np.linspace(-1.0, 1.0, 5), np.linspace(0.0, 2.0, 5)
         )
-        depth_mesh = np.ones_like(x_mesh)
+        depth_data = np.ones_like(x_data)
 
         # set up a geomorphology grid data object
         self.geomorphology = ard.geomorphology.GeomorphologyGridData()
         # set the values
         self.geomorphology.set_values(
-            x_mesh_in=x_mesh,
-            y_mesh_in=y_mesh,
-            depth_mesh_in=depth_mesh,
+            x_data_in=x_data,
+            y_data_in=y_data,
+            depth_data_in=depth_data,
         )
 
         # grab the depth at points in the mesh domain
@@ -164,16 +164,16 @@ class TestGeomorphologyGridData:
     def test_evaluate_depth_gaussian(self):
 
         # create a mesh and try to upload it
-        y_mesh, x_mesh = np.meshgrid([-1.0, 0.0, 1.0], [0.0, 2.0])
-        depth_mesh = np.ones_like(x_mesh)
+        y_data, x_data = np.meshgrid([-1.0, 0.0, 1.0], [0.0, 2.0])
+        depth_data = np.ones_like(x_data)
 
         # set up a geomorphology grid data object
         self.geomorphology = ard.geomorphology.GeomorphologyGridData()
         # set the values
         self.geomorphology.set_values(
-            x_mesh_in=x_mesh,
-            y_mesh_in=y_mesh,
-            depth_mesh_in=depth_mesh,
+            x_data_in=x_data,
+            y_data_in=y_data,
+            depth_data_in=depth_data,
         )
 
         with pytest.raises(NotImplementedError):
@@ -185,16 +185,16 @@ class TestGeomorphologyGridData:
     def test_evaluate_depth_nonexistent(self):
 
         # create a mesh and try to upload it
-        y_mesh, x_mesh = np.meshgrid([-1.0, 0.0, 1.0], [0.0, 2.0])
-        depth_mesh = np.ones_like(x_mesh)
+        y_data, x_data = np.meshgrid([-1.0, 0.0, 1.0], [0.0, 2.0])
+        depth_data = np.ones_like(x_data)
 
         # set up a geomorphology grid data object
         self.geomorphology = ard.geomorphology.GeomorphologyGridData()
         # set the values
         self.geomorphology.set_values(
-            x_mesh_in=x_mesh,
-            y_mesh_in=y_mesh,
-            depth_mesh_in=depth_mesh,
+            x_data_in=x_data,
+            y_data_in=y_data,
+            depth_data_in=depth_data,
         )
 
         with pytest.raises(NotImplementedError):
@@ -254,10 +254,10 @@ class TestBathymetryGridData(TestGeomorphologyGridData):
 
         # make sure the data matches the statisical properties of the original data
         validation_data = {
-            "min": np.min(self.bathymetry.depth_mesh),
-            "max": np.max(self.bathymetry.depth_mesh),
-            "mean": np.mean(self.bathymetry.depth_mesh),
-            "std": np.std(self.bathymetry.depth_mesh),
+            "min": np.min(self.bathymetry.depth_data),
+            "max": np.max(self.bathymetry.depth_data),
+            "mean": np.mean(self.bathymetry.depth_data),
+            "std": np.std(self.bathymetry.depth_data),
         }
         ard.test_utils.pyrite_validator(
             validation_data,

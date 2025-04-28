@@ -14,23 +14,29 @@ class GeomorphologyData:
     onshore sites.
     """
 
+    x_data = np.atleast_1d([0.0])  # x location in km
+    y_data = np.atleast_1d([0.0])  # y location in km
+    depth_data = np.atleast_1d([0.0])  # depth in m
+
+    material_data = np.atleast_1d(["soil"])  # bed material at each point
+
     sea_level = 0.0  # sea level in m
 
     _gpr_eval = (
-        None
-    )  # placeholder for Gaussian process regressor (for depth evaluation)
+        None  # placeholder for Gaussian process regressor (for depth evaluation)
+    )
 
     def check_valid(self):
         """Check if the geomorphology data is valid."""
         assert np.all(
-            self.x_mesh.shape == self.y_mesh.shape
-        ), "x and y mesh must be the same shape"
+            self.x_data.shape == self.y_data.shape
+        ), "x and y data must be the same shape"
         assert np.all(
-            self.x_mesh.shape == self.depth_mesh.shape
-        ), "x and depth mesh must be the same shape"
-        assert np.all(self.x_mesh.shape == self.material_mesh.shape) or (
-            self.material_mesh.size == 1
-        ), "x and material mesh must be the same shape or material mesh must be a singleton"
+            self.x_data.shape == self.depth_data.shape
+        ), "x and depth data must be the same shape"
+        assert np.all(self.x_data.shape == self.material_data.shape) or (
+            self.material_data.size == 1
+        ), "x and material data must be the same shape or material data must be a singleton"
 
         return True
 
@@ -45,8 +51,42 @@ class GeomorphologyData:
         """
 
         self.check_valid()  # ensure that the current data is valid
+        return self.depth_data.shape  # data
 
-        return self.depth_mesh.shape  # x, y coordinates
+    def set_values(
+        self,
+        x_data_in,
+        y_data_in,
+        depth_data_in,
+        material_data_in=None,
+    ):
+        """
+        Set the values of the geomorphology data.
+
+        Parameters
+        ----------
+        x_data_in : np.ndarray
+            A 2D numpy array indicating the x-dimension locations of the points.
+        y_data_in : np.ndarray
+            A 2D numpy array indicating the y-dimension locations of the points.
+        depth_data_in : np.ndarray
+            A 2D numpy array indicating the depth at each point.
+        material_data_in : np.ndarray, optional
+            A 2D numpy array indicating the bed material at each point.
+        """
+
+        # set the values that are handed in
+        self.x_data = x_data_in.copy()
+        self.y_data = y_data_in.copy()
+        self.depth_data = depth_data_in.copy()
+        if material_data_in is not None:
+            self.material_data = material_data_in.copy()
+
+        self.check_valid()  # ensure that the input data is valid
+
+    def get_depth_data(self):
+        """Get the depth at a given location."""
+        return self.depth_data
 
 
 class GeomorphologyGridData(GeomorphologyData):
@@ -58,46 +98,16 @@ class GeomorphologyGridData(GeomorphologyData):
     onshore sites.
     """
 
-    x_mesh = np.atleast_2d([0.0])  # x location in km
-    y_mesh = np.atleast_2d([0.0])  # y location in km
-    depth_mesh = np.atleast_2d([0.0])  # depth in m
+    # alias for meshed data, and promote dimension to 2
+    x_data = np.atleast_2d([0.0])  # x location in km
+    y_data = np.atleast_2d([0.0])  # y location in km
+    depth_data = np.atleast_2d([0.0])  # depth in m
 
-    material_mesh = np.array(["soil"])  # bed material at each point
+    material_data = np.atleast_2d(["soil"])  # bed material at each point
 
-    def set_values(
-        self,
-        x_mesh_in,
-        y_mesh_in,
-        depth_mesh_in,
-        material_mesh_in=None,
-    ):
-        """
-        Set the values of the geomorphology data.
-
-        Parameters
-        ----------
-        x_mesh_in : np.ndarray
-            A 2D numpy array indicating the x-dimension locations of the points.
-        y_mesh_in : np.ndarray
-            A 2D numpy array indicating the y-dimension locations of the points.
-        depth_mesh_in : np.ndarray
-            A 2D numpy array indicating the depth at each point.
-        material_mesh_in : np.ndarray, optional
-            A 2D numpy array indicating the bed material at each point.
-        """
-
-        # set the values that are handed in
-        self.x_mesh = x_mesh_in.copy()
-        self.y_mesh = y_mesh_in.copy()
-        self.depth_mesh = depth_mesh_in.copy()
-        if material_mesh_in is not None:
-            self.material_mesh = material_mesh_in.copy()
-
-        self.check_valid()  # ensure that the input data is valid
-
-    def get_depth_data(self):
-        """Get the depth at a given location."""
-        return self.depth_mesh
+    def check_valid(self):
+        assert self.x_data.ndim == 2, "data must be 2D"  # make sure it's 2D first
+        return super().check_valid()  # then check the base class validity
 
     def evaluate_depth(
         self,
@@ -138,8 +148,8 @@ class GeomorphologyGridData(GeomorphologyData):
                 )
 
                 # package the data
-                X_data = np.vstack((self.x_mesh.flatten(), self.y_mesh.flatten())).T
-                z_data = self.depth_mesh.flatten()
+                X_data = np.vstack((self.x_data.flatten(), self.y_data.flatten())).T
+                z_data = self.depth_data.flatten()
                 self.ptp_ref = np.ptp(X_data, axis=0)  # range of the data
                 X_data = 2 * X_data / self.ptp_ref  # normalize the data
                 # perform the fit
@@ -168,14 +178,14 @@ class GeomorphologyGridData(GeomorphologyData):
 
             # create the interpolator object
             interpolator_sbs = SmoothBivariateSpline(
-                self.x_mesh.flatten(),
-                self.y_mesh.flatten(),
-                self.depth_mesh.flatten(),
+                self.x_data.flatten(),
+                self.y_data.flatten(),
+                self.depth_data.flatten(),
                 bbox=[
-                    np.min(self.x_mesh),
-                    np.max(self.x_mesh),
-                    np.min(self.y_mesh),
-                    np.max(self.y_mesh),
+                    np.min(self.x_data),
+                    np.max(self.x_data),
+                    np.min(self.y_data),
+                    np.max(self.y_data),
                 ],
             )
             # make interpolation
@@ -266,8 +276,8 @@ class BathymetryGridData(GeomorphologyGridData):
             assert idx_y == nGridY  # verify that all y coordinates were read
 
         # save into the geomorphology data object
-        self.y_mesh, self.x_mesh = np.meshgrid(y_coord, x_coord)
-        self.depth_mesh = grid_bathy
+        self.y_data, self.x_data = np.meshgrid(y_coord, x_coord)
+        self.depth_data = grid_bathy
 
         self.check_valid()  # make sure the loaded file is legit before exiting
 
