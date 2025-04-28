@@ -21,6 +21,10 @@ class GeomorphologyGridData:
 
     material_mesh = np.array(["soil"])  # bed material at each point
 
+    _gpr_eval = (
+        None  # placeholder for Gaussian process regressor (for depth evaluation)
+    )
+
     def check_valid(self):
         """Check if the geomorphology data is valid."""
         assert np.all(
@@ -29,9 +33,8 @@ class GeomorphologyGridData:
         assert np.all(
             self.x_mesh.shape == self.depth_mesh.shape
         ), "x and depth mesh must be the same shape"
-        assert (
-            np.all(self.x_mesh.shape == self.material_mesh.shape)
-            or (self.material_mesh.size == 1)
+        assert np.all(self.x_mesh.shape == self.material_mesh.shape) or (
+            self.material_mesh.size == 1
         ), "x and material mesh must be the same shape or material mesh must be a singleton"
 
         return True
@@ -90,7 +93,7 @@ class GeomorphologyGridData:
         x_query,
         y_query,
         return_derivs=False,
-        interp_method="gaussian_process",
+        interp_method="spline",
     ):
         """
         Evaluate the depth at a given location.
@@ -108,10 +111,77 @@ class GeomorphologyGridData:
             The depth at the given locations
         """
 
+        x_query = np.atleast_1d(x_query)  # ensure x_query is a 1D array
+        y_query = np.atleast_1d(y_query)  # ensure y_query is a 1D array
+
         if interp_method == "gaussian_process":
+            if self._gpr_eval is None:
+                from sklearn.gaussian_process import GaussianProcessRegressor
+                from sklearn.gaussian_process.kernels import Matern
+
+                # create a Gaussian process regressor
+                kernel = 1.0 * Matern(nu=2.5)  # Matern 5/2 kernel
+                self._gpr_eval = GaussianProcessRegressor(
+                    kernel=kernel,
+                    normalize_y=True,
+                )
+
+                # package the data
+                X_data = np.vstack((self.x_mesh.flatten(), self.y_mesh.flatten())).T
+                z_data = self.depth_mesh.flatten()
+                self.ptp_ref = np.ptp(X_data, axis=0)  # range of the data
+                print("original X_data:")  # DEBUG!!!!!
+                print("np.min(X_data, axis=0):", np.min(X_data, axis=0))  # DEBUG!!!!!
+                print("np.max(X_data, axis=0):", np.max(X_data, axis=0))  # DEBUG!!!!!
+                print("np.ptp(X_data, axis=0):", np.ptp(X_data, axis=0))  # DEBUG!!!!!
+                X_data = 2 * X_data / self.ptp_ref  # normalize the data
+                print("modified X_data:")  # DEBUG!!!!!
+                print("np.min(X_data, axis=0):", np.min(X_data, axis=0))  # DEBUG!!!!!
+                print("np.max(X_data, axis=0):", np.max(X_data, axis=0))  # DEBUG!!!!!
+                print("np.ptp(X_data, axis=0):", np.ptp(X_data, axis=0))  # DEBUG!!!!!
+                # perform the fit
+                self._gpr_eval.fit(X_data, z_data)
+
+            # evaluate the depth at the given locations
+            X_query = (
+                np.vstack((x_query.flatten(), y_query.flatten())).T * self.ptp_ref / 2
+            )
+            z_query = self._gpr_eval.predict(X_query, return_std=return_derivs)
+
+            if return_derivs:
+                raise NotImplementedError(
+                    "Gaussian process regression does not support derivatives yet. -cfrontin"
+                )
+
             raise NotImplementedError(
                 f"{interp_method} interpolation scheme for evaluate_depth not implemented yet. -cfrontin"
             )
+
+            return z_query  # return the depth at the given locations
+
+        elif interp_method == "spline":
+            # or, smooth bivariate spline from scipy implementation
+            from scipy.interpolate import SmoothBivariateSpline
+
+            interpolator_sbs = SmoothBivariateSpline(
+                self.x_mesh.flatten(),
+                self.y_mesh.flatten(),
+                self.depth_mesh.flatten(),
+                bbox=[
+                    np.min(self.x_mesh),
+                    np.max(self.x_mesh),
+                    np.min(self.y_mesh),
+                    np.max(self.y_mesh),
+                ],
+            )
+            z_query = interpolator_sbs(x_query, y_query, grid=False)
+            if return_derivs:
+                dz_dx = interpolator_sbs(x_query, y_query, grid=False, dx=1, dy=0)
+                dz_dy = interpolator_sbs(x_query, y_query, grid=False, dx=0, dy=1)
+                return z_query, (dz_dx, dz_dy)
+            else:
+                return z_query
+
         else:
             raise NotImplementedError(
                 f"{interp_method} interpolation scheme for evaluate_depth not implemented yet. -cfrontin"

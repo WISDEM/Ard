@@ -127,7 +127,41 @@ class TestGeomorphologyGridData:
 
         assert self.geomorphology.check_valid()  # check if the data is valid
 
-    def test_evaluate_depth(self):
+    def test_evaluate_depth_default(self):
+
+        # create a mesh and try to upload it
+        y_mesh, x_mesh = np.meshgrid(
+            np.linspace(-1.0, 1.0, 5), np.linspace(0.0, 2.0, 5)
+        )
+        depth_mesh = np.ones_like(x_mesh)
+
+        # set up a geomorphology grid data object
+        self.geomorphology = ard.geomorphology.GeomorphologyGridData()
+        # set the values
+        self.geomorphology.set_values(
+            x_mesh_in=x_mesh,
+            y_mesh_in=y_mesh,
+            depth_mesh_in=depth_mesh,
+        )
+
+        # grab the depth at points in the mesh domain
+        y_sample, x_sample = np.meshgrid(
+            [-0.75, -0.5, -0.25, 0.25, 0.5, 0.75], [0.5, 1.5]
+        )
+        depth_sample = self.geomorphology.evaluate_depth(
+            x_sample.flatten(), y_sample.flatten()
+        )
+        # check that the values match a pyrite file
+        validation_data = {
+            "depth_sample": depth_sample,
+        }
+        ard.test_utils.pyrite_validator(
+            validation_data,
+            Path(__file__).parent / "test_geomorphology_depth_default_pyrite.npz",
+            # rewrite=True,  # uncomment to write new pyrite file
+        )
+
+    def test_evaluate_depth_gaussian(self):
 
         # create a mesh and try to upload it
         y_mesh, x_mesh = np.meshgrid([-1.0, 0.0, 1.0], [0.0, 2.0])
@@ -144,9 +178,27 @@ class TestGeomorphologyGridData:
 
         with pytest.raises(NotImplementedError):
             # make sure the evaluate_depth method has notimplemented protection
-            depth = self.geomorphology.evaluate_depth(0.5, 0.5)
+            depth = self.geomorphology.evaluate_depth(
+                0.5, 0.5, interp_method="gaussian_process"
+            )
+
+    def test_evaluate_depth_nonexistent(self):
+
+        # create a mesh and try to upload it
+        y_mesh, x_mesh = np.meshgrid([-1.0, 0.0, 1.0], [0.0, 2.0])
+        depth_mesh = np.ones_like(x_mesh)
+
+        # set up a geomorphology grid data object
+        self.geomorphology = ard.geomorphology.GeomorphologyGridData()
+        # set the values
+        self.geomorphology.set_values(
+            x_mesh_in=x_mesh,
+            y_mesh_in=y_mesh,
+            depth_mesh_in=depth_mesh,
+        )
+
         with pytest.raises(NotImplementedError):
-            # and similarly when using an undefined interpolation method
+            # make sure the evaluate_depth method has notimplemented protection
             depth = self.geomorphology.evaluate_depth(0.5, 0.5, interp_method="magic")
 
 
