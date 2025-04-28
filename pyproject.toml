@@ -44,6 +44,7 @@ dependencies = [
   "jax",
   "optiwindnet",
   "highspy",
+  "scikit-learn",
 ]
 [project.optional-dependencies]
 dev = [
