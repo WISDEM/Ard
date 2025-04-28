@@ -252,7 +252,7 @@ class TestBathymetryGridData(TestGeomorphologyGridData):
         # check the shape of the data
         assert np.all(self.bathymetry.get_shape() == np.array([100, 99]))
 
-        # make sure the data matches the statisical properties of the original data
+        # make sure the data matches the statistical properties of the original data
         validation_data = {
             "min": np.min(self.bathymetry.depth_mesh),
             "max": np.max(self.bathymetry.depth_mesh),
