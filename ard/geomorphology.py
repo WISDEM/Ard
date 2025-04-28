@@ -6,7 +6,7 @@ import numpy as np
 import openmdao.api as om
 
 
-class GeomorphologyGridData:
+class GeomorphologyData:
     """
     A class to represent geomorphology data for a given wind farm site domain.
 
@@ -14,16 +14,11 @@ class GeomorphologyGridData:
     onshore sites.
     """
 
-    x_mesh = np.atleast_2d([0.0])  # x location in km
-    y_mesh = np.atleast_2d([0.0])  # y location in km
-    depth_mesh = np.atleast_2d([0.0])  # depth in m
     sea_level = 0.0  # sea level in m
 
-    material_mesh = np.array(["soil"])  # bed material at each point
-
     _gpr_eval = (
-        None  # placeholder for Gaussian process regressor (for depth evaluation)
-    )
+        None
+    )  # placeholder for Gaussian process regressor (for depth evaluation)
 
     def check_valid(self):
         """Check if the geomorphology data is valid."""
@@ -52,6 +47,22 @@ class GeomorphologyGridData:
         self.check_valid()  # ensure that the current data is valid
 
         return self.depth_mesh.shape  # x, y coordinates
+
+
+class GeomorphologyGridData(GeomorphologyData):
+    """
+    A class to represent gridded geomorphology data for a given wind farm site
+    domain.
+
+    Represents either bathymetry data for offshore sites or topography data for
+    onshore sites.
+    """
+
+    x_mesh = np.atleast_2d([0.0])  # x location in km
+    y_mesh = np.atleast_2d([0.0])  # y location in km
+    depth_mesh = np.atleast_2d([0.0])  # depth in m
+
+    material_mesh = np.array(["soil"])  # bed material at each point
 
     def set_values(
         self,
@@ -130,15 +141,7 @@ class GeomorphologyGridData:
                 X_data = np.vstack((self.x_mesh.flatten(), self.y_mesh.flatten())).T
                 z_data = self.depth_mesh.flatten()
                 self.ptp_ref = np.ptp(X_data, axis=0)  # range of the data
-                print("original X_data:")  # DEBUG!!!!!
-                print("np.min(X_data, axis=0):", np.min(X_data, axis=0))  # DEBUG!!!!!
-                print("np.max(X_data, axis=0):", np.max(X_data, axis=0))  # DEBUG!!!!!
-                print("np.ptp(X_data, axis=0):", np.ptp(X_data, axis=0))  # DEBUG!!!!!
                 X_data = 2 * X_data / self.ptp_ref  # normalize the data
-                print("modified X_data:")  # DEBUG!!!!!
-                print("np.min(X_data, axis=0):", np.min(X_data, axis=0))  # DEBUG!!!!!
-                print("np.max(X_data, axis=0):", np.max(X_data, axis=0))  # DEBUG!!!!!
-                print("np.ptp(X_data, axis=0):", np.ptp(X_data, axis=0))  # DEBUG!!!!!
                 # perform the fit
                 self._gpr_eval.fit(X_data, z_data)
 
@@ -163,6 +166,7 @@ class GeomorphologyGridData:
             # or, smooth bivariate spline from scipy implementation
             from scipy.interpolate import SmoothBivariateSpline
 
+            # create the interpolator object
             interpolator_sbs = SmoothBivariateSpline(
                 self.x_mesh.flatten(),
                 self.y_mesh.flatten(),
@@ -174,13 +178,15 @@ class GeomorphologyGridData:
                     np.max(self.y_mesh),
                 ],
             )
+            # make interpolation
             z_query = interpolator_sbs(x_query, y_query, grid=False)
             if return_derivs:
+                # and if desired, take its derivatives
                 dz_dx = interpolator_sbs(x_query, y_query, grid=False, dx=1, dy=0)
                 dz_dy = interpolator_sbs(x_query, y_query, grid=False, dx=0, dy=1)
-                return z_query, (dz_dx, dz_dy)
+                return z_query, (dz_dx, dz_dy)  # and return
             else:
-                return z_query
+                return z_query  # just return
 
         else:
             raise NotImplementedError(
@@ -190,7 +196,8 @@ class GeomorphologyGridData:
 
 class BathymetryGridData(GeomorphologyGridData):
     """
-    A class to represent bathymetry data for a given wind farm site domain.
+    A class to represent gridded bathymetry data for a given wind farm site
+    domain.
 
     Represents the bathymetry data for offshore sites. Can be used for floating
     mooring system anchors or for fixed-bottom foundations. Should specialize
@@ -267,7 +274,7 @@ class BathymetryGridData(GeomorphologyGridData):
 
 class TopographyGridData(GeomorphologyGridData):
     """
-    A class to represent terrain data for a given wind farm site domain.
+    A class to represent gridded terrain data for a given wind farm site domain.
 
     Represents the terrain data for onshore sites. Should specialize
     geomorphology data for topography-specific considerations.
