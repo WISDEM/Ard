@@ -1,0 +1,18 @@
+{
+  "title": "Ard 2",
+  "photographer": {
+    "name": "Jørgen Håland",
+    "website": "https://www.jhaland.com"
+  },
+  "description": "Ard (or scratch plough), a rudimentary plough",
+  "license": {
+    "name": "CC BY 2.0",
+    "description": "Attribution 2.0 Generic",
+    "url": "https://creativecommons.org/licenses/by/2.0/deed.en"
+  },
+  "source": {
+    "name": "Flickr",
+    "handle": "JHåland",
+    "url": "https://www.flickr.com/photos/50290212@N05/8429553867/in/photostream/"
+  }
+}
