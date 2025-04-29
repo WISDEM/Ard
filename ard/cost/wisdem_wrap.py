@@ -47,14 +47,14 @@ class LandBOSSE(LandBOSSE_orig):
             return super().compute(inputs, outputs, discrete_inputs, discrete_outputs)
 
 
-class Orbit(Orbit_orig):
+class ORBIT(Orbit_orig):
     """
-    Wrapper for WISDEM's Orbit offshore BOS calculators.
+    Wrapper for WISDEM's ORBIT offshore BOS calculators.
 
     A thin wrapper of `wisdem.orbit.api.wisdem`
     that traps warning messages that are recognized not to be issues.
 
-    See: https://github.com/WISDEM/Orbit
+    See: https://github.com/WISDEM/ORBIT
     """
 
     def setup(self):
@@ -302,14 +302,14 @@ def LandBOSSE_setup_latents(prob, modeling_options):
     )
 
 
-def Orbit_setup_latents(prob, modeling_options):
+def ORBIT_setup_latents(prob, modeling_options):
     """
-    A function to set up the Orbit latent variables using modeling options.
+    A function to set up the ORBIT latent variables using modeling options.
 
     Parameters
     ----------
     prob : openmdao.api.Problem
-        an OpenMDAO problem for which we want to setup the Orbit latent
+        an OpenMDAO problem for which we want to setup the ORBIT latent
         variables
     modeling_options : dict
         a modeling options dictionary
@@ -321,7 +321,7 @@ def Orbit_setup_latents(prob, modeling_options):
         for v in prob.model.list_vars(val=False, out_stream=None)
     }
 
-    # set latent/non-design inputs to Orbit using values in modeling_options
+    # set latent/non-design inputs to ORBIT using values in modeling_options
     prob.set_val(
         comp2promotion_map["orbit.orbit.turbine_rating"],
         modeling_options["turbine"]["nameplate"]["power_rated"],
