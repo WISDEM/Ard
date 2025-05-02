@@ -320,6 +320,7 @@ def distance_point_to_polygon(
 
     return c
 
+
 def _distance_lineseg_to_lineseg_coplanar(
     line_a_start: np.ndarray,
     line_a_end: np.ndarray,

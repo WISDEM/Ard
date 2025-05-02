@@ -1,8 +1,9 @@
 import numpy as np
-import pytest 
+import pytest
 import jax
 import jax.numpy as jnp
 import ard.utils.mathematics as math_utils
+
 
 class TestSmoothMaxMin:
     def setup_method(self):

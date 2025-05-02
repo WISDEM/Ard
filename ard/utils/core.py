@@ -71,7 +71,7 @@ def create_FLORIS_turbine(
     else:
         raise TypeError(
             "create_FLORIS_yamlfile requires either a dict input or a filename input.\n"
-            + f"recieved a {type(input_turbine_spec)}"
+            + f"received a {type(input_turbine_spec)}"
         )
 
     # load speed/power/thrust file

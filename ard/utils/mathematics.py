@@ -2,6 +2,7 @@ import numpy as np
 import jax.numpy as jnp
 import jax
 
+
 def smooth_max(x: jnp.ndarray, s: float = 1000.0) -> float:
     """Non-overflowing version of Smooth Max function (see ref 3 and 4 below).
     Calculates the smoothmax (a.k.a. softmax or LogSumExponential) of the elements in x.
@@ -78,4 +79,3 @@ def smooth_norm(vec: np.ndarray, buf: float = 1e-12) -> float:
 
 smooth_norm = jax.jit(smooth_norm)
 smooth_norm_vec = jax.jit(jax.vmap(smooth_norm))
-

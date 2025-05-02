@@ -3,6 +3,7 @@ import jax.test_util
 import ard.utils.geometry as geo_utils
 import pytest
 
+
 class TestGetClosestPoint:
     def setup_method(self):
         self.get_closest_point_jac = jax.jacobian(geo_utils.get_closest_point, [0])
@@ -755,4 +756,3 @@ class TestLineSegToLineSeg:
             pytest.fail(
                 "Unexpected AssertionError when checking gradients, gradients may be incorrect"
             )
-
