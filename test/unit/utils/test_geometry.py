@@ -6,54 +6,54 @@ import pytest
 
 class TestGetClosestPoint:
     def setup_method(self):
-        self.get_closest_point_jac = jax.jacobian(geo_utils.get_closest_point, [0])
+        self.get_closest_point_on_line_seg_jac = jax.jacobian(geo_utils.get_closest_point_on_line_seg, [0])
         pass
 
-    def test_get_closest_point_45_deg_with_end(self):
+    def test_get_closest_point_on_line_seg_45_deg_with_end(self):
 
         point = np.array([10, 10])
         line_a = np.array([0, 10])
         line_b = np.array([10, 0])
         line_vector = line_b - line_a
 
-        test_result = geo_utils.get_closest_point(point, line_a, line_b, line_vector)
+        test_result = geo_utils.get_closest_point_on_line_seg(point, line_a, line_b, line_vector)
 
         assert np.all(test_result == np.array([5, 5]))
 
-    def test_get_closest_point_90_deg_with_end(self):
+    def test_get_closest_point_on_line_seg_90_deg_with_end(self):
 
         point = np.array([0, 0])
         line_a = np.array([0, 10])
         line_b = np.array([10, 10])
         line_vector = line_b - line_a
 
-        test_result = geo_utils.get_closest_point(point, line_a, line_b, line_vector)
+        test_result = geo_utils.get_closest_point_on_line_seg(point, line_a, line_b, line_vector)
 
         assert np.all(test_result == line_a)
 
-    def test_get_closest_point_gt90_deg_with_end(self):
+    def test_get_closest_point_on_line_seg_gt90_deg_with_end(self):
 
         point = np.array([0, 0])
         line_a = np.array([5, 5])
         line_b = np.array([10, 5])
         line_vector = line_b - line_a
 
-        test_result = geo_utils.get_closest_point(point, line_a, line_b, line_vector)
+        test_result = geo_utils.get_closest_point_on_line_seg(point, line_a, line_b, line_vector)
 
         assert np.all(test_result == line_a)
 
-    def test_get_closest_point_180_deg_with_end(self):
+    def test_get_closest_point_on_line_seg_180_deg_with_end(self):
 
         point = np.array([0, 5])
         line_a = np.array([5, 5])
         line_b = np.array([10, 5])
         line_vector = line_b - line_a
 
-        test_result = geo_utils.get_closest_point(point, line_a, line_b, line_vector)
+        test_result = geo_utils.get_closest_point_on_line_seg(point, line_a, line_b, line_vector)
 
         assert np.all(test_result == line_a)
 
-    def test_get_closest_point_point_on_segment(self):
+    def test_get_closest_point_on_line_seg_point_on_segment(self):
         """
         Test for a point exactly on the line segment
         """
@@ -63,13 +63,13 @@ class TestGetClosestPoint:
         test_end = np.array([5, 5, 5])
         line_vector = test_end - test_start
 
-        test_result = geo_utils.get_closest_point(
+        test_result = geo_utils.get_closest_point_on_line_seg(
             test_point, test_start, test_end, line_vector
         )
 
         assert np.all(test_result == test_point)
 
-    def test_get_closest_point_point_near_end(self):
+    def test_get_closest_point_on_line_seg_point_near_end(self):
         """
         Test for a point near the end of the line segment
         """
@@ -79,13 +79,13 @@ class TestGetClosestPoint:
         test_end = np.array([5, 5, 5])
         line_vector = test_end - test_start
 
-        test_result = geo_utils.get_closest_point(
+        test_result = geo_utils.get_closest_point_on_line_seg(
             test_point, test_start, test_end, line_vector
         )
 
         assert np.all(test_result == test_end)
 
-    def test_get_closest_point_point_near_start(self):
+    def test_get_closest_point_on_line_seg_point_near_start(self):
         """
         Test for a point near the start of the line segment
         """
@@ -95,13 +95,13 @@ class TestGetClosestPoint:
         test_end = np.array([5, 5, 5])
         line_vector = test_end - test_start
 
-        test_result = geo_utils.get_closest_point(
+        test_result = geo_utils.get_closest_point_on_line_seg(
             test_point, test_start, test_end, line_vector
         )
 
         assert np.all(test_result == test_start)
 
-    def test_get_closest_point_point_near_middle(self):
+    def test_get_closest_point_on_line_seg_point_near_middle(self):
         """
         Test for a point near the middle of the line segment
         """
@@ -111,13 +111,13 @@ class TestGetClosestPoint:
         test_end = np.array([0, 0, 5])
         line_vector = test_end - test_start
 
-        test_result = geo_utils.get_closest_point(
+        test_result = geo_utils.get_closest_point_on_line_seg(
             test_point, test_start, test_end, line_vector
         )
 
         assert np.all(test_result == np.array([0, 0, 2]))
 
-    def test_get_closest_point_jac(self):
+    def test_get_closest_point_on_line_seg_jac(self):
         """
         Test for gradient for a point near the middle of the line segment
         """
@@ -127,7 +127,7 @@ class TestGetClosestPoint:
         test_end = np.array([0, 0, 5], dtype=float)
         line_vector = test_end - test_start
 
-        tr_dp = self.get_closest_point_jac(
+        tr_dp = self.get_closest_point_on_line_seg_jac(
             test_point, test_start, test_end, line_vector
         )
 
@@ -135,7 +135,7 @@ class TestGetClosestPoint:
 
         try:
             jax.test_util.check_grads(
-                geo_utils.get_closest_point,
+                geo_utils.get_closest_point_on_line_seg,
                 (test_point, test_start, test_end, line_vector),
                 order=1,
             )

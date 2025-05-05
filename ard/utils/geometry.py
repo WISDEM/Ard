@@ -3,6 +3,7 @@ import jax.numpy as jnp
 import jax
 from ard.utils.mathematics import smooth_max, smooth_min, smooth_norm
 
+# TODO test
 def distance_multi_point_to_multi_polygon_ray_casting(
     boundary_vertices,
     boundary_normals,
@@ -138,6 +139,7 @@ def distance_multi_point_to_multi_polygon_ray_casting(
             return c, region
         return c
 
+# TODO test
 def multi_polygon_normals_calculator(boundary_vertices, nboundaries=1):
     """
     Calculate unit vectors perpendicular to each edge of each polygon in a set of polygons.
@@ -161,6 +163,7 @@ def multi_polygon_normals_calculator(boundary_vertices, nboundaries=1):
             boundary_normals.append(normals)
         return boundary_normals
  
+# TODO test
 def single_polygon_normals_calculator(boundary_vertices):
     """
     Calculate unit vectors perpendicular to each edge of a polygon.This implementation 
@@ -197,6 +200,7 @@ def single_polygon_normals_calculator(boundary_vertices):
 
     return boundary_normals
 
+# TODO test
 def point_on_line(p: np.ndarray, v1: np.ndarray, v2: np.ndarray, tol=1e-6):
     """
     Determine if a point lies on a line segment.
@@ -218,6 +222,7 @@ def point_on_line(p: np.ndarray, v1: np.ndarray, v2: np.ndarray, tol=1e-6):
 
     return jnp.isclose(d, 0.0, atol=tol / 2.0)
 
+# TODO test
 def distance_point_to_polygon(
     point: np.ndarray,
     vertices: np.ndarray,
@@ -563,7 +568,7 @@ def distance_point_to_lineseg_nd(
         segment_vector = inputs[3]
 
         # get the closest point on the line segment to the point of interest
-        closest_point = get_closest_point(
+        closest_point = get_closest_point_on_line_seg(
             point, segment_start, segment_end, segment_vector
         )
 
@@ -587,7 +592,7 @@ def distance_point_to_lineseg_nd(
 distance_point_to_lineseg_nd = jax.jit(distance_point_to_lineseg_nd)
 
 
-def get_closest_point(
+def get_closest_point_on_line_seg(
     point: np.ndarray,
     segment_start: np.ndarray,
     segment_end: np.ndarray,
@@ -640,4 +645,4 @@ def get_closest_point(
     )
 
 
-get_closest_point = jax.jit(get_closest_point)
+get_closest_point_on_line_seg = jax.jit(get_closest_point_on_line_seg)
