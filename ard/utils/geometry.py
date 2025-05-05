@@ -139,8 +139,30 @@ def distance_multi_point_to_multi_polygon_ray_casting(
             return c, region
         return c
 
-# TODO test
-def multi_polygon_normals_calculator(boundary_vertices, nboundaries=1):
+def polygon_normals_calculator(boundary_vertices:np.ndarray, n_polygons:int=1) -> list[np.ndarray]:
+    """
+    Calculate unit vectors perpendicular to each edge of each polygon in a set of polygons.
+    This implementation is based on FLOWFarm.jl (https://github.com/byuflowlab/FLOWFarm.jl).
+    This function is not intended to be differentiable.
+
+    Args:
+        boundary_vertices (list of np.ndarray): List of m-by-2 arrays, where each array contains
+            the boundary vertices of a polygon in counterclockwise order.
+        nboundaries (int, optional): The number of boundaries in the set. Defaults to 1.
+
+    Returns:
+        list of np.ndarray: List of m-by-2 arrays of unit vectors perpendicular to each edge
+            of each polygon.
+    """
+    if n_polygons == 1:
+        # Single polygon case
+        return single_polygon_normals_calculator(boundary_vertices)
+    else:
+        # Multiple polygons case
+        return multi_polygon_normals_calculator(boundary_vertices)
+
+@jax.jit
+def multi_polygon_normals_calculator(boundary_vertices:list[np.ndarray])->jnp.ndarray:
     """
     Calculate unit vectors perpendicular to each edge of each polygon in a set of polygons.
     This implementation is based on FLOWFarm.jl (https://github.com/byuflowlab/FLOWFarm.jl).
@@ -154,14 +176,7 @@ def multi_polygon_normals_calculator(boundary_vertices, nboundaries=1):
         list of np.ndarray: List of m-by-2 arrays of unit vectors perpendicular to each edge
             of each polygon.
     """
-    if nboundaries == 1:
-        return single_polygon_normals_calculator(boundary_vertices)
-    else:
-        boundary_normals = []
-        for i in range(nboundaries):
-            normals = single_polygon_normals_calculator(boundary_vertices[i])
-            boundary_normals.append(normals)
-        return boundary_normals
+    return [single_polygon_normals_calculator(vertices) for vertices in boundary_vertices]
  
 @jax.jit
 def single_polygon_normals_calculator(boundary_vertices: np.ndarray) -> jnp.ndarray:
@@ -191,7 +206,7 @@ def single_polygon_normals_calculator(boundary_vertices: np.ndarray) -> jnp.ndar
     norms = jnp.linalg.norm(boundary_normals, axis=1, keepdims=True)
     boundary_normals = boundary_normals / norms
 
-    return boundary_normals
+    return [boundary_normals]
 
 def point_on_line(p: np.ndarray, v1: np.ndarray, v2: np.ndarray, tol=1e-6):
     """

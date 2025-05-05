@@ -3,6 +3,71 @@ import jax.test_util
 import ard.utils.geometry as geo_utils
 import pytest
 
+
+@pytest.mark.usefixtures("subtests")
+class TestPolygonNormalsCalculator:
+    """
+    Test for polygon normals calculator
+    """
+
+    def test_polygon_normals_calculator_single_polygon(self):
+
+        polygon = np.array([[0, 0], [1, 0], [1, 1], [0, 1]])
+        expected_normals = np.array([[0, 1], [-1, 0], [0, -1], [1, 0]])
+
+        test_result = geo_utils.polygon_normals_calculator(polygon, n_polygons=1)
+
+        assert np.allclose(test_result, expected_normals)
+
+    def test_polygon_normals_calculator_multi_polygon(self, subtests):
+
+        polygon1 = np.array([[0, 0], [1, 0], [1, 1], [0, 1]])
+        polygon2 = np.array([[5, 0], [6, 0], [6, 1], [5.5, 1], [5, 1]])
+        polygons = [polygon1, polygon2]
+
+        expected_normals1 = np.array([[0, 1], [-1, 0], [0, -1], [1, 0]])
+        expected_normals2 = np.array([[0, 1], [-1, 0], [0, -1], [0, -1], [1, 0]])
+        expected_normals = [expected_normals1, expected_normals2]
+
+        test_result = geo_utils.polygon_normals_calculator(polygons, n_polygons=2)
+
+        for i, r in enumerate(test_result):
+            with subtests.test(f"polygon {i}"):
+                assert np.allclose(r, expected_normals[i])
+
+
+@pytest.mark.usefixtures("subtests")
+class TestMultiPolygonNormalsCalculator:
+    """
+    Test for single polygon normals calculator
+    """
+
+    def test_multi_polygon_normals_calculator(self):
+
+        polygon1 = np.array([[0, 0], [1, 0], [1, 1], [0, 1]])
+        polygon2 = np.array([[5, 0], [6, 0], [6, 1], [5, 1]])
+
+        expected_normals = np.array([[0, 1], [-1, 0], [0, -1], [1, 0]])
+
+        test_result = geo_utils.multi_polygon_normals_calculator(np.array([polygon1, polygon2]))
+
+        assert np.allclose(test_result, np.array([expected_normals, expected_normals]))
+
+    def test_multi_polygon_normals_calculator_multi_polygon_multi_size(self, subtests):
+
+        polygon1 = np.array([[0, 0], [1, 0], [1, 1], [0, 1]])
+        polygon2 = np.array([[5, 0], [6, 0], [6, 1], [5.5, 1], [5, 1]])
+
+        expected_normals1 = np.array([[0, 1], [-1, 0], [0, -1], [1, 0]])
+        expected_normals2 = np.array([[0, 1], [-1, 0], [0, -1], [0, -1], [1, 0]])
+        expected_normals = [expected_normals1, expected_normals2]
+
+        test_result = geo_utils.multi_polygon_normals_calculator([polygon1, polygon2])
+
+        for i, r in enumerate(test_result):
+            with subtests.test(f"polygon {i}"):
+                assert np.allclose(r, expected_normals[i])
+
 class TestSinglePolygonNormalsCalculator:
     """
     Test for single polygon normals calculator
