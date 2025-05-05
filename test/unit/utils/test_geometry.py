@@ -3,8 +3,72 @@ import jax.test_util
 import ard.utils.geometry as geo_utils
 import pytest
 
+class TestPointOnLine:
+    """
+    Test for point on line segment
+    """
 
-class TestGetClosestPoint:
+    def test_point_on_line_middle_not_on_line(self):
+
+        point = np.array([10, 10])
+        line_a = np.array([0, 10])
+        line_b = np.array([10, 0])
+
+        test_result = geo_utils.point_on_line(point, line_a, line_b)
+
+        assert test_result == False
+
+    def test_point_on_line_middle(self):
+
+        point = np.array([5, 5])
+        line_a = np.array([0, 10])
+        line_b = np.array([10, 0])
+
+        test_result = geo_utils.point_on_line(point, line_a, line_b)
+
+        assert test_result == True
+
+    def test_point_on_line_end(self):
+
+        point = np.array([10, 0])
+        line_a = np.array([0, 10])
+        line_b = np.array([10, 0])
+
+        test_result = geo_utils.point_on_line(point, line_a, line_b)
+
+        assert test_result == True
+
+    def test_point_on_line_end_not_on_line(self):
+
+        point = np.array([-1, 11])
+        line_a = np.array([0, 10])
+        line_b = np.array([10, 0])
+
+        test_result = geo_utils.point_on_line(point, line_a, line_b)
+
+        assert test_result == False
+
+    def test_point_on_line_middle_lt_tol(self):
+
+        point = np.array([5+1E-7, 5+1E-7])
+        line_a = np.array([0, 10])
+        line_b = np.array([10, 0])
+
+        test_result = geo_utils.point_on_line(point, line_a, line_b)
+
+        assert test_result == True
+
+    def test_point_on_line_middle_gt_tol(self):
+
+        point = np.array([5+1E-6, 5+1E-6])
+        line_a = np.array([0, 10])
+        line_b = np.array([10, 0])
+
+        test_result = geo_utils.point_on_line(point, line_a, line_b)
+
+        assert test_result == False
+
+class TestGetClosestPointOnLineSeg:
     def setup_method(self):
         self.get_closest_point_on_line_seg_jac = jax.jacobian(geo_utils.get_closest_point_on_line_seg, [0])
         pass

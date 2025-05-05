@@ -200,7 +200,6 @@ def single_polygon_normals_calculator(boundary_vertices):
 
     return boundary_normals
 
-# TODO test
 def point_on_line(p: np.ndarray, v1: np.ndarray, v2: np.ndarray, tol=1e-6):
     """
     Determine if a point lies on a line segment.
@@ -220,7 +219,7 @@ def point_on_line(p: np.ndarray, v1: np.ndarray, v2: np.ndarray, tol=1e-6):
 
     d = distance_point_to_lineseg_nd(p, v1, v2)
 
-    return jnp.isclose(d, 0.0, atol=tol / 2.0)
+    return jnp.isclose(d, 0.0, atol=tol)
 
 # TODO test
 def distance_point_to_polygon(
