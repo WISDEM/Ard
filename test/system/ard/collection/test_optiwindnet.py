@@ -122,9 +122,8 @@ class TestoptiwindnetLayout:
 
         # collect optiwindnet data to validate
         validation_data = {
-            "length_cables": self.prob.get_val(
-                "optiwindnet_coll.length_cables", units="km"
-            ),
+            "length_cables": self.prob.get_val("optiwindnet_coll.length_cables")
+            / 1.0e3,
             "load_cables": self.prob.get_val("optiwindnet_coll.load_cables"),
             "total_length_cables": self.prob.get_val(
                 "optiwindnet_coll.total_length_cables"

@@ -12,8 +12,10 @@ It is automatically generated every time the documentation is built.
     ard.cost
     ard.farm_aero
     ard.layout
+    ard.offshore
     ard.test_utils
     ard.utils
     ard.viz
     ard.wind_query
+
 ```

@@ -167,11 +167,24 @@ class TestOptiWindNetCollection:
             # make sure that the outputs in the component match what we planned
             output_list = [k for k, v in self.optiwindnet_coll.list_outputs()]
             for var_to_check in [
+                # "length_cables",
+                # "load_cables",
+                "total_length_cables",
+                # "max_load_cables",
+            ]:
+                assert var_to_check in output_list
+
+            # make sure that the outputs in the component match what we planned
+            discrete_output_list = [
+                k for k, v in self.optiwindnet_coll._discrete_outputs.items()
+            ]
+            for var_to_check in [
                 "length_cables",
                 "load_cables",
+                # "total_length_cables",
+                "max_load_cables",
             ]:
-                with subtests.test("outputs"):
-                    assert var_to_check in output_list
+                assert var_to_check in discrete_output_list
 
     @pytest.mark.skipif(
         platform.system() in ["Linux", "Windows"], reason="Test does not pass on Linux"
@@ -197,9 +210,8 @@ class TestOptiWindNetCollection:
 
         # collect data to validate
         validation_data = {
-            "length_cables": self.prob.get_val(
-                "optiwindnet_coll.length_cables", units="km"
-            ),
+            "length_cables": self.prob.get_val("optiwindnet_coll.length_cables")
+            / 1.0e3,
             "load_cables": self.prob.get_val("optiwindnet_coll.load_cables"),
         }
 
@@ -337,8 +349,8 @@ class TestOptiWindNetCollection:
         prob.run_model()
 
         # # DEBUG!!!!! viz for verification
-        gplot(optiwindnet_coll_mini.graph)
-        plt.savefig("dummy.png")  # DEBUG!!!!!
+        # gplot(optiwindnet_coll_mini.graph)
+        # plt.savefig("dummy.png")  # DEBUG!!!!!
 
         if False:  # for hand-debugging
             J0 = prob.compute_totals(
