@@ -163,6 +163,7 @@ def multi_polygon_normals_calculator(boundary_vertices, nboundaries=1):
             boundary_normals.append(normals)
         return boundary_normals
  
+@jax.jit
 def single_polygon_normals_calculator(boundary_vertices: np.ndarray) -> jnp.ndarray:
     """
     Calculate unit vectors perpendicular to each edge of a polygon pointing into the polygon. 
