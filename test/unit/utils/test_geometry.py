@@ -3,6 +3,58 @@ import jax.test_util
 import ard.utils.geometry as geo_utils
 import pytest
 
+class TestSinglePolygonNormalsCalculator:
+    """
+    Test for single polygon normals calculator
+    """
+
+    def test_single_polygon_normals_calculator(self):
+        """
+        Test for single polygon normals calculator
+        """
+
+        polygon = np.array([[0, 0], [1, 0], [1, 1], [0, 1]])
+        expected_normals = np.array([[0, 1], [-1, 0], [0, -1], [1, 0]])
+
+        test_result = geo_utils.single_polygon_normals_calculator(polygon)
+
+        assert np.allclose(test_result, expected_normals)
+    
+    def test_single_polygon_normals_calculator_rotated(self):
+        """
+        Test for single polygon normals calculator
+        """
+
+        polygon = np.array([[0, 0], [1, 1], [0, 2], [-1, 1]])
+        expected_normals = np.array([[-0.7071067811865476, 0.7071067811865476], 
+                                     [-0.7071067811865476, -0.7071067811865476], 
+                                     [0.7071067811865476, -0.7071067811865476], 
+                                     [0.7071067811865476, 0.7071067811865476]
+                                     ])
+
+        test_result = geo_utils.single_polygon_normals_calculator(polygon)
+
+        assert np.allclose(test_result, expected_normals)
+
+    def test_single_polygon_normals_calculator_rotated_concave(self):
+        """
+        Test for single polygon normals calculator
+        """
+
+        polygon = np.array([[0, 0], [1, 1], [0.5, 1.5], [0.0, 1.0], [-0.5, 1.5], [-1, 1]])
+        expected_normals = np.array([[-0.7071067811865476, 0.7071067811865476], 
+                                     [-0.7071067811865476, -0.7071067811865476], 
+                                     [0.7071067811865476, -0.7071067811865476], 
+                                     [-0.7071067811865476, -0.7071067811865476], 
+                                     [0.7071067811865476, -0.7071067811865476], 
+                                     [0.7071067811865476, 0.7071067811865476]
+                                     ])
+
+        test_result = geo_utils.single_polygon_normals_calculator(polygon)
+
+        assert np.allclose(test_result, expected_normals)
+
+
 class TestPointOnLine:
     """
     Test for point on line segment

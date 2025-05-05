@@ -163,18 +163,17 @@ def multi_polygon_normals_calculator(boundary_vertices, nboundaries=1):
             boundary_normals.append(normals)
         return boundary_normals
  
-# TODO test
 def single_polygon_normals_calculator(boundary_vertices):
     """
-    Calculate unit vectors perpendicular to each edge of a polygon.This implementation 
-    is based on FLOWFarm.jl (https://github.com/byuflowlab/FLOWFarm.jl).
+    Calculate unit vectors perpendicular to each edge of a polygon pointing into the polygon. 
+    This implementation is based on FLOWFarm.jl (https://github.com/byuflowlab/FLOWFarm.jl).
 
     Args:
         boundary_vertices (np.ndarray): m-by-2 array containing all the boundary vertices
             in counterclockwise order.
 
     Returns:
-        np.ndarray: m-by-2 array of unit vectors perpendicular to each edge of the polygon.
+        np.ndarray: m-by-2 array of unit vectors perpendicular to each edge of the polygon pointing into the polygon.
     """
     
     # Get the number of vertices in the polygon
