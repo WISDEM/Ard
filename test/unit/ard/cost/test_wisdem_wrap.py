@@ -130,11 +130,7 @@ class TestORBIT:
         self.prob = om.Problem(self.model)
         self.prob.setup()
 
-<<<<<<< HEAD
         # setup the latent variables for ORBIT and FinanceSE
-=======
-        # setup the latent variables for Orbit and FinanceSE
->>>>>>> offshore-development
         wcost.ORBIT_setup_latents(self.prob, self.modeling_options)
         # wcost.FinanceSE_setup_latents(self.prob, self.modeling_options)
 

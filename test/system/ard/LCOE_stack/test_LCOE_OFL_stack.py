@@ -54,11 +54,7 @@ class TestLCOE_OFL_stack:
 
     def test_model(self):
 
-<<<<<<< HEAD
         # setup the latent variables for ORBIT and FinanceSE
-=======
-        # setup the latent variables for Orbit and FinanceSE
->>>>>>> offshore-development
         cost_wisdem.ORBIT_setup_latents(self.prob, self.modeling_options)
         cost_wisdem.FinanceSE_setup_latents(self.prob, self.modeling_options)
 
