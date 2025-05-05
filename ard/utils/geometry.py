@@ -163,7 +163,7 @@ def multi_polygon_normals_calculator(boundary_vertices, nboundaries=1):
             boundary_normals.append(normals)
         return boundary_normals
  
-def single_polygon_normals_calculator(boundary_vertices):
+def single_polygon_normals_calculator(boundary_vertices: np.ndarray) -> jnp.ndarray:
     """
     Calculate unit vectors perpendicular to each edge of a polygon pointing into the polygon. 
     This implementation is based on FLOWFarm.jl (https://github.com/byuflowlab/FLOWFarm.jl).
@@ -176,26 +176,19 @@ def single_polygon_normals_calculator(boundary_vertices):
         np.ndarray: m-by-2 array of unit vectors perpendicular to each edge of the polygon pointing into the polygon.
     """
     
-    # Get the number of vertices in the polygon
-    nvertices = boundary_vertices.shape[0]
-
     # Add the first vertex to the end to form a closed loop
-    boundary_vertices = np.vstack([boundary_vertices, boundary_vertices[0]])
+    boundary_vertices = jnp.vstack([boundary_vertices, boundary_vertices[0]])
 
-    # Initialize an array to hold boundary normals
-    boundary_normals = np.zeros((nvertices, 2))
+    # Compute the differences (dx, dy) for each edge
+    dx = boundary_vertices[1:, 0] - boundary_vertices[:-1, 0]
+    dy = boundary_vertices[1:, 1] - boundary_vertices[:-1, 1]
 
-    # Iterate over each boundary edge
-    for i in range(nvertices):
-        # Create a vector normal to the boundary
-        dx = boundary_vertices[i + 1, 0] - boundary_vertices[i, 0]
-        dy = boundary_vertices[i + 1, 1] - boundary_vertices[i, 1]
-        boundary_normals[i, :] = [-dy, dx]
+    # Create vectors normal to the boundary edges
+    boundary_normals = jnp.stack([-dy, dx], axis=1)
 
-        # Normalize the vector
-        norm = np.linalg.norm(boundary_normals[i, :])
-        if norm > 0:
-            boundary_normals[i, :] /= norm
+    # Normalize the vectors
+    norms = jnp.linalg.norm(boundary_normals, axis=1, keepdims=True)
+    boundary_normals = boundary_normals / norms
 
     return boundary_normals
 
