@@ -18,7 +18,7 @@ class GeomorphologyGridData:
     # alias for meshed data, and promote dimension to 2
     x_data = np.atleast_2d([0.0])  # x location in km
     y_data = np.atleast_2d([0.0])  # y location in km
-    depth_data = np.atleast_2d([0.0])  # depth in m
+    z_data = np.atleast_2d([0.0])  # depth in m
 
     material_data = np.atleast_2d(["soil"])  # bed material at each point
 
@@ -35,7 +35,7 @@ class GeomorphologyGridData:
             self.x_data.shape == self.y_data.shape
         ), "x and y data must be the same shape"
         assert np.all(
-            self.x_data.shape == self.depth_data.shape
+            self.x_data.shape == self.z_data.shape
         ), "x and depth data must be the same shape"
         assert np.all(self.x_data.shape == self.material_data.shape) or (
             self.material_data.size == 1
@@ -54,13 +54,13 @@ class GeomorphologyGridData:
         """
 
         self.check_valid()  # ensure that the current data is valid
-        return self.depth_data.shape  # data
+        return self.z_data.shape  # data
 
     def set_values(
         self,
         x_data_in,
         y_data_in,
-        depth_data_in,
+        z_data_in,
         material_data_in=None,
     ):
         """
@@ -72,7 +72,7 @@ class GeomorphologyGridData:
             A 2D numpy array indicating the x-dimension locations of the points.
         y_data_in : np.ndarray
             A 2D numpy array indicating the y-dimension locations of the points.
-        depth_data_in : np.ndarray
+        z_data_in : np.ndarray
             A 2D numpy array indicating the depth at each point.
         material_data_in : np.ndarray, optional
             A 2D numpy array indicating the bed material at each point.
@@ -81,15 +81,15 @@ class GeomorphologyGridData:
         # set the values that are handed in
         self.x_data = x_data_in.copy()
         self.y_data = y_data_in.copy()
-        self.depth_data = depth_data_in.copy()
+        self.z_data = z_data_in.copy()
         if material_data_in is not None:
             self.material_data = material_data_in.copy()
 
         self.check_valid()  # ensure that the input data is valid
 
-    def get_depth_data(self):
+    def get_z_data(self):
         """Get the depth at a given location."""
-        return self.depth_data
+        return self.z_data
 
     def evaluate_depth(
         self,
@@ -117,44 +117,7 @@ class GeomorphologyGridData:
         x_query = np.atleast_1d(x_query)  # ensure x_query is a 1D array
         y_query = np.atleast_1d(y_query)  # ensure y_query is a 1D array
 
-        if interp_method == "gaussian_process":
-            if self._gpr_eval is None:
-                from sklearn.gaussian_process import GaussianProcessRegressor
-                from sklearn.gaussian_process.kernels import Matern
-
-                # create a Gaussian process regressor
-                kernel = 1.0 * Matern(nu=2.5)  # Matern 5/2 kernel
-                self._gpr_eval = GaussianProcessRegressor(
-                    kernel=kernel,
-                    normalize_y=True,
-                )
-
-                # package the data
-                X_data = np.vstack((self.x_data.flatten(), self.y_data.flatten())).T
-                z_data = self.depth_data.flatten()
-                self.ptp_ref = np.ptp(X_data, axis=0)  # range of the data
-                X_data = 2 * X_data / self.ptp_ref  # normalize the data
-                # perform the fit
-                self._gpr_eval.fit(X_data, z_data)
-
-            # evaluate the depth at the given locations
-            X_query = (
-                np.vstack((x_query.flatten(), y_query.flatten())).T * self.ptp_ref / 2
-            )
-            z_query = self._gpr_eval.predict(X_query, return_std=return_derivs)
-
-            if return_derivs:
-                raise NotImplementedError(
-                    "Gaussian process regression does not support derivatives yet. -cfrontin"
-                )
-
-            raise NotImplementedError(
-                f"{interp_method} interpolation scheme for evaluate_depth not implemented yet. -cfrontin"
-            )
-
-            return z_query  # return the depth at the given locations
-
-        elif interp_method == "spline":
+        if interp_method == "spline":
             # or, smooth bivariate spline from scipy implementation
             from scipy.interpolate import SmoothBivariateSpline
 
@@ -162,7 +125,7 @@ class GeomorphologyGridData:
             interpolator_sbs = SmoothBivariateSpline(
                 self.x_data.flatten(),
                 self.y_data.flatten(),
-                self.depth_data.flatten(),
+                self.z_data.flatten(),
                 bbox=[
                     np.min(self.x_data),
                     np.max(self.x_data),
@@ -179,6 +142,43 @@ class GeomorphologyGridData:
                 return z_query, (dz_dx, dz_dy)  # and return
             else:
                 return z_query  # just return
+
+        # elif interp_method == "gaussian_process":
+        #     if self._gpr_eval is None:
+        #         from sklearn.gaussian_process import GaussianProcessRegressor
+        #         from sklearn.gaussian_process.kernels import Matern
+        #
+        #         # create a Gaussian process regressor
+        #         kernel = 1.0 * Matern(nu=2.5)  # Matern 5/2 kernel
+        #         self._gpr_eval = GaussianProcessRegressor(
+        #             kernel=kernel,
+        #             normalize_y=True,
+        #         )
+        #
+        #         # package the data
+        #         X_data = np.vstack((self.x_data.flatten(), self.y_data.flatten())).T
+        #         z_data = self.z_data.flatten()
+        #         self.ptp_ref = np.ptp(X_data, axis=0)  # range of the data
+        #         X_data = 2 * X_data / self.ptp_ref  # normalize the data
+        #         # perform the fit
+        #         self._gpr_eval.fit(X_data, z_data)
+        #
+        #     # evaluate the depth at the given locations
+        #     X_query = (
+        #         np.vstack((x_query.flatten(), y_query.flatten())).T * self.ptp_ref / 2
+        #     )
+        #     z_query = self._gpr_eval.predict(X_query, return_std=return_derivs)
+        #
+        #     if return_derivs:
+        #         raise NotImplementedError(
+        #             "Gaussian process regression does not support derivatives yet. -cfrontin"
+        #         )
+        #
+        #     raise NotImplementedError(
+        #         f"{interp_method} interpolation scheme for evaluate_depth not implemented yet. -cfrontin"
+        #     )
+        #
+        #     return z_query  # return the depth at the given locations
 
         else:
             raise NotImplementedError(
@@ -259,7 +259,7 @@ class BathymetryGridData(GeomorphologyGridData):
 
         # save into the geomorphology data object
         self.y_data, self.x_data = np.meshgrid(y_coord, x_coord)
-        self.depth_data = grid_bathy
+        self.z_data = grid_bathy
 
         self.check_valid()  # make sure the loaded file is legit before exiting
 
