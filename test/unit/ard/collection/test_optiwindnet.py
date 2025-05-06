@@ -13,7 +13,7 @@ optiwindnet = pytest.importorskip("optiwindnet")
 
 from optiwindnet.plotting import gplot
 
-import ard.utils.core
+import ard.utils.io
 import ard.utils.test_utils
 import ard.collection.optiwindnet_wrap as ard_own
 
@@ -41,7 +41,7 @@ class TestOptiWindNetCollection:
             / "data"
             / "turbine_spec_IEA-3p4-130-RWT.yaml"
         )  # toolset generalized turbine specification
-        data_turbine_spec = ard.utils.core.load_turbine_spec(filename_turbine_spec)
+        data_turbine_spec = ard.utils.io.load_turbine_spec(filename_turbine_spec)
 
         # set up the modeling options
         self.N_turbines = len(self.farm_spec["xD_farm"])

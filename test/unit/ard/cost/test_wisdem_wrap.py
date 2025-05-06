@@ -4,7 +4,7 @@ import numpy as np
 import openmdao.api as om
 
 import ard
-import ard.utils.core
+import ard.utils.io
 import ard.utils.test_utils
 import ard.layout.gridfarm as gridfarm
 import ard.cost.wisdem_wrap as wcost
@@ -24,7 +24,7 @@ class TestLandBOSSE:
         ).absolute()  # toolset generalized turbine specification
 
         # load the turbine specification
-        data_turbine = ard.utils.core.load_turbine_spec(filename_turbine_spec)
+        data_turbine = ard.utils.io.load_turbine_spec(filename_turbine_spec)
 
         # set up the modeling options
         self.modeling_options = {
@@ -96,7 +96,7 @@ class TestOrbit:
         ).absolute()  # toolset generalized turbine specification
 
         # load the turbine specification
-        data_turbine = ard.utils.core.load_turbine_spec(filename_turbine_spec)
+        data_turbine = ard.utils.io.load_turbine_spec(filename_turbine_spec)
 
         # set up the modeling options
         self.modeling_options = {

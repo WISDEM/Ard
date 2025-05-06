@@ -7,7 +7,7 @@ import openmdao.api as om
 
 from wisdem.optimization_drivers.nlopt_driver import NLoptDriver
 
-import ard.utils.core
+import ard.utils.io
 import ard.wind_query as wq
 import ard.glue.prototype as glue
 import ard.cost.wisdem_wrap as cost_wisdem
@@ -28,7 +28,7 @@ filename_turbine_spec = (
     / "data"
     / "turbine_spec_IEA-3p4-130-RWT.yaml"
 )
-data_turbine_spec = ard.utils.core.load_turbine_spec(filename_turbine_spec)
+data_turbine_spec = ard.utils.io.load_turbine_spec(filename_turbine_spec)
 
 # set up the modeling options
 modeling_options = {
