@@ -21,7 +21,7 @@ class TestGeomorphologyGridData:
     def setup_method(self):
 
         # create a geomorphology object before each test
-        self.geomorphology = ard.geomorphology.GeomorphologyGridData()
+        self.geomorphology = ard.geographic.GeomorphologyGridData()
 
     def test_check_valid(self):
 
@@ -33,7 +33,7 @@ class TestGeomorphologyGridData:
         ).T
 
         # set up a geomorphology grid data object
-        self.geomorphology = ard.geomorphology.GeomorphologyGridData()
+        self.geomorphology = ard.geographic.GeomorphologyGridData()
 
         for idx_case in range(4):
 
@@ -79,7 +79,7 @@ class TestGeomorphologyGridData:
         depth_data = np.ones_like(x_data)
 
         # set up a geomorphology grid data object
-        self.geomorphology = ard.geomorphology.GeomorphologyGridData()
+        self.geomorphology = ard.geographic.GeomorphologyGridData()
         # set the values
         self.geomorphology.set_values(
             x_data_in=x_data,
@@ -108,7 +108,7 @@ class TestGeomorphologyGridData:
         ).T
 
         # set up a geomorphology grid data object
-        self.geomorphology = ard.geomorphology.GeomorphologyGridData()
+        self.geomorphology = ard.geographic.GeomorphologyGridData()
         # set the values
         self.geomorphology.set_values(
             x_data_in=x_data,
@@ -136,7 +136,7 @@ class TestGeomorphologyGridData:
         depth_data = np.ones_like(x_data)
 
         # set up a geomorphology grid data object
-        self.geomorphology = ard.geomorphology.GeomorphologyGridData()
+        self.geomorphology = ard.geographic.GeomorphologyGridData()
         # set the values
         self.geomorphology.set_values(
             x_data_in=x_data,
@@ -155,7 +155,7 @@ class TestGeomorphologyGridData:
         validation_data = {
             "depth_sample": depth_sample,
         }
-        ard.test_utils.pyrite_validator(
+        ard.utils.test_utils.pyrite_validator(
             validation_data,
             Path(__file__).parent / "test_geomorphology_depth_default_pyrite.npz",
             # rewrite=True,  # uncomment to write new pyrite file
@@ -168,7 +168,7 @@ class TestGeomorphologyGridData:
         depth_data = np.ones_like(x_data)
 
         # set up a geomorphology grid data object
-        self.geomorphology = ard.geomorphology.GeomorphologyGridData()
+        self.geomorphology = ard.geographic.GeomorphologyGridData()
         # set the values
         self.geomorphology.set_values(
             x_data_in=x_data,
@@ -189,7 +189,7 @@ class TestGeomorphologyGridData:
         depth_data = np.ones_like(x_data)
 
         # set up a geomorphology grid data object
-        self.geomorphology = ard.geomorphology.GeomorphologyGridData()
+        self.geomorphology = ard.geographic.GeomorphologyGridData()
         # set the values
         self.geomorphology.set_values(
             x_data_in=x_data,
@@ -216,7 +216,7 @@ class TestTopographyGridData(TestGeomorphologyGridData):
     def setup_method(self):
 
         # create a specialized geomorphology object before each test
-        self.geomorphology = ard.geomorphology.TopographyGridData()
+        self.geomorphology = ard.geographic.TopographyGridData()
 
 
 class TestBathymetryGridData(TestGeomorphologyGridData):
@@ -234,7 +234,7 @@ class TestBathymetryGridData(TestGeomorphologyGridData):
     def setup_method(self):
 
         # create a specialized geomorphology object before each test
-        self.bathymetry = ard.geomorphology.BathymetryGridData()
+        self.bathymetry = ard.geographic.BathymetryGridData()
 
     def test_load_moorpy_bathymetry(self):
 
@@ -259,7 +259,7 @@ class TestBathymetryGridData(TestGeomorphologyGridData):
             "mean": np.mean(self.bathymetry.depth_data),
             "std": np.std(self.bathymetry.depth_data),
         }
-        ard.test_utils.pyrite_validator(
+        ard.utils.test_utils.pyrite_validator(
             validation_data,
             Path(__file__).parent / "test_geomorphology_bathymetry_pyrite.npz",
             # rewrite=True,  # uncomment to write new pyrite file

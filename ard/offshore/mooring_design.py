@@ -4,7 +4,7 @@ import openmdao.api as om
 
 import math
 
-import ard.geomorphology
+import ard.geographic
 
 
 def generate_anchor_points(
@@ -91,7 +91,7 @@ class MooringDesign(om.ExplicitComponent):
     wind_query : floris.wind_data.WindRose
         a WindQuery objects that specifies the wind conditions that are to be
         computed
-    bathymetry_data : ard.geomorphology.BathymetryData
+    bathymetry_data : ard.geographic.BathymetryData
         a BathymetryData object to specify the bathymetry mesh/sampling
 
     Inputs

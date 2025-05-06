@@ -5,8 +5,8 @@ import openmdao.api as om
 
 import floris
 
-import ard.utils
-import ard.test_utils
+import ard.utils.io
+import ard.utils.test_utils
 import ard.wind_query as wq
 import ard.farm_aero.floris as farmaero_floris
 
@@ -42,7 +42,7 @@ class TestFLORISBatchPower:
             "data",
             "turbine_spec_IEA-3p4-130-RWT.yaml",
         ).absolute()  # toolset generalized turbine specification
-        data_turbine_spec = ard.utils.load_turbine_spec(filename_turbine_spec)
+        data_turbine_spec = ard.utils.io.load_turbine_spec(filename_turbine_spec)
 
         # set up the modeling options
         modeling_options = {
@@ -116,7 +116,7 @@ class TestFLORISBatchPower:
             ),
         }
         # validate data against pyrite file
-        ard.test_utils.pyrite_validator(
+        ard.utils.test_utils.pyrite_validator(
             validation_data,
             Path(__file__).parent / "test_floris_batch_pyrite.npz",
             rtol_val=5e-3,
@@ -151,7 +151,7 @@ class TestFLORISAEP:
             / "data"
             / "turbine_spec_IEA-3p4-130-RWT.yaml"
         )  # toolset generalized turbine specification
-        data_turbine_spec = ard.utils.load_turbine_spec(filename_turbine_spec)
+        data_turbine_spec = ard.utils.io.load_turbine_spec(filename_turbine_spec)
 
         # set up the modeling options
         modeling_options = {
@@ -224,7 +224,7 @@ class TestFLORISAEP:
             ),
         }
         # validate data against pyrite file
-        ard.test_utils.pyrite_validator(
+        ard.utils.test_utils.pyrite_validator(
             test_data,
             Path(__file__).parent / "test_floris_aep_pyrite.npz",
             rtol_val=5e-3,

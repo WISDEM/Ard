@@ -4,8 +4,8 @@ import numpy as np
 import openmdao.api as om
 
 import ard
-import ard.utils
-import ard.test_utils
+import ard.utils.io
+import ard.utils.test_utils
 import ard.layout.gridfarm as gridfarm
 import ard.cost.wisdem_wrap as wcost
 import ard.glue.prototype as glue
@@ -24,7 +24,7 @@ class TestLandBOSSE:
         ).absolute()  # toolset generalized turbine specification
 
         # load the turbine specification
-        data_turbine = ard.utils.load_turbine_spec(filename_turbine_spec)
+        data_turbine = ard.utils.io.load_turbine_spec(filename_turbine_spec)
 
         # set up the modeling options
         self.modeling_options = {
@@ -75,7 +75,7 @@ class TestLandBOSSE:
             "total_capex": self.prob.get_val("landbosse.total_capex", units="MUSD"),
         }
         # validate data against pyrite file
-        ard.test_utils.pyrite_validator(
+        ard.utils.test_utils.pyrite_validator(
             test_data,
             fn_pyrite,
             rtol_val=5e-3,
@@ -96,7 +96,7 @@ class TestOrbit:
         ).absolute()  # toolset generalized turbine specification
 
         # load the turbine specification
-        data_turbine = ard.utils.load_turbine_spec(filename_turbine_spec)
+        data_turbine = ard.utils.io.load_turbine_spec(filename_turbine_spec)
 
         # set up the modeling options
         self.modeling_options = {
@@ -150,7 +150,7 @@ class TestOrbit:
             "total_capex": self.prob.get_val("orbit.total_capex", units="MUSD"),
         }
         # validate data against pyrite file
-        ard.test_utils.pyrite_validator(
+        ard.utils.test_utils.pyrite_validator(
             test_data,
             fn_pyrite,
             rtol_val=5e-3,

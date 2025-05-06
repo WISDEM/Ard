@@ -1,7 +1,7 @@
 import numpy as np
 import jax.numpy as jnp
 import jax
-import ard.utils
+import ard.utils.mathematics
 import openmdao.api as om
 
 
@@ -94,7 +94,7 @@ def calculate_turbine_spacing(
     deltas = jnp.stack([dx, dy], axis=1)
 
     # Vectorized norm calculation
-    spacing_distance = ard.utils.smooth_norm_vec(deltas)
+    spacing_distance = ard.utils.mathematics.smooth_norm_vec(deltas)
 
     return spacing_distance
 

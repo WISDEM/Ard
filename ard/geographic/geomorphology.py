@@ -6,19 +6,21 @@ import numpy as np
 import openmdao.api as om
 
 
-class GeomorphologyData:
+class GeomorphologyGridData:
     """
-    A class to represent geomorphology data for a given wind farm site domain.
+    A class to represent gridded geomorphology data for a given wind farm site
+    domain.
 
     Represents either bathymetry data for offshore sites or topography data for
     onshore sites.
     """
 
-    x_data = np.atleast_1d([0.0])  # x location in km
-    y_data = np.atleast_1d([0.0])  # y location in km
-    depth_data = np.atleast_1d([0.0])  # depth in m
+    # alias for meshed data, and promote dimension to 2
+    x_data = np.atleast_2d([0.0])  # x location in km
+    y_data = np.atleast_2d([0.0])  # y location in km
+    depth_data = np.atleast_2d([0.0])  # depth in m
 
-    material_data = np.atleast_1d(["soil"])  # bed material at each point
+    material_data = np.atleast_2d(["soil"])  # bed material at each point
 
     sea_level = 0.0  # sea level in m
 
@@ -27,7 +29,8 @@ class GeomorphologyData:
     )
 
     def check_valid(self):
-        """Check if the geomorphology data is valid."""
+        assert self.x_data.ndim == 2, "data must be 2D"  # make sure it's 2D first
+
         assert np.all(
             self.x_data.shape == self.y_data.shape
         ), "x and y data must be the same shape"
@@ -87,27 +90,6 @@ class GeomorphologyData:
     def get_depth_data(self):
         """Get the depth at a given location."""
         return self.depth_data
-
-
-class GeomorphologyGridData(GeomorphologyData):
-    """
-    A class to represent gridded geomorphology data for a given wind farm site
-    domain.
-
-    Represents either bathymetry data for offshore sites or topography data for
-    onshore sites.
-    """
-
-    # alias for meshed data, and promote dimension to 2
-    x_data = np.atleast_2d([0.0])  # x location in km
-    y_data = np.atleast_2d([0.0])  # y location in km
-    depth_data = np.atleast_2d([0.0])  # depth in m
-
-    material_data = np.atleast_2d(["soil"])  # bed material at each point
-
-    def check_valid(self):
-        assert self.x_data.ndim == 2, "data must be 2D"  # make sure it's 2D first
-        return super().check_valid()  # then check the base class validity
 
     def evaluate_depth(
         self,

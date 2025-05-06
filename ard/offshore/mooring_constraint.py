@@ -4,7 +4,8 @@ import jax.numpy as jnp
 
 import openmdao.api as om
 
-import ard.utils
+import ard.utils.geometry
+import ard.utils.mathematics
 
 
 class MooringConstraint(om.ExplicitComponent):
@@ -18,7 +19,7 @@ class MooringConstraint(om.ExplicitComponent):
     wind_query : floris.wind_data.WindRose
         a WindQuery objects that specifies the wind conditions that are to be
         computed
-    bathymetry_data : ard.geomorphology.BathymetryData
+    bathymetry_data : ard.geographic.BathymetryData
         a BathymetryData object to specify the bathymetry mesh/sampling
 
     Inputs
@@ -327,11 +328,11 @@ def distance_point_to_mooring(point: np.ndarray, P_mooring: np.ndarray) -> float
     anchors = P_mooring[1:]
 
     distances = jax.vmap(
-        ard.utils.distance_point_to_lineseg_nd,
+        ard.utils.geometry.distance_point_to_lineseg_nd,
         in_axes=(None, None, 0),
     )(point, p_center, anchors)
 
-    return ard.utils.smooth_min(distances)
+    return ard.utils.mathematics.smooth_min(distances)
 
 
 def distance_mooring_to_mooring(
@@ -357,7 +358,7 @@ def distance_mooring_to_mooring(
 
     # Vectorize the computation of distances between all pairs of line segments
     def compute_segment_distance(anchor_A, anchor_B):
-        return ard.utils.distance_lineseg_to_lineseg_nd(
+        return ard.utils.geometry.distance_lineseg_to_lineseg_nd(
             p_center_A, anchor_A, p_center_B, anchor_B
         )
 
@@ -369,4 +370,4 @@ def distance_mooring_to_mooring(
     )(anchors_A)
 
     # Find the smooth minimum distance
-    return ard.utils.smooth_min(distances.flatten())
+    return ard.utils.mathematics.smooth_min(distances.flatten())

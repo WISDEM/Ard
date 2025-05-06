@@ -13,8 +13,8 @@ optiwindnet = pytest.importorskip("optiwindnet")
 
 from optiwindnet.plotting import gplot
 
-import ard.utils
-import ard.test_utils
+import ard.utils.io
+import ard.utils.test_utils
 import ard.collection.optiwindnet_wrap as ard_own
 
 
@@ -41,7 +41,7 @@ class TestOptiWindNetCollection:
             / "data"
             / "turbine_spec_IEA-3p4-130-RWT.yaml"
         )  # toolset generalized turbine specification
-        data_turbine_spec = ard.utils.load_turbine_spec(filename_turbine_spec)
+        data_turbine_spec = ard.utils.io.load_turbine_spec(filename_turbine_spec)
 
         # set up the modeling options
         self.N_turbines = len(self.farm_spec["xD_farm"])
@@ -221,7 +221,7 @@ class TestOptiWindNetCollection:
             pass
             # Run Linux specific tests
             # validate data against pyrite file
-            ard.test_utils.pyrite_validator(
+            ard.utils.test_utils.pyrite_validator(
                 validation_data,
                 Path(__file__).parent / "test_optiwindnet_pyrite_macos.npz",
                 rtol_val=5e-3,
@@ -230,7 +230,7 @@ class TestOptiWindNetCollection:
         elif os_name == "Darwin":
             # Run macos specific tests
             # validate data against pyrite file
-            ard.test_utils.pyrite_validator(
+            ard.utils.test_utils.pyrite_validator(
                 validation_data,
                 Path(__file__).parent / "test_optiwindnet_pyrite_macos.npz",
                 rtol_val=5e-3,
@@ -239,7 +239,7 @@ class TestOptiWindNetCollection:
         elif os_name == "Windows":
             # Run Windows specific tests
             # validate data against pyrite file
-            ard.test_utils.pyrite_validator(
+            ard.utils.test_utils.pyrite_validator(
                 validation_data,
                 Path(__file__).parent / "test_optiwindnet_pyrite_macos.npz",
                 rtol_val=5e-3,
