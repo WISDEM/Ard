@@ -143,7 +143,7 @@ def polygon_normals_calculator(boundary_vertices:np.ndarray, n_polygons:int=1) -
     """
     Calculate unit vectors perpendicular to each edge of each polygon in a set of polygons.
     This implementation is based on FLOWFarm.jl (https://github.com/byuflowlab/FLOWFarm.jl).
-    This function is not intended to be differentiable.
+    This function is not intended to be differentiable wrt n_polygons.
 
     Args:
         boundary_vertices (list of np.ndarray): List of m-by-2 arrays, where each array contains
