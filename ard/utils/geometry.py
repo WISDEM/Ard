@@ -93,25 +93,36 @@ def distance_multi_point_to_multi_polygon_ray_casting(
         np.ndarray: Constraint values for each turbine.
         np.ndarray (optional): Region assignments for each turbine (if `return_region` is True).
     """
+    
+    # Combine points_x and points_y into a single array of points
+    points = jnp.stack([points_x, points_y], axis=1)
 
-    # Number of points
-    n_points = len(points_x)
+    # Determine the maximum number of vertices in any polygon
+    max_vertices = max(len(polygon) for polygon in boundary_vertices)
 
-    # Initialize constraint output values
-    if d is None:
-        d = np.zeros(n_points, dtype=float)
+    # Pad all polygons to have the same number of vertices
+    def pad_polygon(polygon):
+        padding = max_vertices - len(polygon)
+        return jnp.pad(polygon, ((0, padding), (0, 0)))
 
-    for i in range(n_points):
+    padded_boundary_vertices = jnp.stack([pad_polygon(polygon) for polygon in boundary_vertices])
 
-        # Check if the point is in the specified region
-        d[i] = distance_point_to_polygon_ray_casting(
-            np.array([points_x[i], points_y[i]]),
-            boundary_vertices[regions[i]],
+    # Define a function to compute the distance for a single point and its assigned region
+    def compute_distance(point, region_idx):
+        vertices = padded_boundary_vertices[region_idx]
+        return distance_point_to_polygon_ray_casting(
+            point=point,
+            vertices=vertices,
             s=s,
             shift=tol,
+            return_distance=True,
         )
 
-    return d
+    # Vectorize the computation over all points
+    distances = jax.vmap(compute_distance, in_axes=(0, 0))(points, regions)
+
+    return distances
+distance_multi_point_to_multi_polygon_ray_casting = jax.jit(distance_multi_point_to_multi_polygon_ray_casting)
 
 
 def distance_point_to_polygon_ray_casting(

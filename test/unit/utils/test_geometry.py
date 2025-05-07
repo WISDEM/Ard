@@ -18,7 +18,7 @@ class TestDistancePointToMultiPolygonRayCasting:
     def test_distance_multi_point_to_multi_polygon_inside_outside_single_region(self):
 
         points = np.array([[0.25, 0.5], [1.5, 0.5]])
-        polygons = [[0, 0], [1, 0], [1, 1], [0, 1]]
+        polygons = np.array([[0, 0], [1, 0], [1, 1], [0, 1]])
 
         expected_distance = [-0.25, 0.5]
 
@@ -35,8 +35,10 @@ class TestDistancePointToMultiPolygonRayCasting:
     def test_distance_multi_point_to_multi_polygon_inside_outside_multiple_regions(self):
 
         points = np.array([[0.25, 0.5], [2.5, 0.5]])
-        polygons = [[[0, 0], [1, 0], [1, 1], [0, 1]],
-                    [[1, 0], [2, 0], [2, 1]]]
+        polygons = [
+            np.array([[0, 0], [1, 0], [1, 1], [0, 1]]),
+            np.array([[1, 0], [2, 0], [2, 1]])
+        ]
 
         expected_distance = [-0.25, 0.5]
 
@@ -52,8 +54,10 @@ class TestDistancePointToMultiPolygonRayCasting:
     def test_distance_multi_point_to_multi_polygon_inside_outside_multiple_regions_pre_assigned(self):
 
         points = np.array([[0.25, 0.5], [1.95, 0.5]])
-        polygons = [[[0, 0], [1, 0], [1, 1], [0, 1]],
-                    [[1, 0], [2, 0], [2, 1]]]
+        polygons = [
+            np.array([[0, 0], [1, 0], [1, 1], [0, 1]]),
+            np.array([[1, 0], [2, 0], [2, 1]])
+        ]
         regions = np.array([0, 1])
 
         expected_distance = [-0.25, -0.05]
