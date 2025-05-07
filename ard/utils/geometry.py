@@ -3,6 +3,7 @@ import jax.numpy as jnp
 import jax
 from ard.utils.mathematics import smooth_max, smooth_min, smooth_norm
 
+
 # TODO test
 def distance_multi_point_to_multi_polygon_ray_casting(
     boundary_vertices,
@@ -117,13 +118,15 @@ def distance_multi_point_to_multi_polygon_ray_casting(
             if status[i] == 0:
                 for k in range(nregions):
                     # Calculate distance to each region
-                    turbine_to_region_distance[k] = distance_point_to_polygon_ray_casting(
-                        np.array([points_x[i], points_y[i]]),
-                        boundary_vertices[k],
-                        boundary_normals[k],
-                        s=s,
-                        shift=tol,
-                        return_distance=True,
+                    turbine_to_region_distance[k] = (
+                        distance_point_to_polygon_ray_casting(
+                            np.array([points_x[i], points_y[i]]),
+                            boundary_vertices[k],
+                            boundary_normals[k],
+                            s=s,
+                            shift=tol,
+                            return_distance=True,
+                        )
                     )
 
                 # Magnitude of the constraint value
@@ -139,101 +142,7 @@ def distance_multi_point_to_multi_polygon_ray_casting(
             return c, region
         return c
 
-# @jax.jit
-# def distance_point_to_polygon_ray_casting(
-#     point: np.ndarray[float],
-#     vertices: np.ndarray[float],
-#     s: float = 700,
-#     shift: float = 1e-10,
-#     return_distance: bool = True,
-# ):
-#     """
-#     Determine the signed distance from a point to a polygon.
 
-#     Given a polygon defined by a set of vertices, determine the signed distance from the point
-#     to the polygon. Returns the negative (-) distance if the point is inside or on the polygon,
-#     and positive (+) otherwise. If `return_distance` is False, returns -1 if the point is inside
-#     or on the boundary, and 1 otherwise. This implementation is based on FLOWFarm.jl 
-#     (https://github.com/byuflowlab/FLOWFarm.jl)
-
-#     Args:
-#         point (np.ndarray): Point of interest (2D vector).
-#         vertices (np.ndarray): Vertices of the polygon (Nx2 array).
-#         s (float, optional): Smoothing factor for the smoothmax function. Defaults to 700.
-#         shift (float, optional): Small shift to handle edge cases. Defaults to 1e-10.
-#         return_distance (bool, optional): Whether to return the signed distance or just
-#             inside/outside status. Defaults to True.
-
-#     Returns:
-#         float: Signed distance or inside/outside status.
-#     """
-
-#     nvertices = vertices.shape[0]
-#     intersection_counter = 0.0
-#     point_to_face_distance = jnp.zeros(nvertices)
-
-#     # Add the first vertex to the end to close the polygon loop
-#     vertices = jnp.vstack([vertices, vertices[0]])
-
-#     # Iterate through each boundary edge to count intersections and calculate distances
-#     def process_edge(j, state):
-#         # intersection_counter, point_to_face_distance = state
-#         intersection_counter, point_to_face_distance, point, vertices = state
-
-#         # point, vertices = inputs
-
-#         # Check if the x-coordinate of the point is between the x-coordinates of the edge including beginning and not the end
-#         x_condition = (
-#             (vertices[j, 0] <= point[0]) & (point[0] < vertices[j + 1, 0])
-#         ) | (
-#             (vertices[j, 0] >= point[0]) & (point[0] > vertices[j + 1, 0])
-#         )
-
-#         # Calculate the y-coordinate of the edge at the x-coordinate of the point
-#         y = (
-#             (vertices[j + 1, 1] - vertices[j, 1])
-#             / (vertices[j + 1, 0] - vertices[j, 0] + shift)
-#             * (point[0] - vertices[j, 0])
-#             + vertices[j, 1]
-#         )
-
-#         # Increment intersection counter if the point is below the edge
-#         intersection_counter += jax.lax.cond(
-#             x_condition & (point[1] < y), lambda _: 1.0, lambda _: 0.0, operand=None
-#         )
-
-#         # Calculate the distance to the edge
-#         point_to_face_distance = point_to_face_distance.at[j].set(
-#             distance_point_to_lineseg_nd(point, vertices[j], vertices[j + 1])
-#         )
-
-#         return intersection_counter, point_to_face_distance
-
-#     # Pass point and vertices as part of the state
-#     state = (intersection_counter, point_to_face_distance, point, vertices)
-
-#     intersection_counter, point_to_face_distance = jax.lax.fori_loop(
-#         0, nvertices, process_edge, state
-#     )
-
-#     if return_distance:
-#         c = smooth_min(point_to_face_distance, s=s)
-#         c = jax.lax.cond(
-#             intersection_counter % 2 == 1,
-#             lambda _: -c,
-#             lambda _: c,
-#             operand=None,
-#         )
-#     else:
-#         c = jax.lax.cond(
-#             intersection_counter % 2 == 1,
-#             lambda _: -1.0,
-#             lambda _: 1.0,
-#             operand=None,
-#         )
-#     return c
-
-@jax.jit
 def distance_point_to_polygon_ray_casting(
     point: jnp.ndarray,
     vertices: jnp.ndarray,
@@ -259,27 +168,20 @@ def distance_point_to_polygon_ray_casting(
     point = jnp.asarray(point, dtype=jnp.float32)
     vertices = jnp.asarray(vertices, dtype=jnp.float32)
 
-    nvertices = vertices.shape[0]
-
     # Add the first vertex to the end to close the polygon loop
     vertices = jnp.vstack([vertices, vertices[0]])
 
     # Define a function to process a single edge
     def process_edge(edge_start, edge_end, point):
         # Check if the x-coordinate of the point is between the x-coordinates of the edge
-        x_condition = (
-            (edge_start[0] <= point[0]) & (point[0] < edge_end[0])
-        ) | (
+        x_condition = ((edge_start[0] <= point[0]) & (point[0] < edge_end[0])) | (
             (edge_start[0] >= point[0]) & (point[0] > edge_end[0])
         )
 
         # Calculate the y-coordinate of the edge at the x-coordinate of the point
-        y = (
-            (edge_end[1] - edge_start[1])
-            / (edge_end[0] - edge_start[0] + shift)
-            * (point[0] - edge_start[0])
-            + edge_start[1]
-        )
+        y = (edge_end[1] - edge_start[1]) / (edge_end[0] - edge_start[0] + shift) * (
+            point[0] - edge_start[0]
+        ) + edge_start[1]
 
         # Determine if the point is below the edge
         is_below = x_condition & (point[1] < y)
@@ -292,8 +194,9 @@ def distance_point_to_polygon_ray_casting(
     # Vectorize the edge processing function
     edge_starts = vertices[:-1]
     edge_ends = vertices[1:]
-    # is_below, distances = jax.vmap(process_edge)(edge_starts, edge_ends, point)
-    is_below, distances = jax.vmap(process_edge, in_axes=(0, 0, None))(edge_starts, edge_ends, point)
+    is_below, distances = jax.vmap(process_edge, in_axes=(0, 0, None))(
+        edge_starts, edge_ends, point
+    )
 
     # Count the number of intersections
     intersection_counter = jnp.sum(is_below)
@@ -316,7 +219,13 @@ def distance_point_to_polygon_ray_casting(
         )
     return c
 
-def polygon_normals_calculator(boundary_vertices:np.ndarray, n_polygons:int=1) -> list[np.ndarray]:
+
+distance_point_to_polygon_ray_casting = jax.jit(distance_point_to_polygon_ray_casting)
+
+
+def polygon_normals_calculator(
+    boundary_vertices: np.ndarray, n_polygons: int = 1
+) -> list[np.ndarray]:
     """
     Calculate unit vectors perpendicular to each edge of each polygon in a set of polygons.
     This implementation is based on FLOWFarm.jl (https://github.com/byuflowlab/FLOWFarm.jl).
@@ -338,8 +247,10 @@ def polygon_normals_calculator(boundary_vertices:np.ndarray, n_polygons:int=1) -
         # Multiple polygons case
         return multi_polygon_normals_calculator(boundary_vertices)
 
-@jax.jit
-def multi_polygon_normals_calculator(boundary_vertices:list[np.ndarray])->jnp.ndarray:
+
+def multi_polygon_normals_calculator(
+    boundary_vertices: list[np.ndarray],
+) -> jnp.ndarray:
     """
     Calculate unit vectors perpendicular to each edge of each polygon in a set of polygons.
     This implementation is based on FLOWFarm.jl (https://github.com/byuflowlab/FLOWFarm.jl).
@@ -353,12 +264,17 @@ def multi_polygon_normals_calculator(boundary_vertices:list[np.ndarray])->jnp.nd
         list of np.ndarray: List of m-by-2 arrays of unit vectors perpendicular to each edge
             of each polygon.
     """
-    return [single_polygon_normals_calculator(vertices) for vertices in boundary_vertices]
- 
-@jax.jit
+    return [
+        single_polygon_normals_calculator(vertices) for vertices in boundary_vertices
+    ]
+
+
+multi_polygon_normals_calculator = jax.jit(multi_polygon_normals_calculator)
+
+
 def single_polygon_normals_calculator(boundary_vertices: np.ndarray) -> jnp.ndarray:
     """
-    Calculate unit vectors perpendicular to each edge of a polygon pointing into the polygon. 
+    Calculate unit vectors perpendicular to each edge of a polygon pointing into the polygon.
     This implementation is based on FLOWFarm.jl (https://github.com/byuflowlab/FLOWFarm.jl).
 
     Args:
@@ -368,7 +284,7 @@ def single_polygon_normals_calculator(boundary_vertices: np.ndarray) -> jnp.ndar
     Returns:
         np.ndarray: m-by-2 array of unit vectors perpendicular to each edge of the polygon pointing into the polygon.
     """
-    
+
     # Add the first vertex to the end to form a closed loop
     boundary_vertices = jnp.vstack([boundary_vertices, boundary_vertices[0]])
 
@@ -384,6 +300,10 @@ def single_polygon_normals_calculator(boundary_vertices: np.ndarray) -> jnp.ndar
     boundary_normals = boundary_normals / norms
 
     return [boundary_normals]
+
+
+single_polygon_normals_calculator = jax.jit(single_polygon_normals_calculator)
+
 
 def point_on_line(p: np.ndarray, v1: np.ndarray, v2: np.ndarray, tol=1e-6):
     """
@@ -405,6 +325,7 @@ def point_on_line(p: np.ndarray, v1: np.ndarray, v2: np.ndarray, tol=1e-6):
     d = distance_point_to_lineseg_nd(p, v1, v2)
 
     return jnp.isclose(d, 0.0, atol=tol)
+
 
 def _distance_lineseg_to_lineseg_coplanar(
     line_a_start: np.ndarray,
