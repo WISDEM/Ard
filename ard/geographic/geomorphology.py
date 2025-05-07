@@ -92,7 +92,7 @@ class GeomorphologyGridData:
         """Get the depth at a given location."""
         return self.z_data
 
-    def evaluate_depth(
+    def evaluate(
         self,
         x_query,
         y_query,
@@ -112,7 +112,9 @@ class GeomorphologyGridData:
         Returns
         -------
         np.array
-            The depth at the given locations
+            the depth at the given locations if return_derivs is False
+        tuple
+            the derivatives if return_derivs is True
         """
 
         x_query = np.atleast_1d(x_query)  # ensure x_query is a 1D array
@@ -154,7 +156,7 @@ class GeomorphologyGridData:
 
         else:
             raise NotImplementedError(
-                f"{interp_method} interpolation scheme for evaluate_depth not implemented yet. -cfrontin"
+                f"{interp_method} interpolation scheme for evaluate not implemented yet. -cfrontin"
             )
 
 
