@@ -145,13 +145,13 @@ class GeomorphologyGridData:
                 interpolator_sbs = self._interpolator_device
 
             # make interpolation
-            z_query = interpolator_sbs(x_query, y_query, grid=False)
             if return_derivs:
                 # and if desired, take its derivatives
                 dz_dx = interpolator_sbs(x_query, y_query, grid=False, dx=1, dy=0)
                 dz_dy = interpolator_sbs(x_query, y_query, grid=False, dx=0, dy=1)
-                return z_query, (dz_dx, dz_dy)  # and return
+                return (dz_dx, dz_dy)  # and return
             else:
+                z_query = interpolator_sbs(x_query, y_query, grid=False)
                 return z_query  # just return
 
         else:
