@@ -5,6 +5,76 @@ import pytest
 
 
 @pytest.mark.usefixtures("subtests")
+class TestDistancePointToPolygonRayCasting:
+    """
+    Test for distance_point_to_polygon_ray_casting
+    """
+    
+    def setup_method(self):
+        self.distance_point_to_polygon_ray_casting_grad = jax.grad(
+            geo_utils.distance_point_to_polygon_ray_casting, [0]
+        )
+        pass
+
+    def test_distance_point_to_polygon_inside(self):
+
+        point = np.array([0.25, 0.5])
+        polygon = np.array([[0, 0], [1, 0], [1, 1], [0, 1]])
+
+        expected_distance = -0.25
+
+        test_result = geo_utils.distance_point_to_polygon_ray_casting(point, vertices=polygon)
+
+        assert test_result == pytest.approx(expected_distance)
+
+    def test_distance_point_to_polygon_center(self):
+
+        point = np.array([0.5, 0.5])
+        polygon = np.array([[0, 0], [1, 0], [1, 1], [0, 1]])
+
+        expected_distance = -0.5
+
+        test_result = geo_utils.distance_point_to_polygon_ray_casting(point, vertices=polygon)
+
+        assert test_result == pytest.approx(expected_distance, rel=1e-2)
+
+    def test_distance_point_to_polygon_outside(self):
+
+        point = np.array([-0.5, 0.5])
+        polygon = np.array([[0, 0], [1, 0], [1, 1], [0, 1]])
+
+        expected_distance = 0.5
+
+        test_result = geo_utils.distance_point_to_polygon_ray_casting(point, vertices=polygon)
+
+        assert test_result == pytest.approx(expected_distance, rel=1e-2)
+
+    def test_distance_point_to_polygon_grad_2d(self, subtests):
+       
+        point = np.array([-0.25, 0.5], dtype=np.float64)
+        polygon = np.array([[0, 0], [1, 0], [1, 1], [0, 1]], dtype=np.float64)
+
+        test_result = self.distance_point_to_polygon_ray_casting_grad(point, vertices=polygon)
+
+        with subtests.test("analytic derivatives"):
+            # note that the distance should get more negative as the point moves deeper inside the polygon
+            assert np.all(
+                test_result[0] == pytest.approx(np.array([-1.0, 0.0], dtype=float))
+            )
+
+        with subtests.test("numeric derivatives"):
+            try:
+                jax.test_util.check_grads(
+                    geo_utils.distance_point_to_polygon_ray_casting,
+                    {"point": point, "vertices": polygon},
+                    order=1,
+                )
+            except AssertionError:
+                pytest.fail(
+                    "Unexpected AssertionError when checking gradients, gradients may be incorrect"
+                )
+
+@pytest.mark.usefixtures("subtests")
 class TestPolygonNormalsCalculator:
     """
     Test for polygon normals calculator
@@ -185,6 +255,7 @@ class TestPointOnLine:
 
         assert test_result == False
 
+@pytest.mark.usefixtures("subtests")
 class TestGetClosestPointOnLineSeg:
     def setup_method(self):
         self.get_closest_point_on_line_seg_jac = jax.jacobian(geo_utils.get_closest_point_on_line_seg, [0])
@@ -298,7 +369,7 @@ class TestGetClosestPointOnLineSeg:
 
         assert np.all(test_result == np.array([0, 0, 2]))
 
-    def test_get_closest_point_on_line_seg_jac(self):
+    def test_get_closest_point_on_line_seg_jac(self, subtest):
         """
         Test for gradient for a point near the middle of the line segment
         """
@@ -312,19 +383,20 @@ class TestGetClosestPointOnLineSeg:
             test_point, test_start, test_end, line_vector
         )
 
-        assert np.all(tr_dp == np.array([[0, 0, 0], [0, 0, 0], [0, 0, 1]]))
+        with subtest.test("analytic derivatives"):
+            assert np.all(tr_dp == np.array([[0, 0, 0], [0, 0, 0], [0, 0, 1]]))
 
-        try:
-            jax.test_util.check_grads(
-                geo_utils.get_closest_point_on_line_seg,
-                (test_point, test_start, test_end, line_vector),
-                order=1,
-            )
-        except AssertionError:
-            pytest.fail(
-                "Unexpected AssertionError when checking gradients, gradients may be incorrect"
-            )
-
+        with subtest.test("numeric derivatives"):
+            try:
+                jax.test_util.check_grads(
+                    geo_utils.get_closest_point_on_line_seg,
+                    (test_point, test_start, test_end, line_vector),
+                    order=1,
+                )
+            except AssertionError:
+                pytest.fail(
+                    "Unexpected AssertionError when checking gradients, gradients may be incorrect"
+                )
 
 class TestPointToLineSeg:
     def setup_method(self):
