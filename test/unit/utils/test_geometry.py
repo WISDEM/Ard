@@ -51,8 +51,8 @@ class TestDistancePointToPolygonRayCasting:
 
     def test_distance_point_to_polygon_grad_2d(self, subtests):
        
-        point = np.array([-0.25, 0.5], dtype=np.float64)
-        polygon = np.array([[0, 0], [1, 0], [1, 1], [0, 1]], dtype=np.float64)
+        point = np.array([-0.25, 0.5], dtype=float)
+        polygon = np.array([[0, 0], [1, 0], [1, 1], [0, 1]], dtype=float)
 
         test_result = self.distance_point_to_polygon_ray_casting_grad(point, vertices=polygon)
 
@@ -66,8 +66,9 @@ class TestDistancePointToPolygonRayCasting:
             try:
                 jax.test_util.check_grads(
                     geo_utils.distance_point_to_polygon_ray_casting,
-                    {"point": point, "vertices": polygon},
+                    args=(point, polygon),
                     order=1,
+                    rtol=1E-4,
                 )
             except AssertionError:
                 pytest.fail(
@@ -369,7 +370,7 @@ class TestGetClosestPointOnLineSeg:
 
         assert np.all(test_result == np.array([0, 0, 2]))
 
-    def test_get_closest_point_on_line_seg_jac(self, subtest):
+    def test_get_closest_point_on_line_seg_jac(self, subtests):
         """
         Test for gradient for a point near the middle of the line segment
         """
@@ -383,10 +384,10 @@ class TestGetClosestPointOnLineSeg:
             test_point, test_start, test_end, line_vector
         )
 
-        with subtest.test("analytic derivatives"):
-            assert np.all(tr_dp == np.array([[0, 0, 0], [0, 0, 0], [0, 0, 1]]))
+        with subtests.test("analytic derivatives"):
+            assert np.all(tr_dp == np.array([[0, 0, 0], [0, 0, 0], [0, 0, 1]], dtype=float))
 
-        with subtest.test("numeric derivatives"):
+        with subtests.test("numeric derivatives"):
             try:
                 jax.test_util.check_grads(
                     geo_utils.get_closest_point_on_line_seg,

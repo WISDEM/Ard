@@ -639,7 +639,7 @@ def distance_point_to_lineseg_nd(
     def if_point_to_point(inputs) -> float:
         point = inputs[0]
         segment_start = inputs[1]
-        return smooth_norm(jnp.subtract(segment_start, point))
+        return jnp.float64(smooth_norm(segment_start - point))
 
     def if_point_to_line_seg(inputs) -> float:
         point = inputs[0]
@@ -653,7 +653,7 @@ def distance_point_to_lineseg_nd(
         )
 
         # the distance from the point to the line is the distance from the point to the closest point on the line
-        return smooth_norm(jnp.subtract(point, closest_point))
+        return jnp.float64(smooth_norm(point - closest_point))
 
     # get the vector of the line segment
     segment_vector = segment_end - segment_start
@@ -701,11 +701,11 @@ def get_closest_point_on_line_seg(
 
     def lt_0(inputs) -> np.ndarray:
         segment_start = inputs[1]
-        return jnp.array(segment_start, dtype=float)
+        return jnp.array(segment_start, dtype=jnp.float64)
 
     def gt_1(inputs) -> np.ndarray:
         segment_end = inputs[2]
-        return jnp.array(segment_end, dtype=float)
+        return jnp.array(segment_end, dtype=jnp.float64)
 
     def gt_0(inputs) -> np.ndarray:
         projection = inputs[0]
@@ -715,7 +715,7 @@ def get_closest_point_on_line_seg(
         projection = inputs[0]
         segment_start = inputs[1]
         segment_vector = inputs[3]
-        return jnp.array(segment_start + projection * segment_vector, dtype=float)
+        return jnp.array(segment_start + projection * segment_vector, dtype=jnp.float64)
 
     return jax.lax.cond(
         projection < 0,
