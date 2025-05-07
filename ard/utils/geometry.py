@@ -3,144 +3,115 @@ import jax.numpy as jnp
 import jax
 from ard.utils.mathematics import smooth_max, smooth_min, smooth_norm
 
-
-# TODO test
-def distance_multi_point_to_multi_polygon_ray_casting(
-    boundary_vertices,
-    boundary_normals,
-    points_x,
-    points_y,
-    discrete=False,
-    s=700,
-    tol=1e-6,
-    return_region=False,
-    regions=None,
-    c=None,
-):
+def get_nearest_polygons(
+        boundary_vertices,
+        points_x,
+        points_y,
+        s=700,
+        tol=1e-6,
+    ):
     """
-    Calculate the distance from each point to the nearest point on a polygon or set of polygons using
-    the ray-casting algorithm. Negative means the turbine is inside the boundary.
+    Determines the nearest polygon for each point using the ray-casting algorithm.
     This implementation is based on FLOWFarm.jl (https://github.com/byuflowlab/FLOWFarm.jl)
 
     Args:
         boundary_vertices (np.ndarray or list of np.ndarray): Vertices of the boundary in
             counterclockwise order. If `discrete` is True, this should be a list of arrays.
-        boundary_normals (np.ndarray or list of np.ndarray): Unit normal vectors for each
-            boundary face in counterclockwise order. If `discrete` is True, this should be
-            a list of arrays.
         points_x (np.ndarray): points x coordinates.
         points_y (np.ndarray): points y coordinates.
-        discrete (bool, optional): If True, indicates the boundary is made of multiple discrete regions.
-            Defaults to False.
         s (float, optional): Smoothing factor for smooth max. Defaults to 700.
         tol (float, optional): Tolerance for determining proximity. Defaults to 1e-6.
-        return_region (bool, optional): If True, return a vector specifying which region each turbine is in.
-            Defaults to False.
-        regions (list, optional): Predefined region assignments for turbines. Defaults to None.
+
+    Returns:
+        np.ndarray: Region assignments for each turbine.
+    """
+
+    # Number of turbines
+    n_points = len(points_x)
+
+    # Number of regions
+    nregions = len(boundary_vertices)
+
+    # Initialize region and status arrays
+    region = -np.ones(n_points, dtype=int)
+
+    # Initialize array to hold distances from each turbine to the closest boundary face
+    turbine_to_region_distance = np.zeros(nregions, dtype=float)
+
+    for i in range(n_points):
+        # Iterate through each region
+        for k in range(nregions):
+            # Get distance to each region
+            ctmp = distance_point_to_polygon_ray_casting(
+                np.array([points_x[i], points_y[i]]),
+                boundary_vertices[k],
+                s=s,
+                shift=tol,
+                return_distance=True,
+            )
+            if ctmp <= 0:  # Negative if in boundary
+                region[i] = k
+                break
+
+            # Check if the point is not in any of the regions
+            else:
+                # Calculate distance to each region
+                turbine_to_region_distance[k] = ctmp
+
+        # Magnitude of the constraint value
+        if region[i] == -1:
+            # Indicate closest region
+            region[i] = np.argmin(turbine_to_region_distance)
+
+    return region
+
+def distance_multi_point_to_multi_polygon_ray_casting(
+    boundary_vertices: list[list[np.ndarray]],
+    points_x: np.ndarray[float],
+    points_y: np.ndarray[float],
+    regions: np.ndarray[int],
+    s=700,
+    tol=1e-6,
+    d=None,
+)-> np.ndarray:
+    """
+    Calculate the distance from each point to the nearest point on a polygon or set of polygons using
+    the ray-casting algorithm. Negative means the turbine is inside at least one polygon.
+    This implementation is based on FLOWFarm.jl (https://github.com/byuflowlab/FLOWFarm.jl)
+
+    Args:
+        boundary_vertices (list[list[np.ndarray]]): Vertices of the boundary in
+            counterclockwise order.
+        points_x (np.ndarray[list]): points x coordinates.
+        points_y (np.ndarray[list]): points y coordinates.
+        regions (np.array[int]): Predefined region assignments for each point. Defaults to None.
+        s (float, optional): Smoothing factor for smooth max. Defaults to 700.
+        tol (float, optional): Tolerance for determining proximity of point to polygon to be considered inside the polygon. Defaults to 1e-6.
         c (np.ndarray, optional): Preallocated array for constraint values. Defaults to None.
 
     Returns:
         np.ndarray: Constraint values for each turbine.
         np.ndarray (optional): Region assignments for each turbine (if `return_region` is True).
     """
-    # Number of turbines
+
+    # Number of points
     n_points = len(points_x)
 
     # Initialize constraint output values
-    if c is None:
-        c = np.zeros(n_points, dtype=float)
+    if d is None:
+        d = np.zeros(n_points, dtype=float)
 
-    # Single region
-    if not discrete:
-        for i in range(n_points):
-            # Determine if the point is contained in the polygon
-            c[i] = distance_point_to_polygon_ray_casting(
-                np.array([points_x[i], points_y[i]]),
-                boundary_vertices,
-                boundary_normals,
-                s=s,
-                shift=tol,
-            )
-        return c
+    for i in range(n_points):
 
-    # Multiple discrete regions with predefined region assignments
-    elif regions is not None and len(regions) > 0:
-        for i in range(n_points):
-            # Determine if the point is contained in the assigned polygonal region
-            c[i] = distance_point_to_polygon_ray_casting(
-                np.array([points_x[i], points_y[i]]),
-                boundary_vertices[regions[i]],
-                boundary_normals[regions[i]],
-                s=s,
-                shift=tol,
-            )
-        return c
+        # Check if the point is in the specified region
+        d[i] = distance_point_to_polygon_ray_casting(
+            np.array([points_x[i], points_y[i]]),
+            boundary_vertices[regions[i]],
+            s=s,
+            shift=tol,
+        )
 
-    # Multiple discrete regions without predefined region assignments
-    else:
-        # Number of regions
-        nregions = len(boundary_vertices)
-
-        # Initialize region and status arrays
-        region = np.zeros(n_points, dtype=int)
-        status = np.zeros(n_points, dtype=int)
-
-        # Initialize array to hold distances from each turbine to the closest boundary face
-        turbine_to_region_distance = np.zeros(nregions, dtype=float)
-
-        for i in range(n_points):
-            # Iterate through each region
-            for k in range(nregions):
-                # Check if the point is in this region
-                ctmp = distance_point_to_polygon_ray_casting(
-                    np.array([points_x[i], points_y[i]]),
-                    boundary_vertices[k],
-                    boundary_normals[k],
-                    s=s,
-                    shift=tol,
-                    return_distance=False,
-                )
-                if ctmp <= 0:  # Negative if in boundary
-                    c[i] = distance_point_to_polygon_ray_casting(
-                        np.array([points_x[i], points_y[i]]),
-                        boundary_vertices[k],
-                        boundary_normals[k],
-                        s=s,
-                        shift=tol,
-                        return_distance=True,
-                    )
-                    status[i] = 1
-                    if return_region:
-                        region[i] = k
-                    break
-
-            # Check if the turbine is in none of the regions
-            if status[i] == 0:
-                for k in range(nregions):
-                    # Calculate distance to each region
-                    turbine_to_region_distance[k] = (
-                        distance_point_to_polygon_ray_casting(
-                            np.array([points_x[i], points_y[i]]),
-                            boundary_vertices[k],
-                            boundary_normals[k],
-                            s=s,
-                            shift=tol,
-                            return_distance=True,
-                        )
-                    )
-
-                # Magnitude of the constraint value
-                c[i] = -smooth_max(-turbine_to_region_distance, s=s)
-
-                # Set status to indicate that the turbine has been assigned
-                status[i] = 1
-
-                # Indicate closest region
-                region[i] = np.argmin(turbine_to_region_distance)
-
-        if return_region:
-            return c, region
-        return c
+    return d
 
 
 def distance_point_to_polygon_ray_casting(
@@ -218,10 +189,6 @@ def distance_point_to_polygon_ray_casting(
             operand=None,
         )
     return c
-
-
-distance_point_to_polygon_ray_casting = jax.jit(distance_point_to_polygon_ray_casting)
-
 
 def polygon_normals_calculator(
     boundary_vertices: np.ndarray, n_polygons: int = 1
