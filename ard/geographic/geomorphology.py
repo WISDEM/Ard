@@ -2,6 +2,7 @@ from os import PathLike
 from pathlib import Path
 
 import numpy as np
+from scipy.interpolate import SmoothBivariateSpline
 
 import openmdao.api as om
 
@@ -24,8 +25,8 @@ class GeomorphologyGridData:
 
     sea_level = 0.0  # sea level in m
 
-    _gpr_eval = (
-        None  # placeholder for Gaussian process regressor (for depth evaluation)
+    _interpolator_device = (
+        None  # placeholder for interpolator (for depth evaluation)
     )
 
     def check_valid(self):
@@ -119,20 +120,28 @@ class GeomorphologyGridData:
 
         if interp_method == "spline":
             # or, smooth bivariate spline from scipy implementation
-            from scipy.interpolate import SmoothBivariateSpline
 
-            # create the interpolator object
-            interpolator_sbs = SmoothBivariateSpline(
-                self.x_data.flatten(),
-                self.y_data.flatten(),
-                self.z_data.flatten(),
-                bbox=[
-                    np.min(self.x_data),
-                    np.max(self.x_data),
-                    np.min(self.y_data),
-                    np.max(self.y_data),
-                ],
-            )
+            if self._interpolator_device is None:
+                # create and alias the interpolator object
+                interpolator_sbs = self._interpolator_device = SmoothBivariateSpline(
+                    self.x_data.flatten(),
+                    self.y_data.flatten(),
+                    self.z_data.flatten(),
+                    bbox=[
+                        np.min(self.x_data),
+                        np.max(self.x_data),
+                        np.min(self.y_data),
+                        np.max(self.y_data),
+                    ],
+                )
+            else:
+                # assert the interpolator is of the smoothbivariate spline type or its parent class
+                assert isinstance(
+                    self._interpolator_device, SmoothBivariateSpline
+                ), "interpolator must be a SmoothBivariateSpline"
+                # alias
+                interpolator_sbs = self._interpolator_device
+
             # make interpolation
             z_query = interpolator_sbs(x_query, y_query, grid=False)
             if return_derivs:
@@ -142,43 +151,6 @@ class GeomorphologyGridData:
                 return z_query, (dz_dx, dz_dy)  # and return
             else:
                 return z_query  # just return
-
-        # elif interp_method == "gaussian_process":
-        #     if self._gpr_eval is None:
-        #         from sklearn.gaussian_process import GaussianProcessRegressor
-        #         from sklearn.gaussian_process.kernels import Matern
-        #
-        #         # create a Gaussian process regressor
-        #         kernel = 1.0 * Matern(nu=2.5)  # Matern 5/2 kernel
-        #         self._gpr_eval = GaussianProcessRegressor(
-        #             kernel=kernel,
-        #             normalize_y=True,
-        #         )
-        #
-        #         # package the data
-        #         X_data = np.vstack((self.x_data.flatten(), self.y_data.flatten())).T
-        #         z_data = self.z_data.flatten()
-        #         self.ptp_ref = np.ptp(X_data, axis=0)  # range of the data
-        #         X_data = 2 * X_data / self.ptp_ref  # normalize the data
-        #         # perform the fit
-        #         self._gpr_eval.fit(X_data, z_data)
-        #
-        #     # evaluate the depth at the given locations
-        #     X_query = (
-        #         np.vstack((x_query.flatten(), y_query.flatten())).T * self.ptp_ref / 2
-        #     )
-        #     z_query = self._gpr_eval.predict(X_query, return_std=return_derivs)
-        #
-        #     if return_derivs:
-        #         raise NotImplementedError(
-        #             "Gaussian process regression does not support derivatives yet. -cfrontin"
-        #         )
-        #
-        #     raise NotImplementedError(
-        #         f"{interp_method} interpolation scheme for evaluate_depth not implemented yet. -cfrontin"
-        #     )
-        #
-        #     return z_query  # return the depth at the given locations
 
         else:
             raise NotImplementedError(
