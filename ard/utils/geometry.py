@@ -72,7 +72,6 @@ def distance_multi_point_to_multi_polygon_ray_casting(
     regions: np.ndarray[int],
     s=700,
     tol=1e-6,
-    d=None,
 )-> np.ndarray:
     """
     Calculate the distance from each point to the nearest point on a polygon or set of polygons using
@@ -129,7 +128,7 @@ def distance_point_to_polygon_ray_casting(
     point: jnp.ndarray,
     vertices: jnp.ndarray,
     s: float = 700,
-    shift: float = 1e-10,
+    shift: float = 0.0,
     return_distance: bool = True,
 ):
     """

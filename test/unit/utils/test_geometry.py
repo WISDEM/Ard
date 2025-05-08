@@ -48,7 +48,7 @@ class TestDistancePointToMultiPolygonRayCasting:
     """
 
     def setup_method(self):
-        self.distance_point_to_polygon_ray_casting_jac = jax.jacrev(
+        self.distance_multi_point_to_multi_polygon_ray_casting_jac = jax.jacrev(
             geo_utils.distance_multi_point_to_multi_polygon_ray_casting, [0, 1]
         )
         pass
@@ -98,7 +98,7 @@ class TestDistancePointToMultiPolygonRayCasting:
         ]
         regions = np.array([0, 1], dtype=int)
 
-        test_result = self.distance_point_to_polygon_ray_casting_jac(
+        test_result = self.distance_multi_point_to_multi_polygon_ray_casting_jac(
             points[:, 0], 
             points[:, 1],
             boundary_vertices=polygons, 
