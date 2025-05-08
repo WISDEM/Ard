@@ -4,6 +4,44 @@ import ard.utils.geometry as geo_utils
 import pytest
 
 @pytest.mark.usefixtures("subtests")
+class TestGetNearestPolygons:
+    """
+    Test for get_nearest_polygons function
+    """
+
+    def test_get_nearest_polygons_single_region(self):
+
+        points = np.array([[0.25, 0.5], [1.5, 0.5]])
+        polygons = np.array([[0, 0], [1, 0], [1, 1], [0, 1]])
+
+        expected_regions = np.array([0, 0])
+
+        test_result = geo_utils.get_nearest_polygons(
+            boundary_vertices=[polygons],
+            points_x=points[:, 0],
+            points_y=points[:, 1],
+        )
+
+        assert np.allclose(test_result, expected_regions)
+
+    def test_get_nearest_polygons_multi_region(self):
+
+        points = np.array([[0.25, 0.5], [1.95, 0.5]], dtype=float)
+        polygons = [
+            np.array([[0, 0], [1, 0], [1, 1], [0, 1]], dtype=float),
+            np.array([[1, 0], [2, 0], [2, 1]], dtype=float)
+        ]
+        expected_regions = np.array([0, 1], dtype=int)
+
+        test_result = geo_utils.get_nearest_polygons(
+            boundary_vertices=polygons,
+            points_x=points[:, 0],
+            points_y=points[:, 1],
+        )
+
+        assert np.allclose(test_result, expected_regions)
+
+@pytest.mark.usefixtures("subtests")
 class TestDistancePointToMultiPolygonRayCasting:
     """
     Test for distance_point_to_polygon_ray_casting
