@@ -98,7 +98,10 @@ class TestGeomorphologyGridData:
             assert np.allclose(self.geomorphology.get_z_data(), z_data)
             assert np.all(self.geomorphology.get_shape() == x_data.shape)
             assert self.geomorphology.material_data.size == 1
-            assert self.geomorphology.material_data == "soil"  # default value
+            assert np.array_equal(
+                self.geomorphology.material_data,
+                np.array([["soil"]])
+            )  # default value
 
         with subtests.test(f"check_valid final test"):
             assert self.geomorphology.check_valid()  # check if the data is valid
