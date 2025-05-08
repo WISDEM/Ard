@@ -6,6 +6,7 @@ import pytest
 import ard
 
 
+@pytest.mark.usefixtures("subtests")
 class TestGeomorphologyGridData:
     """
     Test the GeomorphologyGridData class.
@@ -23,7 +24,7 @@ class TestGeomorphologyGridData:
         # create a geomorphology object before each test
         self.geomorphology = ard.geographic.GeomorphologyGridData()
 
-    def test_check_valid(self):
+    def test_check_valid(self, subtests):
 
         # create a mesh and try to upload it
         y_data, x_data = np.meshgrid([-1.0, 0.0, 1.0], [0.0, 2.0])
@@ -38,15 +39,16 @@ class TestGeomorphologyGridData:
         for idx_case in range(4):
 
             # do a setup that should fail because of check_valid
-            with pytest.raises(AssertionError):
-                self.geomorphology.set_values(
-                    x_data_in=x_data if idx_case != 0 else x_data[:1, :],
-                    y_data_in=y_data if idx_case != 1 else y_data[:1, :],
-                    z_data_in=z_data if idx_case != 2 else z_data[:1, :],
-                    material_data_in=(
-                        material_data if idx_case != 3 else material_data[:1, :]
-                    ),
-                )
+            with subtests.test(f"check_valid bad build assertion test {idx_case}"):
+                with pytest.raises(AssertionError):
+                    self.geomorphology.set_values(
+                        x_data_in=x_data if idx_case != 0 else x_data[:1, :],
+                        y_data_in=y_data if idx_case != 1 else y_data[:1, :],
+                        z_data_in=z_data if idx_case != 2 else z_data[:1, :],
+                        material_data_in=(
+                            material_data if idx_case != 3 else material_data[:1, :]
+                        ),
+                    )
 
             # reset to a legitimate setup
             self.geomorphology.set_values(
@@ -69,10 +71,11 @@ class TestGeomorphologyGridData:
                 ]
 
             # make sure check valid raises an exception
-            with pytest.raises(AssertionError):
-                assert self.geomorphology.check_valid()
+            with subtests.test(f"check_valid bad override assertion test {idx_case}"):
+                with pytest.raises(AssertionError):
+                    assert self.geomorphology.check_valid()
 
-    def test_set_values(self):
+    def test_set_values(self, subtests):
 
         # create a mesh and try to upload it
         y_data, x_data = np.meshgrid([-1.0, 0.0, 1.0], [0.0, 2.0])
@@ -88,17 +91,19 @@ class TestGeomorphologyGridData:
         )
 
         # make sure the values are set in correctly
-        assert np.allclose(self.geomorphology.x_data, x_data)
-        assert np.allclose(self.geomorphology.y_data, y_data)
-        assert np.allclose(self.geomorphology.z_data, z_data)
-        assert np.allclose(self.geomorphology.get_z_data(), z_data)
-        assert np.all(self.geomorphology.get_shape() == x_data.shape)
-        assert self.geomorphology.material_data.size == 1
-        assert self.geomorphology.material_data == "soil"  # default value
+        with subtests.test(f"set_values data equivalence tests"):
+            assert np.allclose(self.geomorphology.x_data, x_data)
+            assert np.allclose(self.geomorphology.y_data, y_data)
+            assert np.allclose(self.geomorphology.z_data, z_data)
+            assert np.allclose(self.geomorphology.get_z_data(), z_data)
+            assert np.all(self.geomorphology.get_shape() == x_data.shape)
+            assert self.geomorphology.material_data.size == 1
+            assert self.geomorphology.material_data == "soil"  # default value
 
-        assert self.geomorphology.check_valid()  # check if the data is valid
+        with subtests.test(f"check_valid final test"):
+            assert self.geomorphology.check_valid()  # check if the data is valid
 
-    def test_set_values_material(self):
+    def test_set_values_material(self, subtests):
 
         # create a mesh and try to upload it
         y_data, x_data = np.meshgrid([-1.0, 0.0, 1.0], [0.0, 2.0])
@@ -118,22 +123,25 @@ class TestGeomorphologyGridData:
         )
 
         # make sure the values are set in correctly
-        assert np.allclose(self.geomorphology.x_data, x_data)
-        assert np.allclose(self.geomorphology.y_data, y_data)
-        assert np.allclose(self.geomorphology.z_data, z_data)
-        assert np.allclose(self.geomorphology.get_z_data(), z_data)
-        assert np.all(self.geomorphology.material_data == material_data)
-        assert np.all(self.geomorphology.get_shape() == x_data.shape)
+        with subtests.test(f"set_values data equivalence tests"):
+            assert np.allclose(self.geomorphology.x_data, x_data)
+            assert np.allclose(self.geomorphology.y_data, y_data)
+            assert np.allclose(self.geomorphology.z_data, z_data)
+            assert np.allclose(self.geomorphology.get_z_data(), z_data)
+            assert np.all(self.geomorphology.material_data == material_data)
+            assert np.all(self.geomorphology.get_shape() == x_data.shape)
 
-        assert self.geomorphology.check_valid()  # check if the data is valid
+        with subtests.test(f"check_valid final test"):
+            assert self.geomorphology.check_valid()  # check if the data is valid
 
-    def test_evaluate_default(self):
+    def test_evaluate_default(self, subtests):
 
         # create a mesh and try to upload it
         y_data, x_data = np.meshgrid(
             np.linspace(-1.0, 1.0, 5), np.linspace(0.0, 2.0, 5)
         )
-        z_data = np.ones_like(x_data)
+        fun_data = lambda x, y: np.sin(2 * np.pi * x) * np.cos(2 * np.pi * y)
+        z_data = fun_data(x_data, y_data)
 
         # set up a geomorphology grid data object
         self.geomorphology = ard.geographic.GeomorphologyGridData()
@@ -152,60 +160,44 @@ class TestGeomorphologyGridData:
             x_sample.flatten(), y_sample.flatten()
         )
         # check that the values match a pyrite file
-        validation_data = {
-            "depth_sample": depth_sample,
-        }
-        ard.utils.test_utils.pyrite_validator(
-            validation_data,
-            Path(__file__).parent / "test_geomorphology_depth_default_pyrite.npz",
-            # rewrite=True,  # uncomment to write new pyrite file
-        )
-
-        # check that the gradients are correct by matching a pyrite file
-        dx_depth_sample, dy_depth_sample = self.geomorphology.evaluate(
-            x_sample.flatten(), y_sample.flatten(), return_derivs=True,
-        )
-        validation_data = {
-            "dx_depth_sample": dx_depth_sample,
-            "dy_depth_sample": dy_depth_sample,
-        }
-        ard.utils.test_utils.pyrite_validator(
-            validation_data,
-            Path(__file__).parent / "test_geomorphology_depth_default_gradients_pyrite.npz",
-            # rewrite=True,  # uncomment to write new pyrite file
-        )
-
-
-        # check that the interpolator device is not changed from one run to another
-        id_initial = id(self.geomorphology._interpolator_device)
-        depth_sample_2 = self.geomorphology.evaluate(
-            x_sample.flatten(), y_sample.flatten()
-        )
-        assert np.allclose(depth_sample, depth_sample_2)
-        assert id_initial == id(self.geomorphology._interpolator_device)
-
-    def test_evaluate_gaussian(self):
-
-        # create a mesh and try to upload it
-        y_data, x_data = np.meshgrid([-1.0, 0.0, 1.0], [0.0, 2.0])
-        z_data = np.ones_like(x_data)
-
-        # set up a geomorphology grid data object
-        self.geomorphology = ard.geographic.GeomorphologyGridData()
-        # set the values
-        self.geomorphology.set_values(
-            x_data_in=x_data,
-            y_data_in=y_data,
-            z_data_in=z_data,
-        )
-
-        with pytest.raises(NotImplementedError):
-            # make sure the evaluate method has notimplemented protection
-            depth = self.geomorphology.evaluate(
-                0.5, 0.5, interp_method="gaussian_process"
+        with subtests.test(f"evaluate interpolator pyrite test"):
+            validation_data = {
+                "depth_sample": depth_sample,
+            }
+            ard.utils.test_utils.pyrite_validator(
+                validation_data,
+                Path(__file__).parent / "test_geomorphology_depth_default_pyrite.npz",
+                # rewrite=True,  # uncomment to write new pyrite file
             )
 
-    def test_evaluate_nonexistent(self):
+        # check that the gradients are correct by matching a pyrite file
+        with subtests.test(f"evaluate derivatives pyrite test"):
+            dx_depth_sample, dy_depth_sample = self.geomorphology.evaluate(
+                x_sample.flatten(),
+                y_sample.flatten(),
+                return_derivs=True,
+            )
+            validation_data = {
+                "dx_depth_sample": dx_depth_sample,
+                "dy_depth_sample": dy_depth_sample,
+            }
+            ard.utils.test_utils.pyrite_validator(
+                validation_data,
+                Path(__file__).parent
+                / "test_geomorphology_depth_default_gradients_pyrite.npz",
+                # rewrite=True,  # uncomment to write new pyrite file
+            )
+
+        # check that the interpolator device is not changed from one run to another
+        with subtests.test(f"evaluate interpolator caching test"):
+            id_initial = id(self.geomorphology._interpolator_device)
+            depth_sample_2 = self.geomorphology.evaluate(
+                x_sample.flatten(), y_sample.flatten()
+            )
+            assert np.allclose(depth_sample, depth_sample_2)
+            assert id_initial == id(self.geomorphology._interpolator_device)
+
+    def test_evaluate_gaussian(self, subtests):
 
         # create a mesh and try to upload it
         y_data, x_data = np.meshgrid([-1.0, 0.0, 1.0], [0.0, 2.0])
@@ -220,9 +212,32 @@ class TestGeomorphologyGridData:
             z_data_in=z_data,
         )
 
-        with pytest.raises(NotImplementedError):
-            # make sure the evaluate method has notimplemented protection
-            depth = self.geomorphology.evaluate(0.5, 0.5, interp_method="magic")
+        with subtests.test(f"notimplemented test"):
+            with pytest.raises(NotImplementedError):
+                # make sure the evaluate method has notimplemented protection
+                depth = self.geomorphology.evaluate(
+                    0.5, 0.5, interp_method="gaussian_process"
+                )
+
+    def test_evaluate_nonexistent(self, subtests):
+
+        # create a mesh and try to upload it
+        y_data, x_data = np.meshgrid([-1.0, 0.0, 1.0], [0.0, 2.0])
+        z_data = np.ones_like(x_data)
+
+        # set up a geomorphology grid data object
+        self.geomorphology = ard.geographic.GeomorphologyGridData()
+        # set the values
+        self.geomorphology.set_values(
+            x_data_in=x_data,
+            y_data_in=y_data,
+            z_data_in=z_data,
+        )
+
+        with subtests.test(f"notimplemented test"):
+            with pytest.raises(NotImplementedError):
+                # make sure the evaluate method has notimplemented protection
+                depth = self.geomorphology.evaluate(0.5, 0.5, interp_method="magic")
 
 
 class TestTopographyGridData(TestGeomorphologyGridData):
@@ -259,7 +274,7 @@ class TestBathymetryGridData(TestGeomorphologyGridData):
         # create a specialized geomorphology object before each test
         self.bathymetry = ard.geographic.BathymetryGridData()
 
-    def test_load_moorpy_bathymetry(self):
+    def test_load_moorpy_bathymetry(self, subtests):
 
         # path to the example MoorPy bathymetry grid file
         file_bathy = (
@@ -273,17 +288,19 @@ class TestBathymetryGridData(TestGeomorphologyGridData):
         self.bathymetry.load_moorpy_bathymetry(file_bathymetry=file_bathy)
 
         # check the shape of the data
-        assert np.all(self.bathymetry.get_shape() == np.array([100, 99]))
+        with subtests.test(f"moorpy load shape test"):
+            assert np.all(self.bathymetry.get_shape() == np.array([100, 99]))
 
         # make sure the data matches the statistical properties of the original data
-        validation_data = {
-            "min": np.min(self.bathymetry.z_data),
-            "max": np.max(self.bathymetry.z_data),
-            "mean": np.mean(self.bathymetry.z_data),
-            "std": np.std(self.bathymetry.z_data),
-        }
-        ard.utils.test_utils.pyrite_validator(
-            validation_data,
-            Path(__file__).parent / "test_geomorphology_bathymetry_pyrite.npz",
-            # rewrite=True,  # uncomment to write new pyrite file
-        )
+        with subtests.test(f"moorpy load statistics test"):
+            validation_data = {
+                "min": np.min(self.bathymetry.z_data),
+                "max": np.max(self.bathymetry.z_data),
+                "mean": np.mean(self.bathymetry.z_data),
+                "std": np.std(self.bathymetry.z_data),
+            }
+            ard.utils.test_utils.pyrite_validator(
+                validation_data,
+                Path(__file__).parent / "test_geomorphology_bathymetry_pyrite.npz",
+                # rewrite=True,  # uncomment to write new pyrite file
+            )

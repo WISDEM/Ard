@@ -25,9 +25,7 @@ class GeomorphologyGridData:
 
     sea_level = 0.0  # sea level in m
 
-    _interpolator_device = (
-        None  # placeholder for interpolator (for depth evaluation)
-    )
+    _interpolator_device = None  # placeholder for interpolator (for depth evaluation)
 
     def check_valid(self):
         assert self.x_data.ndim == 2, "data must be 2D"  # make sure it's 2D first
