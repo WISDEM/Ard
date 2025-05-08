@@ -9,11 +9,11 @@ class TestDistancePointToMultiPolygonRayCasting:
     Test for distance_point_to_polygon_ray_casting
     """
 
-    # def setup_method(self):
-    #     self.distance_point_to_polygon_ray_casting_grad = jax.grad(
-    #         geo_utils.distance_multi_point_to_multi_polygon_ray_casting, [0]
-    #     )
-    #     pass
+    def setup_method(self):
+        self.distance_point_to_polygon_ray_casting_jac = jax.jacrev(
+            geo_utils.distance_multi_point_to_multi_polygon_ray_casting, [0, 1]
+        )
+        pass
 
     def test_distance_multi_point_to_multi_polygon_inside_outside_single_region(self):
 
@@ -50,26 +50,50 @@ class TestDistancePointToMultiPolygonRayCasting:
         )
 
         assert np.allclose(test_result, expected_distance)
+    
+    def test_distance_multi_point_to_multi_polygon_inside_outside_multiple_regions_jac(self, subtests):
 
-    def test_distance_multi_point_to_multi_polygon_inside_outside_multiple_regions_pre_assigned(self):
-
-        points = np.array([[0.25, 0.5], [1.95, 0.5]])
+        points = np.array([[0.25, 0.5], [1.95, 0.5]], dtype=float)
         polygons = [
-            np.array([[0, 0], [1, 0], [1, 1], [0, 1]]),
-            np.array([[1, 0], [2, 0], [2, 1]])
+            np.array([[0, 0], [1, 0], [1, 1], [0, 1]], dtype=float),
+            np.array([[1, 0], [2, 0], [2, 1]], dtype=float)
         ]
-        regions = np.array([0, 1])
+        regions = np.array([0, 1], dtype=int)
 
-        expected_distance = [-0.25, -0.05]
-
-        test_result = geo_utils.distance_multi_point_to_multi_polygon_ray_casting(
-            boundary_vertices=polygons,
-            points_x=points[:, 0],
-            points_y=points[:, 1],
-            regions=regions,
+        test_result = self.distance_point_to_polygon_ray_casting_jac(
+            points[:, 0], 
+            points[:, 1],
+            boundary_vertices=polygons, 
+            regions=regions
         )
 
-        assert np.allclose(test_result, expected_distance)
+        dd1d2_dx = np.array([[-1.0, 0.0],[0.0, 1.0]], dtype=float)
+        dd1d2_dy = np.array([[0.0, 0.0],[0.0, 0.0]], dtype=float)
+
+        expected_result = np.array([dd1d2_dx, dd1d2_dy], dtype=float)
+        
+        with subtests.test("analytic derivatives"):
+            # note that the distance should get more negative as the point moves deeper inside the polygon
+            assert np.allclose(test_result, expected_result)
+
+        with subtests.test("numeric derivatives"):
+
+            def grad_check_func(points_x, point_y):
+                return geo_utils.distance_multi_point_to_multi_polygon_ray_casting(
+                    points_x, point_y, polygons, regions
+                )
+            
+            try:
+                jax.test_util.check_grads(
+                    grad_check_func,
+                    args=(points[:, 0], points[:, 1]),
+                    order=1,
+                    rtol=1e-3,
+                )
+            except AssertionError:
+                pytest.fail(
+                    "Unexpected AssertionError when checking gradients, gradients may be incorrect"
+                )
 
 @pytest.mark.usefixtures("subtests")
 class TestDistancePointToPolygonRayCasting:

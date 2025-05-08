@@ -66,9 +66,9 @@ def get_nearest_polygons(
     return region
 
 def distance_multi_point_to_multi_polygon_ray_casting(
-    boundary_vertices: list[list[np.ndarray]],
     points_x: np.ndarray[float],
     points_y: np.ndarray[float],
+    boundary_vertices: list[list[np.ndarray]],
     regions: np.ndarray[int],
     s=700,
     tol=1e-6,
@@ -80,10 +80,10 @@ def distance_multi_point_to_multi_polygon_ray_casting(
     This implementation is based on FLOWFarm.jl (https://github.com/byuflowlab/FLOWFarm.jl)
 
     Args:
-        boundary_vertices (list[list[np.ndarray]]): Vertices of the boundary in
-            counterclockwise order.
         points_x (np.ndarray[list]): points x coordinates.
         points_y (np.ndarray[list]): points y coordinates.
+        boundary_vertices (list[list[np.ndarray]]): Vertices of the boundary in
+            counterclockwise order.
         regions (np.array[int]): Predefined region assignments for each point. Defaults to None.
         s (float, optional): Smoothing factor for smooth max. Defaults to 700.
         tol (float, optional): Tolerance for determining proximity of point to polygon to be considered inside the polygon. Defaults to 1e-6.
