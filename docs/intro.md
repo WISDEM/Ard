@@ -14,6 +14,15 @@ Moreover, the design of *one* of these aspects affects all the rest!
 
 `Ard` seeks to make plant-level design choices that can incorporate these different aspects _and their interactions_ to make wind energy projects more successful.
 
+## Documentation
+The documentation organized as follows: 
+- ()[Introduction]: 
+- ()[Tutorials]
+- ()[How-to guides]
+- ()[Reference]
+- ()[Explanation]
+
+
 ## Installation instructions
 
 <!-- `Ard` can be installed locally from the source code with `pip` or through a package manager from PyPI with `pip` or conda-forge with `conda`. -->
