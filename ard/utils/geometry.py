@@ -3,13 +3,14 @@ import jax.numpy as jnp
 import jax
 from ard.utils.mathematics import smooth_max, smooth_min, smooth_norm
 
+
 def get_nearest_polygons(
-        boundary_vertices,
-        points_x,
-        points_y,
-        s=700,
-        tol=1e-6,
-    ):
+    boundary_vertices,
+    points_x,
+    points_y,
+    s=700,
+    tol=1e-6,
+):
     """
     Determines the nearest polygon for each point using the ray-casting algorithm.
     This implementation is based on FLOWFarm.jl (https://github.com/byuflowlab/FLOWFarm.jl)
@@ -65,6 +66,7 @@ def get_nearest_polygons(
 
     return region
 
+
 def distance_multi_point_to_multi_polygon_ray_casting(
     points_x: np.ndarray[float],
     points_y: np.ndarray[float],
@@ -72,7 +74,7 @@ def distance_multi_point_to_multi_polygon_ray_casting(
     regions: np.ndarray[int],
     s=700,
     tol=1e-6,
-)-> np.ndarray:
+) -> np.ndarray:
     """
     Calculate the distance from each point to the nearest point on a polygon or set of polygons using
     the ray-casting algorithm. Negative means the turbine is inside at least one polygon.
@@ -92,7 +94,7 @@ def distance_multi_point_to_multi_polygon_ray_casting(
         np.ndarray: Constraint values for each turbine.
         np.ndarray (optional): Region assignments for each turbine (if `return_region` is True).
     """
-    
+
     # Combine points_x and points_y into a single array of points
     points = jnp.stack([points_x, points_y], axis=1)
 
@@ -104,7 +106,9 @@ def distance_multi_point_to_multi_polygon_ray_casting(
         padding = max_vertices - len(polygon)
         return jnp.pad(polygon, ((0, padding), (0, 0)))
 
-    padded_boundary_vertices = jnp.stack([pad_polygon(polygon) for polygon in boundary_vertices])
+    padded_boundary_vertices = jnp.stack(
+        [pad_polygon(polygon) for polygon in boundary_vertices]
+    )
 
     # Define a function to compute the distance for a single point and its assigned region
     def compute_distance(point, region_idx):
@@ -121,14 +125,18 @@ def distance_multi_point_to_multi_polygon_ray_casting(
     distances = jax.vmap(compute_distance, in_axes=(0, 0))(points, regions)
 
     return distances
-distance_multi_point_to_multi_polygon_ray_casting = jax.jit(distance_multi_point_to_multi_polygon_ray_casting)
+
+
+distance_multi_point_to_multi_polygon_ray_casting = jax.jit(
+    distance_multi_point_to_multi_polygon_ray_casting
+)
 
 
 def distance_point_to_polygon_ray_casting(
     point: jnp.ndarray,
     vertices: jnp.ndarray,
     s: float = 700,
-    shift: float = 1E-10,
+    shift: float = 1e-10,
     return_distance: bool = True,
 ):
     """
@@ -199,6 +207,7 @@ def distance_point_to_polygon_ray_casting(
             operand=None,
         )
     return c
+
 
 def polygon_normals_calculator(
     boundary_vertices: np.ndarray, n_polygons: int = 1

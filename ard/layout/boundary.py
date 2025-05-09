@@ -1,6 +1,7 @@
 import numpy as np
 import jax.numpy as jnp
 import jax
+
 jax.config.update("jax_enable_x64", True)
 import ard.utils.mathematics
 import ard.utils.geometry
@@ -38,11 +39,12 @@ class FarmBoundaryDistancePolygon(om.ExplicitComponent):
         self.modeling_options = self.options["modeling_options"]
         self.N_turbines = int(self.modeling_options["farm"]["N_turbines"])
         self.boundary_vertices = self.modeling_options["farm"]["boundary"]["vertices"]
-        self.boundary_regions = self.modeling_options["farm"]["boundary"]["turbine_region_assignments"]
+        self.boundary_regions = self.modeling_options["farm"]["boundary"][
+            "turbine_region_assignments"
+        ]
 
         self.distance_multi_point_to_multi_polygon_ray_casting_jac = jax.jacfwd(
-            ard.utils.geometry.distance_multi_point_to_multi_polygon_ray_casting,
-            [0, 1]
+            ard.utils.geometry.distance_multi_point_to_multi_polygon_ray_casting, [0, 1]
         )
         # MANAGE ADDITIONAL LATENT VARIABLES HERE!!!!!
 
@@ -63,10 +65,13 @@ class FarmBoundaryDistancePolygon(om.ExplicitComponent):
     def setup_partials(self):
         """Derivative setup for the OpenMDAO component."""
         # the default (but not preferred!) derivatives are FDM
-        self.declare_partials("*", "*", method="exact",
-                              rows=np.arange(self.N_turbines),
-                              cols=np.arange(self.N_turbines)
-                              )
+        self.declare_partials(
+            "*",
+            "*",
+            method="exact",
+            rows=np.arange(self.N_turbines),
+            cols=np.arange(self.N_turbines),
+        )
 
     def compute(self, inputs, outputs, discrete_inputs=None, discrete_outputs=None):
         """Computation for the OpenMDAO component."""
@@ -75,11 +80,13 @@ class FarmBoundaryDistancePolygon(om.ExplicitComponent):
         x_turbines = inputs["x_turbines"]
         y_turbines = inputs["y_turbines"]
 
-        boundary_distances = ard.utils.geometry.distance_multi_point_to_multi_polygon_ray_casting(
-            x_turbines, 
-            y_turbines, 
-            boundary_vertices=self.boundary_vertices, 
-            regions=self.boundary_regions
+        boundary_distances = (
+            ard.utils.geometry.distance_multi_point_to_multi_polygon_ray_casting(
+                x_turbines,
+                y_turbines,
+                boundary_vertices=self.boundary_vertices,
+                regions=self.boundary_regions,
+            )
         )
 
         outputs["boundary_distances"] = boundary_distances
@@ -91,10 +98,7 @@ class FarmBoundaryDistancePolygon(om.ExplicitComponent):
         y_turbines = inputs["y_turbines"]
 
         jacobian = self.distance_multi_point_to_multi_polygon_ray_casting_jac(
-            x_turbines, 
-            y_turbines,
-            self.boundary_vertices,
-            self.boundary_regions
+            x_turbines, y_turbines, self.boundary_vertices, self.boundary_regions
         )
 
         partials["boundary_distances", "x_turbines"] = jacobian[0].diagonal()

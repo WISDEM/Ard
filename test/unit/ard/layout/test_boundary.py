@@ -8,6 +8,7 @@ import pytest
 import ard.layout.boundary as boundary
 import ard.utils.geometry as geometry
 
+
 @pytest.mark.usefixtures("subtests")
 class TestFarmBoundaryDistancePolygon:
     """
@@ -29,8 +30,6 @@ class TestFarmBoundaryDistancePolygon:
 
         self.N_turbines = len(self.x_turbines)
 
-        
-
     def test_single_polygon_distance(self):
 
         region_assignments_single = np.zeros(self.N_turbines, dtype=int)
@@ -41,9 +40,13 @@ class TestFarmBoundaryDistancePolygon:
                 "N_turbines": self.N_turbines,
                 "boundary": {
                     "type": "polygon",
-                    "vertices": [np.array([[0.0, 0.0], [1000.0, 0.0], [1000.0, 1000.0], [0.0, 1000.0]])],
-                    "turbine_region_assignments": region_assignments_single
-                    },
+                    "vertices": [
+                        np.array(
+                            [[0.0, 0.0], [1000.0, 0.0], [1000.0, 1000.0], [0.0, 1000.0]]
+                        )
+                    ],
+                    "turbine_region_assignments": region_assignments_single,
+                },
             },
             "turbine": {
                 "geometry": {
@@ -56,7 +59,9 @@ class TestFarmBoundaryDistancePolygon:
         model_single = om.Group()
         model_single.add_subsystem(
             "boundary",
-            boundary.FarmBoundaryDistancePolygon(modeling_options=modeling_options_single),
+            boundary.FarmBoundaryDistancePolygon(
+                modeling_options=modeling_options_single
+            ),
             promotes=["*"],
         )
         prob_single = om.Problem(model_single)
@@ -67,9 +72,13 @@ class TestFarmBoundaryDistancePolygon:
 
         prob_single.run_model()
 
-        expected_distances = np.array([0.0, 0.0, 0.0, 0.0, -400.0, -200.0, 0.0, -200.0, -200.0])
-        
-        assert np.allclose(prob_single["boundary_distances"], expected_distances, atol=1e-3)
+        expected_distances = np.array(
+            [0.0, 0.0, 0.0, 0.0, -400.0, -200.0, 0.0, -200.0, -200.0]
+        )
+
+        assert np.allclose(
+            prob_single["boundary_distances"], expected_distances, atol=1e-3
+        )
 
     def test_single_polygon_derivatives(self, subtests):
 
@@ -81,9 +90,13 @@ class TestFarmBoundaryDistancePolygon:
                 "N_turbines": self.N_turbines,
                 "boundary": {
                     "type": "polygon",
-                    "vertices": [np.array([[0.0, 0.0], [1000.0, 0.0], [1000.0, 1000.0], [0.0, 1000.0]])],
-                    "turbine_region_assignments": region_assignments_single
-                    },
+                    "vertices": [
+                        np.array(
+                            [[0.0, 0.0], [1000.0, 0.0], [1000.0, 1000.0], [0.0, 1000.0]]
+                        )
+                    ],
+                    "turbine_region_assignments": region_assignments_single,
+                },
             },
             "turbine": {
                 "geometry": {
@@ -96,7 +109,9 @@ class TestFarmBoundaryDistancePolygon:
         model_single = om.Group()
         model_single.add_subsystem(
             "boundary",
-            boundary.FarmBoundaryDistancePolygon(modeling_options=modeling_options_single),
+            boundary.FarmBoundaryDistancePolygon(
+                modeling_options=modeling_options_single
+            ),
             promotes=["*"],
         )
         prob_single = om.Problem(model_single)
@@ -111,34 +126,49 @@ class TestFarmBoundaryDistancePolygon:
             of=["boundary_distances"],
             wrt=["x_turbines", "y_turbines"],
         )
-        
-        derivatives_expected = {
-            ("boundary_distances", "x_turbines"): np.array([[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                                                            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                                                            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                                                            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                                                            [0.0, 0.0, 0.0, 0.0, -.5, 0.0, 0.0, 0.0, 0.0],
-                                                            [0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0],
-                                                            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                                                            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                                                            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.5]]),
 
-            ("boundary_distances", "y_turbines"): np.array([[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                                                            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                                                            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                                                            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                                                            [0.0, 0.0, 0.0, 0.0, -0.5, 0.0, 0.0, 0.0, 0.0],
-                                                            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                                                            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                                                            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0],
-                                                            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.5],]),
+        derivatives_expected = {
+            ("boundary_distances", "x_turbines"): np.array(
+                [
+                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0, -0.5, 0.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.5],
+                ]
+            ),
+            ("boundary_distances", "y_turbines"): np.array(
+                [
+                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0, -0.5, 0.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.5],
+                ]
+            ),
         }
 
         # assert a match
         with subtests.test("wrt x_turbines"):
-            assert np.allclose(derivatives_computed[("boundary_distances", "x_turbines")], derivatives_expected[("boundary_distances", "x_turbines")], atol=1e-3)
+            assert np.allclose(
+                derivatives_computed[("boundary_distances", "x_turbines")],
+                derivatives_expected[("boundary_distances", "x_turbines")],
+                atol=1e-3,
+            )
         with subtests.test("wrt y_turbines"):
-            assert np.allclose(derivatives_computed[("boundary_distances", "y_turbines")], derivatives_expected[("boundary_distances", "y_turbines")], atol=1e-3)
+            assert np.allclose(
+                derivatives_computed[("boundary_distances", "y_turbines")],
+                derivatives_expected[("boundary_distances", "y_turbines")],
+                atol=1e-3,
+            )
 
     def test_multi_polygon_distance(self):
 
@@ -173,8 +203,8 @@ class TestFarmBoundaryDistancePolygon:
                 "boundary": {
                     "type": "polygon",
                     "vertices": boundary_vertices,
-                    "turbine_region_assignments": region_assignments
-                    },
+                    "turbine_region_assignments": region_assignments,
+                },
             },
             "turbine": {
                 "geometry": {
@@ -198,11 +228,12 @@ class TestFarmBoundaryDistancePolygon:
 
         prob.run_model()
 
-        expected_distances = np.array([0.0, 0.0, 0.0, 0.0, -100.0, -100.0, 0.0, -300.0, -200.0])
+        expected_distances = np.array(
+            [0.0, 0.0, 0.0, 0.0, -100.0, -100.0, 0.0, -300.0, -200.0]
+        )
 
         # assert a match: loose tolerance for turbines in corners due to using the smooth min
         assert np.allclose(prob["boundary_distances"], expected_distances, atol=1e-2)
-
 
     def test_multi_polygon_derivatives(self, subtests):
 
@@ -237,8 +268,8 @@ class TestFarmBoundaryDistancePolygon:
                 "boundary": {
                     "type": "polygon",
                     "vertices": boundary_vertices,
-                    "turbine_region_assignments": region_assignments
-                    },
+                    "turbine_region_assignments": region_assignments,
+                },
             },
             "turbine": {
                 "geometry": {
@@ -266,31 +297,46 @@ class TestFarmBoundaryDistancePolygon:
             of=["boundary_distances"],
             wrt=["x_turbines", "y_turbines"],
         )
-        
-        derivatives_expected = {
-            ("boundary_distances", "x_turbines"): np.array([[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                                                            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                                                            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                                                            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                                                            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                                                            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                                                            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                                                            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                                                            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0]]),
 
-            ("boundary_distances", "y_turbines"): np.array([[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                                                            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                                                            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                                                            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                                                            [0.0, 0.0, 0.0, 0.0, -1., 0.0, 0.0, 0.0, 0.0],
-                                                            [0.0, 0.0, 0.0, 0.0, 0.0, -1., 0.0, 0.0, 0.0],
-                                                            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                                                            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0],
-                                                            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],]),
+        derivatives_expected = {
+            ("boundary_distances", "x_turbines"): np.array(
+                [
+                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0],
+                ]
+            ),
+            ("boundary_distances", "y_turbines"): np.array(
+                [
+                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                ]
+            ),
         }
 
         # assert a match
         with subtests.test("wrt x_turbines"):
-            assert np.allclose(derivatives_computed[("boundary_distances", "x_turbines")], derivatives_expected[("boundary_distances", "x_turbines")], atol=1e-3)
+            assert np.allclose(
+                derivatives_computed[("boundary_distances", "x_turbines")],
+                derivatives_expected[("boundary_distances", "x_turbines")],
+                atol=1e-3,
+            )
         with subtests.test("wrt y_turbines"):
-            assert np.allclose(derivatives_computed[("boundary_distances", "y_turbines")], derivatives_expected[("boundary_distances", "y_turbines")], atol=1e-3)
+            assert np.allclose(
+                derivatives_computed[("boundary_distances", "y_turbines")],
+                derivatives_expected[("boundary_distances", "y_turbines")],
+                atol=1e-3,
+            )
