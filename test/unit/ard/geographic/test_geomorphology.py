@@ -91,13 +91,19 @@ class TestGeomorphologyGridData:
         )
 
         # make sure the values are set in correctly
-        with subtests.test(f"set_values data equivalence tests"):
+        with subtests.test(f"set_values data equivalence tests, x"):
             assert np.allclose(self.geomorphology.x_data, x_data)
+        with subtests.test(f"set_values data equivalence tests, y"):
             assert np.allclose(self.geomorphology.y_data, y_data)
+        with subtests.test(f"set_values data equivalence tests, z"):
             assert np.allclose(self.geomorphology.z_data, z_data)
+        with subtests.test(f"set_values data equivalence tests, z getter"):
             assert np.allclose(self.geomorphology.get_z_data(), z_data)
+        with subtests.test(f"set_values data equivalence tests, get_shape"):
             assert np.all(self.geomorphology.get_shape() == x_data.shape)
+        with subtests.test(f"set_values data equivalence tests, material singleton"):
             assert self.geomorphology.material_data.size == 1
+        with subtests.test(f"set_values data equivalence tests, material default"):
             assert np.array_equal(
                 self.geomorphology.material_data, np.array([["soil"]])
             )  # default value
@@ -125,12 +131,17 @@ class TestGeomorphologyGridData:
         )
 
         # make sure the values are set in correctly
-        with subtests.test(f"set_values data equivalence tests"):
+        with subtests.test(f"set_values data equivalence tests, x"):
             assert np.allclose(self.geomorphology.x_data, x_data)
+        with subtests.test(f"set_values data equivalence tests, y"):
             assert np.allclose(self.geomorphology.y_data, y_data)
+        with subtests.test(f"set_values data equivalence tests, z"):
             assert np.allclose(self.geomorphology.z_data, z_data)
+        with subtests.test(f"set_values data equivalence tests, z getter"):
             assert np.allclose(self.geomorphology.get_z_data(), z_data)
+        with subtests.test(f"set_values data equivalence tests, material"):
             assert np.all(self.geomorphology.material_data == material_data)
+        with subtests.test(f"set_values data equivalence tests, get_shape"):
             assert np.all(self.geomorphology.get_shape() == x_data.shape)
 
         with subtests.test(f"check_valid final test"):
@@ -196,8 +207,11 @@ class TestGeomorphologyGridData:
             depth_sample_2 = self.geomorphology.evaluate(
                 x_sample.flatten(), y_sample.flatten()
             )
-            assert np.allclose(depth_sample, depth_sample_2)
-            assert id_initial == id(self.geomorphology._interpolator_device)
+            # escalating tests
+            assert np.allclose(depth_sample, depth_sample_2)  # same return
+            assert id_initial == id(
+                self.geomorphology._interpolator_device
+            )  # same identity
 
     def test_evaluate_gaussian(self, subtests):
 
@@ -294,15 +308,12 @@ class TestBathymetryGridData(TestGeomorphologyGridData):
             assert np.all(self.bathymetry.get_shape() == np.array([100, 99]))
 
         # make sure the data matches the statistical properties of the original data
-        with subtests.test(f"moorpy load statistics test"):
-            validation_data = {
-                "min": np.min(self.bathymetry.z_data),
-                "max": np.max(self.bathymetry.z_data),
-                "mean": np.mean(self.bathymetry.z_data),
-                "std": np.std(self.bathymetry.z_data),
-            }
-            ard.utils.test_utils.pyrite_validator(
-                validation_data,
-                Path(__file__).parent / "test_geomorphology_bathymetry_pyrite.npz",
-                # rewrite=True,  # uncomment to write new pyrite file
-            )
+
+        with subtests.test(f"moorpy load statistics test: min"):
+            assert np.isclose(np.min(self.bathymetry.z_data), 160.069000000000000)
+        with subtests.test(f"moorpy load statistics test: max"):
+            assert np.isclose(np.max(self.bathymetry.z_data), 183.896000000000000)
+        with subtests.test(f"moorpy load statistics test: mean"):
+            assert np.isclose(np.mean(self.bathymetry.z_data), 172.50993464646467)
+        with subtests.test(f"moorpy load statistics test: std"):
+            assert np.isclose(np.std(self.bathymetry.z_data), 4.555364127422273)
