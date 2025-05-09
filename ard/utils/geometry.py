@@ -128,7 +128,7 @@ def distance_point_to_polygon_ray_casting(
     point: jnp.ndarray,
     vertices: jnp.ndarray,
     s: float = 700,
-    shift: float = 0.0,
+    shift: float = 1E-10,
     return_distance: bool = True,
 ):
     """
