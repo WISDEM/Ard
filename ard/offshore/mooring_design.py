@@ -4,6 +4,8 @@ import openmdao.api as om
 
 import math
 
+import ard.geographic
+
 
 def generate_anchor_points(
     center: np.ndarray, length: float, rotation_deg: float, N: int
@@ -75,31 +77,6 @@ def simple_mooring_design(
     return x_anchors, y_anchors
 
 
-class BathymetryData:
-    """
-    A draft class to hold and represent Bathymetry data for a mooring system.
-
-    This class should be modified by whoever is implementing it in order to
-    improve it! I just made it a boilerplate version of what I anticipated would
-    be in it, even though I'm an idiot! -cfrontin
-    """
-
-    x_mesh = np.atleast_2d([0.0])  # x location in km
-    y_mesh = np.atleast_2d([0.0])  # y location in km
-    depth_mesh = np.atleast_2d([0.0])  # depth in m? km?
-
-    material_mesh = np.atleast_2d(["sand"])  # DRAFT
-
-    cost_dictionary = {
-        "sand": 10.0,  # DRAFT
-        "rock": 100.0,  # DRAFT
-    }  # cost of anchoring in a given material per relevant metric
-
-    def get_cost(self):
-        """Get the cost of anchor building at a given location."""
-        raise NotImplementedError("Bathymetry data must be implemented still.")
-
-
 class MooringDesign(om.ExplicitComponent):
     """
     A class to create a mooring design for an floating offshore wind farm.
@@ -114,7 +91,7 @@ class MooringDesign(om.ExplicitComponent):
     wind_query : floris.wind_data.WindRose
         a WindQuery objects that specifies the wind conditions that are to be
         computed
-    bathymetry_data : BathymetryData
+    bathymetry_data : ard.geographic.BathymetryData
         a BathymetryData object to specify the bathymetry mesh/sampling
 
     Inputs

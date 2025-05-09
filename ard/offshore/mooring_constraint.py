@@ -19,7 +19,7 @@ class MooringConstraint(om.ExplicitComponent):
     wind_query : floris.wind_data.WindRose
         a WindQuery objects that specifies the wind conditions that are to be
         computed
-    bathymetry_data : BathymetryData
+    bathymetry_data : ard.geographic.BathymetryData
         a BathymetryData object to specify the bathymetry mesh/sampling
 
     Inputs
