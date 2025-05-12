@@ -3,25 +3,26 @@ name: Python Unit Tests with Coverage
 on:
   push:
     branches:
-      - main
-      - develop
+      - '*'
   pull_request:
     branches:
-      - main
-      - develop
+      - '*'
 
 jobs:
   test:
-    runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        python-version: [3.13, 3.12] # ["3.10", "3.11", "3.12", "3.13"]
+        os: [macos-latest, ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Set up Python
+    - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
       with:
-        python-version: '3.12'
+        python-version: ${{ matrix.python-version }}
 
     - name: Install dependencies
       run: |
@@ -42,4 +43,3 @@ jobs:
     #     file: ./coverage.xml
     #     flags: unittests
     #     name: codecov-umbrella
-
