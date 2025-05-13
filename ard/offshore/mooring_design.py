@@ -190,6 +190,8 @@ class MooringDesign(om.ExplicitComponent):
         y_turbines = inputs["y_turbines"]
         # thrust_turbines = inputs["thrust_turbines"]  #
 
+        # BEGIN: REPLACE ME
+
         x_anchors, y_anchors = simple_mooring_design(
             phi_platform=phi_platform,
             x_turbines=x_turbines,
@@ -198,6 +200,8 @@ class MooringDesign(om.ExplicitComponent):
             N_turbines=self.N_turbines,
             N_anchors=self.N_anchors,
         )
+
+        # END REPLACE ME
 
         # replace the below with the final anchor locations...
         outputs["x_anchors"] = x_anchors

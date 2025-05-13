@@ -34,7 +34,7 @@ filename_turbine_spec = (
     / "data"
     / "turbine_spec_IEA-22-284-RWT.yaml"
 )  # toolset generalized turbine specification
-data_turbine_spec = ard.utils.load_turbine_spec(filename_turbine_spec)
+data_turbine_spec = ard.utils.io.load_turbine_spec(filename_turbine_spec)
 
 # set up the modeling options
 modeling_options = {
