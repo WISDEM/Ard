@@ -102,6 +102,16 @@ This, then, allows us to attempt to accomplish the technical goals of `Ard`, to:
 2) target wholistic and complex system-level optimization objectives like LCOE and beyond-LCOE metrics
 3) naturally incorporate multi-fidelity analyses to efficiently integrate physics-resolving simulation
 
+## Building Documentation
+
+To build the documentation locally run the following from the top `Ard/` directory.
+
+```shell
+jupyter-book build docs/
+```
+
+You can then open `Ard/docs/_build/html/index.html` to view the docs.
+
 ---
 
 Released as open-source software by the National Renewable Energy Laboratory under NREL software record number SWR-25-18.
