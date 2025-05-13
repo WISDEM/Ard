@@ -67,9 +67,7 @@ For user information, in pre-release, we are using some co-developed changes to 
 
 If the installation fails, please open a new issue [here](https://github.com/WISDEM/Ard/issues).
 
-### Optional installations
-
-#### OptiWindNet
+## OptiWindNet
 
 We currently have experimental support for [Mauricio Souza de Alancar's OptiWindNet package for collection system cable path-planning optimization](https://gitlab.windenergy.dtu.dk/TOPFARM/OptiWindNet).
 

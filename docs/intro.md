@@ -1,5 +1,5 @@
 
-# Ard
+# Introduction
 
 **Dig in to wind farm design.**
 
@@ -16,43 +16,12 @@ Moreover, the design of *one* of these aspects affects all the rest!
 
 ## Documentation
 The documentation organized as follows: 
-- ()[Introduction]: 
-- ()[Tutorials]
-- ()[How-to guides]
-- ()[Reference]
-- ()[Explanation]
+- Getting Started: helpful information to get you started using Ard, including installation instructions
+- Tutorials: example problems with solutions
+- How-to Guides: instructions on solving particular problems and using specific features of Ard
+- Reference: dry, but helpfully useful, reference material including the API reference manual
+- Explanation: discursive content on the whys, hows, and the wherefores of Ard for those that are interested
 
-
-## Installation instructions
-
-<!-- `Ard` can be installed locally from the source code with `pip` or through a package manager from PyPI with `pip` or conda-forge with `conda`. -->
-<!-- For Windows systems, `conda` is required due to constraints in the WISDEM installation system. -->
-<!-- For macOS and Linux, any option is available. -->
-`Ard` is currently in pre-release and is only available as a source-code installation.
-The source can be cloned from github using the following command in your preferred location:
-```shell
-git clone git@github.com:WISDEM/Ard.git
-```
-Once downloaded, you can enter the `Ard` root directory using
-```shell
-cd Ard
-```
-
-From here, installation can be handled by `pip`:
-```shell
-pip install .
-```
-will install Ard in its most basic and static configuration.
-For development (and really for everyone during pre-release), we recommend a full development installation:
-```shell
-pip install -e .[dev,docs]
-```
-which will install in "editable mode" (`-e`), such that changes made to the source will not require re-installation, and with additional optional packages for development and documentation (`[dev,docs]`).
-
-There can be some hardware-software mis-specification issues with WISDEM installation from `pip` for MacOS 12 and 13 on machines with Apple Silicon.
-In the event of issues, WISDEM can be installed manually or using `conda` without issues, then `pip` installation can proceed.
-
-For user information, in pre-release, we are using some co-developed changes to the `FLORIS` library.
 
 ## Current capabilities
 
