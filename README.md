@@ -1,3 +1,5 @@
+[![Python System Tests with Coverage](https://github.com/WISDEM/Ard/actions/workflows/python-tests-system.yml/badge.svg)](https://github.com/WISDEM/Ard/actions/workflows/python-tests-system.yml)
+[![Python Unit Tests with Coverage](https://github.com/WISDEM/Ard/actions/workflows/python-tests-unit.yml/badge.svg)](https://github.com/WISDEM/Ard/actions/workflows/python-tests-unit.yml)
 
 # Ard
 
@@ -13,6 +15,9 @@ They are aerodynamic machines, with complicated control systems, power electroni
 Moreover, the design of *one* of these aspects affects all the rest!
 
 `Ard` seeks to make plant-level design choices that can incorporate these different aspects _and their interactions_ to make wind energy projects more successful.
+
+## Documentation
+Ard documentation is available at [https://wisdem.github.io/Ard/]()
 
 ## Installation instructions
 
