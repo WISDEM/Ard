@@ -64,7 +64,7 @@ The capabilities housed in `geometry.py` are generic geometry-related code. They
 The capabilities in `io.py` provide for loading and saving information and may be technology specific.
 
 ## Mathematics
-The capabiliteis housed in `mathematics.py` are pure mathematical functions generally formulated to be continuously differentiable. These functions are useful in a range of applications within Ard and design optimization generally.
+The capabilities housed in `mathematics.py` are pure mathematical functions generally formulated to be continuously differentiable. These functions are useful in a range of applications within Ard and design optimization generally.
 
 ## Test Utils
 The capabilities housed in `test_utils.py` are specifically for use in testing and not in other parts of Ard.
