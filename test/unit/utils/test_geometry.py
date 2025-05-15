@@ -1,65 +1,475 @@
-import pytest
 import numpy as np
-import jax
-import jax.numpy as jnp
-import ard.utils as utils
+import jax.test_util
+import ard.utils.geometry as geo_utils
+import pytest
 
 
-class TestUtils:
+@pytest.mark.usefixtures("subtests")
+class TestGetNearestPolygons:
+    """
+    Test for get_nearest_polygons function
+    """
+
+    def test_get_nearest_polygons_single_region(self):
+
+        points = np.array([[0.25, 0.5], [1.5, 0.5]])
+        polygons = np.array([[0, 0], [1, 0], [1, 1], [0, 1]])
+
+        expected_regions = np.array([0, 0])
+
+        test_result = geo_utils.get_nearest_polygons(
+            boundary_vertices=[polygons],
+            points_x=points[:, 0],
+            points_y=points[:, 1],
+        )
+
+        assert np.allclose(test_result, expected_regions)
+
+    def test_get_nearest_polygons_multi_region(self):
+
+        points = np.array([[0.25, 0.5], [1.95, 0.5]], dtype=float)
+        polygons = [
+            np.array([[0, 0], [1, 0], [1, 1], [0, 1]], dtype=float),
+            np.array([[1, 0], [2, 0], [2, 1]], dtype=float),
+        ]
+        expected_regions = np.array([0, 1], dtype=int)
+
+        test_result = geo_utils.get_nearest_polygons(
+            boundary_vertices=polygons,
+            points_x=points[:, 0],
+            points_y=points[:, 1],
+        )
+
+        assert np.allclose(test_result, expected_regions)
+
+
+@pytest.mark.usefixtures("subtests")
+class TestDistancePointToMultiPolygonRayCasting:
+    """
+    Test for distance_point_to_polygon_ray_casting
+    """
+
     def setup_method(self):
+        self.distance_multi_point_to_multi_polygon_ray_casting_jac = jax.jacrev(
+            geo_utils.distance_multi_point_to_multi_polygon_ray_casting, [0, 1]
+        )
         pass
 
+    def test_distance_multi_point_to_multi_polygon_inside_outside_single_region(self):
 
-class TestGetClosestPoint:
+        points = np.array([[0.25, 0.5], [1.5, 0.5]])
+        polygons = np.array([[0, 0], [1, 0], [1, 1], [0, 1]])
+
+        expected_distance = [-0.25, 0.5]
+
+        test_result = geo_utils.distance_multi_point_to_multi_polygon_ray_casting(
+            boundary_vertices=[polygons],
+            points_x=points[:, 0],
+            points_y=points[:, 1],
+            regions=np.array([0, 0]),
+        )
+
+        assert np.allclose(test_result, expected_distance)
+
+    def test_distance_multi_point_to_multi_polygon_inside_outside_multiple_regions(
+        self,
+    ):
+
+        points = np.array([[0.25, 0.5], [2.5, 0.5]])
+        polygons = [
+            np.array([[0, 0], [1, 0], [1, 1], [0, 1]]),
+            np.array([[1, 0], [2, 0], [2, 1]]),
+        ]
+
+        expected_distance = [-0.25, 0.5]
+
+        test_result = geo_utils.distance_multi_point_to_multi_polygon_ray_casting(
+            boundary_vertices=polygons,
+            points_x=points[:, 0],
+            points_y=points[:, 1],
+            regions=np.array([0, 1]),
+        )
+
+        assert np.allclose(test_result, expected_distance)
+
+    def test_distance_multi_point_to_multi_polygon_inside_outside_multiple_regions_jac(
+        self, subtests
+    ):
+
+        points = np.array([[0.25, 0.5], [1.95, 0.5]], dtype=float)
+        polygons = [
+            np.array([[0, 0], [1, 0], [1, 1], [0, 1]], dtype=float),
+            np.array([[1, 0], [2, 0], [2, 1]], dtype=float),
+        ]
+        regions = np.array([0, 1], dtype=int)
+
+        test_result = self.distance_multi_point_to_multi_polygon_ray_casting_jac(
+            points[:, 0], points[:, 1], boundary_vertices=polygons, regions=regions
+        )
+
+        dd1d2_dx = np.array([[-1.0, 0.0], [0.0, 1.0]], dtype=float)
+        dd1d2_dy = np.array([[0.0, 0.0], [0.0, 0.0]], dtype=float)
+
+        expected_result = np.array([dd1d2_dx, dd1d2_dy], dtype=float)
+
+        with subtests.test("analytic derivatives"):
+            # note that the distance should get more negative as the point moves deeper inside the polygon
+            assert np.allclose(test_result, expected_result)
+
+        with subtests.test("numeric derivatives"):
+
+            def grad_check_func(points_x, point_y):
+                return geo_utils.distance_multi_point_to_multi_polygon_ray_casting(
+                    points_x, point_y, polygons, regions
+                )
+
+            try:
+                jax.test_util.check_grads(
+                    grad_check_func,
+                    args=(points[:, 0], points[:, 1]),
+                    order=1,
+                    rtol=1e-3,
+                )
+            except AssertionError:
+                pytest.fail(
+                    "Unexpected AssertionError when checking gradients, gradients may be incorrect"
+                )
+
+
+@pytest.mark.usefixtures("subtests")
+class TestDistancePointToPolygonRayCasting:
+    """
+    Test for distance_point_to_polygon_ray_casting
+    """
+
     def setup_method(self):
-        self.get_closest_point_jac = jax.jacobian(utils.get_closest_point, [0])
+        self.distance_point_to_polygon_ray_casting_grad = jax.grad(
+            geo_utils.distance_point_to_polygon_ray_casting, [0]
+        )
         pass
 
-    def test_get_closest_point_45_deg_with_end(self):
+    def test_distance_point_to_polygon_inside(self):
+
+        point = np.array([0.25, 0.5])
+        polygon = np.array([[0, 0], [1, 0], [1, 1], [0, 1]])
+
+        expected_distance = -0.25
+
+        test_result = geo_utils.distance_point_to_polygon_ray_casting(
+            point, vertices=polygon
+        )
+
+        assert test_result == pytest.approx(expected_distance)
+
+    def test_distance_point_to_polygon_center(self):
+
+        point = np.array([0.5, 0.5])
+        polygon = np.array([[0, 0], [1, 0], [1, 1], [0, 1]])
+
+        expected_distance = -0.5
+
+        test_result = geo_utils.distance_point_to_polygon_ray_casting(
+            point, vertices=polygon
+        )
+
+        assert test_result == pytest.approx(expected_distance, rel=1e-2)
+
+    def test_distance_point_to_polygon_outside(self):
+
+        point = np.array([-0.5, 0.5])
+        polygon = np.array([[0, 0], [1, 0], [1, 1], [0, 1]])
+
+        expected_distance = 0.5
+
+        test_result = geo_utils.distance_point_to_polygon_ray_casting(
+            point, vertices=polygon
+        )
+
+        assert test_result == pytest.approx(expected_distance, rel=1e-2)
+
+    def test_distance_point_to_polygon_grad_2d(self, subtests):
+
+        point = np.array([-0.25, 0.5], dtype=float)
+        polygon = np.array([[0, 0], [1, 0], [1, 1], [0, 1]], dtype=float)
+
+        test_result = self.distance_point_to_polygon_ray_casting_grad(
+            point, vertices=polygon
+        )
+
+        with subtests.test("analytic derivatives"):
+            # note that the distance should get more negative as the point moves deeper inside the polygon
+            assert np.all(
+                test_result[0] == pytest.approx(np.array([-1.0, 0.0], dtype=float))
+            )
+
+        with subtests.test("numeric derivatives"):
+            try:
+                jax.test_util.check_grads(
+                    geo_utils.distance_point_to_polygon_ray_casting,
+                    args=(point, polygon),
+                    order=1,
+                    rtol=1e-4,
+                )
+            except AssertionError:
+                pytest.fail(
+                    "Unexpected AssertionError when checking gradients, gradients may be incorrect"
+                )
+
+
+@pytest.mark.usefixtures("subtests")
+class TestPolygonNormalsCalculator:
+    """
+    Test for polygon normals calculator
+    """
+
+    def test_polygon_normals_calculator_single_polygon(self):
+
+        polygon = np.array([[0, 0], [1, 0], [1, 1], [0, 1]])
+        expected_normals = np.array([[0, 1], [-1, 0], [0, -1], [1, 0]])
+
+        test_result = geo_utils.polygon_normals_calculator(polygon, n_polygons=1)
+
+        assert np.allclose(test_result, expected_normals)
+
+    def test_polygon_normals_calculator_multi_polygon(self, subtests):
+
+        polygon1 = np.array([[0, 0], [1, 0], [1, 1], [0, 1]])
+        polygon2 = np.array([[5, 0], [6, 0], [6, 1], [5.5, 1], [5, 1]])
+        polygons = [polygon1, polygon2]
+
+        expected_normals1 = np.array([[0, 1], [-1, 0], [0, -1], [1, 0]])
+        expected_normals2 = np.array([[0, 1], [-1, 0], [0, -1], [0, -1], [1, 0]])
+        expected_normals = [expected_normals1, expected_normals2]
+
+        test_result = geo_utils.polygon_normals_calculator(polygons, n_polygons=2)
+
+        for i, r in enumerate(test_result):
+            with subtests.test(f"polygon {i}"):
+                assert np.allclose(r, expected_normals[i])
+
+
+@pytest.mark.usefixtures("subtests")
+class TestMultiPolygonNormalsCalculator:
+    """
+    Test for single polygon normals calculator
+    """
+
+    def test_multi_polygon_normals_calculator(self):
+
+        polygon1 = np.array([[0, 0], [1, 0], [1, 1], [0, 1]])
+        polygon2 = np.array([[5, 0], [6, 0], [6, 1], [5, 1]])
+
+        expected_normals = np.array([[0, 1], [-1, 0], [0, -1], [1, 0]])
+
+        test_result = geo_utils.multi_polygon_normals_calculator(
+            np.array([polygon1, polygon2])
+        )
+
+        assert np.allclose(test_result, np.array([expected_normals, expected_normals]))
+
+    def test_multi_polygon_normals_calculator_multi_polygon_multi_size(self, subtests):
+
+        polygon1 = np.array([[0, 0], [1, 0], [1, 1], [0, 1]])
+        polygon2 = np.array([[5, 0], [6, 0], [6, 1], [5.5, 1], [5, 1]])
+
+        expected_normals1 = np.array([[0, 1], [-1, 0], [0, -1], [1, 0]])
+        expected_normals2 = np.array([[0, 1], [-1, 0], [0, -1], [0, -1], [1, 0]])
+        expected_normals = [expected_normals1, expected_normals2]
+
+        test_result = geo_utils.multi_polygon_normals_calculator([polygon1, polygon2])
+
+        for i, r in enumerate(test_result):
+            with subtests.test(f"polygon {i}"):
+                assert np.allclose(r, expected_normals[i])
+
+
+class TestSinglePolygonNormalsCalculator:
+    """
+    Test for single polygon normals calculator
+    """
+
+    def test_single_polygon_normals_calculator(self):
+        """
+        Test for single polygon normals calculator
+        """
+
+        polygon = np.array([[0, 0], [1, 0], [1, 1], [0, 1]])
+        expected_normals = np.array([[0, 1], [-1, 0], [0, -1], [1, 0]])
+
+        test_result = geo_utils.single_polygon_normals_calculator(polygon)
+
+        assert np.allclose(test_result, expected_normals)
+
+    def test_single_polygon_normals_calculator_rotated(self):
+        """
+        Test for single polygon normals calculator
+        """
+
+        polygon = np.array([[0, 0], [1, 1], [0, 2], [-1, 1]])
+        expected_normals = np.array(
+            [
+                [-0.7071067811865476, 0.7071067811865476],
+                [-0.7071067811865476, -0.7071067811865476],
+                [0.7071067811865476, -0.7071067811865476],
+                [0.7071067811865476, 0.7071067811865476],
+            ]
+        )
+
+        test_result = geo_utils.single_polygon_normals_calculator(polygon)
+
+        assert np.allclose(test_result, expected_normals)
+
+    def test_single_polygon_normals_calculator_rotated_concave(self):
+        """
+        Test for single polygon normals calculator
+        """
+
+        polygon = np.array(
+            [[0, 0], [1, 1], [0.5, 1.5], [0.0, 1.0], [-0.5, 1.5], [-1, 1]]
+        )
+        expected_normals = np.array(
+            [
+                [-0.7071067811865476, 0.7071067811865476],
+                [-0.7071067811865476, -0.7071067811865476],
+                [0.7071067811865476, -0.7071067811865476],
+                [-0.7071067811865476, -0.7071067811865476],
+                [0.7071067811865476, -0.7071067811865476],
+                [0.7071067811865476, 0.7071067811865476],
+            ]
+        )
+
+        test_result = geo_utils.single_polygon_normals_calculator(polygon)
+
+        assert np.allclose(test_result, expected_normals)
+
+
+class TestPointOnLine:
+    """
+    Test for point on line segment
+    """
+
+    def test_point_on_line_middle_not_on_line(self):
+
+        point = np.array([10, 10])
+        line_a = np.array([0, 10])
+        line_b = np.array([10, 0])
+
+        test_result = geo_utils.point_on_line(point, line_a, line_b)
+
+        assert test_result == False
+
+    def test_point_on_line_middle(self):
+
+        point = np.array([5, 5])
+        line_a = np.array([0, 10])
+        line_b = np.array([10, 0])
+
+        test_result = geo_utils.point_on_line(point, line_a, line_b)
+
+        assert test_result == True
+
+    def test_point_on_line_end(self):
+
+        point = np.array([10, 0])
+        line_a = np.array([0, 10])
+        line_b = np.array([10, 0])
+
+        test_result = geo_utils.point_on_line(point, line_a, line_b)
+
+        assert test_result == True
+
+    def test_point_on_line_end_not_on_line(self):
+
+        point = np.array([-1, 11])
+        line_a = np.array([0, 10])
+        line_b = np.array([10, 0])
+
+        test_result = geo_utils.point_on_line(point, line_a, line_b)
+
+        assert test_result == False
+
+    def test_point_on_line_middle_lt_tol(self):
+
+        point = np.array([5 + 1e-7, 5 + 1e-7])
+        line_a = np.array([0, 10])
+        line_b = np.array([10, 0])
+
+        test_result = geo_utils.point_on_line(point, line_a, line_b)
+
+        assert test_result == True
+
+    def test_point_on_line_middle_gt_tol(self):
+
+        point = np.array([5 + 1e-6, 5 + 1e-6])
+        line_a = np.array([0, 10])
+        line_b = np.array([10, 0])
+
+        test_result = geo_utils.point_on_line(point, line_a, line_b)
+
+        assert test_result == False
+
+
+@pytest.mark.usefixtures("subtests")
+class TestGetClosestPointOnLineSeg:
+    def setup_method(self):
+        self.get_closest_point_on_line_seg_jac = jax.jacobian(
+            geo_utils.get_closest_point_on_line_seg, [0]
+        )
+        pass
+
+    def test_get_closest_point_on_line_seg_45_deg_with_end(self):
 
         point = np.array([10, 10])
         line_a = np.array([0, 10])
         line_b = np.array([10, 0])
         line_vector = line_b - line_a
 
-        test_result = utils.get_closest_point(point, line_a, line_b, line_vector)
+        test_result = geo_utils.get_closest_point_on_line_seg(
+            point, line_a, line_b, line_vector
+        )
 
         assert np.all(test_result == np.array([5, 5]))
 
-    def test_get_closest_point_90_deg_with_end(self):
+    def test_get_closest_point_on_line_seg_90_deg_with_end(self):
 
         point = np.array([0, 0])
         line_a = np.array([0, 10])
         line_b = np.array([10, 10])
         line_vector = line_b - line_a
 
-        test_result = utils.get_closest_point(point, line_a, line_b, line_vector)
+        test_result = geo_utils.get_closest_point_on_line_seg(
+            point, line_a, line_b, line_vector
+        )
 
         assert np.all(test_result == line_a)
 
-    def test_get_closest_point_gt90_deg_with_end(self):
+    def test_get_closest_point_on_line_seg_gt90_deg_with_end(self):
 
         point = np.array([0, 0])
         line_a = np.array([5, 5])
         line_b = np.array([10, 5])
         line_vector = line_b - line_a
 
-        test_result = utils.get_closest_point(point, line_a, line_b, line_vector)
+        test_result = geo_utils.get_closest_point_on_line_seg(
+            point, line_a, line_b, line_vector
+        )
 
         assert np.all(test_result == line_a)
 
-    def test_get_closest_point_180_deg_with_end(self):
+    def test_get_closest_point_on_line_seg_180_deg_with_end(self):
 
         point = np.array([0, 5])
         line_a = np.array([5, 5])
         line_b = np.array([10, 5])
         line_vector = line_b - line_a
 
-        test_result = utils.get_closest_point(point, line_a, line_b, line_vector)
+        test_result = geo_utils.get_closest_point_on_line_seg(
+            point, line_a, line_b, line_vector
+        )
 
         assert np.all(test_result == line_a)
 
-    def test_get_closest_point_point_on_segment(self):
+    def test_get_closest_point_on_line_seg_point_on_segment(self):
         """
         Test for a point exactly on the line segment
         """
@@ -69,13 +479,13 @@ class TestGetClosestPoint:
         test_end = np.array([5, 5, 5])
         line_vector = test_end - test_start
 
-        test_result = utils.get_closest_point(
+        test_result = geo_utils.get_closest_point_on_line_seg(
             test_point, test_start, test_end, line_vector
         )
 
         assert np.all(test_result == test_point)
 
-    def test_get_closest_point_point_near_end(self):
+    def test_get_closest_point_on_line_seg_point_near_end(self):
         """
         Test for a point near the end of the line segment
         """
@@ -85,13 +495,13 @@ class TestGetClosestPoint:
         test_end = np.array([5, 5, 5])
         line_vector = test_end - test_start
 
-        test_result = utils.get_closest_point(
+        test_result = geo_utils.get_closest_point_on_line_seg(
             test_point, test_start, test_end, line_vector
         )
 
         assert np.all(test_result == test_end)
 
-    def test_get_closest_point_point_near_start(self):
+    def test_get_closest_point_on_line_seg_point_near_start(self):
         """
         Test for a point near the start of the line segment
         """
@@ -101,13 +511,13 @@ class TestGetClosestPoint:
         test_end = np.array([5, 5, 5])
         line_vector = test_end - test_start
 
-        test_result = utils.get_closest_point(
+        test_result = geo_utils.get_closest_point_on_line_seg(
             test_point, test_start, test_end, line_vector
         )
 
         assert np.all(test_result == test_start)
 
-    def test_get_closest_point_point_near_middle(self):
+    def test_get_closest_point_on_line_seg_point_near_middle(self):
         """
         Test for a point near the middle of the line segment
         """
@@ -117,13 +527,13 @@ class TestGetClosestPoint:
         test_end = np.array([0, 0, 5])
         line_vector = test_end - test_start
 
-        test_result = utils.get_closest_point(
+        test_result = geo_utils.get_closest_point_on_line_seg(
             test_point, test_start, test_end, line_vector
         )
 
         assert np.all(test_result == np.array([0, 0, 2]))
 
-    def test_get_closest_point_jac(self):
+    def test_get_closest_point_on_line_seg_jac(self, subtests):
         """
         Test for gradient for a point near the middle of the line segment
         """
@@ -133,28 +543,32 @@ class TestGetClosestPoint:
         test_end = np.array([0, 0, 5], dtype=float)
         line_vector = test_end - test_start
 
-        tr_dp = self.get_closest_point_jac(
+        tr_dp = self.get_closest_point_on_line_seg_jac(
             test_point, test_start, test_end, line_vector
         )
 
-        assert np.all(tr_dp == np.array([[0, 0, 0], [0, 0, 0], [0, 0, 1]]))
+        with subtests.test("analytic derivatives"):
+            assert np.all(
+                tr_dp == np.array([[0, 0, 0], [0, 0, 0], [0, 0, 1]], dtype=float)
+            )
 
-        try:
-            jax.test_util.check_grads(
-                utils.get_closest_point,
-                (test_point, test_start, test_end, line_vector),
-                order=1,
-            )
-        except AssertionError:
-            pytest.fail(
-                "Unexpected AssertionError when checking gradients, gradients may be incorrect"
-            )
+        with subtests.test("numeric derivatives"):
+            try:
+                jax.test_util.check_grads(
+                    geo_utils.get_closest_point_on_line_seg,
+                    (test_point, test_start, test_end, line_vector),
+                    order=1,
+                )
+            except AssertionError:
+                pytest.fail(
+                    "Unexpected AssertionError when checking gradients, gradients may be incorrect"
+                )
 
 
 class TestPointToLineSeg:
     def setup_method(self):
         self.distance_point_to_lineseg_nd_grad = jax.grad(
-            utils.distance_point_to_lineseg_nd, [0]
+            geo_utils.distance_point_to_lineseg_nd, [0]
         )
         pass
 
@@ -164,7 +578,7 @@ class TestPointToLineSeg:
         line_a = np.array([0, 10])
         line_b = np.array([10, 0])
 
-        test_result = utils.distance_point_to_lineseg_nd(point, line_a, line_b)
+        test_result = geo_utils.distance_point_to_lineseg_nd(point, line_a, line_b)
 
         assert test_result == 7.0710678118654755
 
@@ -174,7 +588,7 @@ class TestPointToLineSeg:
         line_a = np.array([0, 10])
         line_b = np.array([10, 10])
 
-        test_result = utils.distance_point_to_lineseg_nd(point, line_a, line_b)
+        test_result = geo_utils.distance_point_to_lineseg_nd(point, line_a, line_b)
 
         assert test_result == 10.0
 
@@ -184,7 +598,7 @@ class TestPointToLineSeg:
         line_a = np.array([5, 5])
         line_b = np.array([10, 5])
 
-        test_result = utils.distance_point_to_lineseg_nd(point, line_a, line_b)
+        test_result = geo_utils.distance_point_to_lineseg_nd(point, line_a, line_b)
 
         assert test_result == 7.0710678118654755
 
@@ -194,7 +608,7 @@ class TestPointToLineSeg:
         line_a = np.array([5, 5])
         line_b = np.array([10, 5])
 
-        test_result = utils.distance_point_to_lineseg_nd(point, line_a, line_b)
+        test_result = geo_utils.distance_point_to_lineseg_nd(point, line_a, line_b)
 
         assert test_result == 5.0
 
@@ -207,7 +621,7 @@ class TestPointToLineSeg:
         test_start = np.array([0, 0, 0])
         test_end = np.array([0, 0, 0])
 
-        test_result = utils.distance_point_to_lineseg_nd(
+        test_result = geo_utils.distance_point_to_lineseg_nd(
             test_point, test_start, test_end
         )
 
@@ -222,7 +636,7 @@ class TestPointToLineSeg:
         test_start = np.array([0, 0, 0])
         test_end = np.array([5, 5, 5])
 
-        test_result = utils.distance_point_to_lineseg_nd(
+        test_result = geo_utils.distance_point_to_lineseg_nd(
             test_point, test_start, test_end
         )
 
@@ -237,7 +651,7 @@ class TestPointToLineSeg:
         test_start = np.array([0, 0, 0])
         test_end = np.array([5, 5, 5])
 
-        test_result = utils.distance_point_to_lineseg_nd(
+        test_result = geo_utils.distance_point_to_lineseg_nd(
             test_point, test_start, test_end
         )
 
@@ -252,7 +666,7 @@ class TestPointToLineSeg:
         test_start = np.array([0, 0, 0])
         test_end = np.array([5, 5, 5])
 
-        test_result = utils.distance_point_to_lineseg_nd(
+        test_result = geo_utils.distance_point_to_lineseg_nd(
             test_point, test_start, test_end
         )
 
@@ -267,7 +681,7 @@ class TestPointToLineSeg:
         test_start = np.array([0, 0, 0])
         test_end = np.array([0, 0, 5])
 
-        test_result = utils.distance_point_to_lineseg_nd(
+        test_result = geo_utils.distance_point_to_lineseg_nd(
             test_point, test_start, test_end
         )
 
@@ -288,7 +702,7 @@ class TestPointToLineSeg:
 
         try:
             jax.test_util.check_grads(
-                utils.distance_point_to_lineseg_nd,
+                geo_utils.distance_point_to_lineseg_nd,
                 (test_point, test_start, test_end),
                 order=1,
             )
@@ -298,90 +712,10 @@ class TestPointToLineSeg:
             )
 
 
-class TestSmoothMaxMin:
-    def setup_method(self):
-        self.smooth_max_grad = jax.grad(utils.smooth_max)
-        self.smooth_min_grad = jax.grad(utils.smooth_min)
-        pass
-
-    def test_smooth_max_close(self):
-        """
-        Check that the smooth max function returns something greater
-        than the true max when called with similar values.
-        """
-
-        test_list = np.array([0, 9.999, 10.00, 3.0])
-        test_result = utils.smooth_max(x=test_list)
-
-        assert test_result >= 10
-
-    def test_smooth_max_not_close(self):
-        """
-        Check that the smooth max function returns the true max
-        when called with very different values.
-        """
-
-        test_list = np.array([0, 5, 10.0, 3.0])
-        test_result = utils.smooth_max(x=test_list)
-
-        assert test_result == 10
-
-    def test_smooth_min_close(self):
-        """
-        Check that the smooth min function returns something less
-        than the true min when called with similar values.
-        """
-
-        test_list = np.array([0, 9.999, 10.00, 3.0])
-        test_result = utils.smooth_min(x=test_list)
-
-        assert test_result <= 0.0
-
-    def test_smooth_min_not_close(self):
-        """
-        Check that the smooth min function returns the true min
-        when called with very different values.
-        """
-
-        test_list = np.array([0, 5, 10.0, 3.0])
-        test_result = utils.smooth_min(x=test_list)
-
-        assert test_result == pytest.approx(0, rel=1e-15)
-
-    def test_smooth_max_grad(self):
-        """
-        Check that the smooth min function is differentiable and the gradient
-        is correct
-        """
-
-        test_list = np.array([0, 5, 10.0, 3.0])
-        test_result = self.smooth_max_grad(test_list)
-
-        assert test_result == pytest.approx([0, 0, 1, 0], rel=1e-6)
-
-        try:
-            jax.test_util.check_grads(utils.smooth_max, ([test_list]), order=1)
-        except AssertionError:
-            pytest.fail(
-                "Unexpected AssertionError when checking gradients, gradients may be incorrect"
-            )
-
-    def test_smooth_min_grad(self):
-        """
-        Check that the smooth min function is differentiable and the gradient
-        is correct
-        """
-
-        test_list = np.array([0, 5, 10.0, 3.0])
-        test_result = self.smooth_min_grad(test_list)
-
-        assert test_result == pytest.approx([1, 0, 0, 0], rel=1e-6)
-
-
 class TestLineSegToLineSeg:
     def setup_method(self):
         self.distance_lineseg_to_lineseg_nd_grad = jax.grad(
-            utils.distance_lineseg_to_lineseg_nd, [0]
+            geo_utils.distance_lineseg_to_lineseg_nd, [0]
         )
         pass
 
@@ -393,7 +727,7 @@ class TestLineSegToLineSeg:
         line_a = np.array([np.array([0, 0]), np.array([0, 5])])
         line_b = np.array([np.array([5, 0]), np.array([5, 5])])
 
-        test_result = utils.distance_lineseg_to_lineseg_nd(
+        test_result = geo_utils.distance_lineseg_to_lineseg_nd(
             line_a_start=line_a[0],
             line_a_end=line_a[1],
             line_b_start=line_b[0],
@@ -412,7 +746,7 @@ class TestLineSegToLineSeg:
         line_a = np.array([np.array([0, 0]), np.array([0, 5])])
         line_b = np.array([np.array([0, 0]), np.array([5, 5])])
 
-        test_result = utils.distance_lineseg_to_lineseg_nd(
+        test_result = geo_utils.distance_lineseg_to_lineseg_nd(
             line_a_start=line_a[0],
             line_a_end=line_a[1],
             line_b_start=line_b[0],
@@ -429,7 +763,7 @@ class TestLineSegToLineSeg:
         line_a = np.array([np.array([0, 0]), np.array([5, 5])])
         line_b = np.array([np.array([0, 5]), np.array([5, 0])])
 
-        test_result = utils.distance_lineseg_to_lineseg_nd(
+        test_result = geo_utils.distance_lineseg_to_lineseg_nd(
             line_a_start=line_a[0],
             line_a_end=line_a[1],
             line_b_start=line_b[0],
@@ -446,7 +780,7 @@ class TestLineSegToLineSeg:
         line_a = np.array([np.array([2.5, 2.5]), np.array([5, 5])])
         line_b = np.array([np.array([0, 5]), np.array([5, 0])])
 
-        test_result = utils.distance_lineseg_to_lineseg_nd(
+        test_result = geo_utils.distance_lineseg_to_lineseg_nd(
             line_a_start=line_a[0],
             line_a_end=line_a[1],
             line_b_start=line_b[0],
@@ -463,7 +797,7 @@ class TestLineSegToLineSeg:
         line_a = np.array([np.array([0, 0]), np.array([0, 5])])
         line_b = np.array([np.array([5, 5]), np.array([8, -10])])
 
-        test_result = utils.distance_lineseg_to_lineseg_nd(
+        test_result = geo_utils.distance_lineseg_to_lineseg_nd(
             line_a_start=line_a[0],
             line_a_end=line_a[1],
             line_b_start=line_b[0],
@@ -480,7 +814,7 @@ class TestLineSegToLineSeg:
         line_a = np.array([np.array([0, 0]), np.array([0, 5])], dtype=float)
         line_b = np.array([np.array([5.0, 2.5]), np.array([10, 15])], dtype=float)
 
-        test_result = utils.distance_lineseg_to_lineseg_nd(
+        test_result = geo_utils.distance_lineseg_to_lineseg_nd(
             line_a[0],
             line_a_end=line_a[1],
             line_b_start=line_b[0],
@@ -497,7 +831,7 @@ class TestLineSegToLineSeg:
         line_a = np.array([np.array([5.0, 2.5]), np.array([10, 15])], dtype=float)
         line_b = np.array([np.array([0, 0]), np.array([0, 5])], dtype=float)
 
-        test_result = utils.distance_lineseg_to_lineseg_nd(
+        test_result = geo_utils.distance_lineseg_to_lineseg_nd(
             line_a[0],
             line_a_end=line_a[1],
             line_b_start=line_b[0],
@@ -597,7 +931,7 @@ class TestLineSegToLineSeg:
 
         try:
             jax.test_util.check_grads(
-                utils.distance_lineseg_to_lineseg_nd,
+                geo_utils.distance_lineseg_to_lineseg_nd,
                 (line_a[0], line_a[1], line_b[0], line_b[1]),
                 order=1,
             )
@@ -648,7 +982,7 @@ class TestLineSegToLineSeg:
         line_a = np.array([np.array([0, 0, 0]), np.array([0, 0, 5])])
         line_b = np.array([np.array([5, 0, 0]), np.array([5, 0, 5])])
 
-        test_result = utils.distance_lineseg_to_lineseg_nd(
+        test_result = geo_utils.distance_lineseg_to_lineseg_nd(
             line_a_start=line_a[0],
             line_a_end=line_a[1],
             line_b_start=line_b[0],
@@ -667,7 +1001,7 @@ class TestLineSegToLineSeg:
         line_a = np.array([np.array([0, 0, 0]), np.array([0, 0, 5])])
         line_b = np.array([np.array([0, 0, 0]), np.array([5, 0, 5])])
 
-        test_result = utils.distance_lineseg_to_lineseg_nd(
+        test_result = geo_utils.distance_lineseg_to_lineseg_nd(
             line_a_start=line_a[0],
             line_a_end=line_a[1],
             line_b_start=line_b[0],
@@ -684,7 +1018,7 @@ class TestLineSegToLineSeg:
         line_a = np.array([np.array([0, 0, 0]), np.array([5, 5, 5])])
         line_b = np.array([np.array([0, 5, 0]), np.array([5, 0, 5])])
 
-        test_result = utils.distance_lineseg_to_lineseg_nd(
+        test_result = geo_utils.distance_lineseg_to_lineseg_nd(
             line_a_start=line_a[0],
             line_a_end=line_a[1],
             line_b_start=line_b[0],
@@ -701,7 +1035,7 @@ class TestLineSegToLineSeg:
         line_a = np.array([np.array([2.5, 2.5, 2.5]), np.array([5, 5, 5])])
         line_b = np.array([np.array([0, 5, 0]), np.array([5, 0, 5])])
 
-        test_result = utils.distance_lineseg_to_lineseg_nd(
+        test_result = geo_utils.distance_lineseg_to_lineseg_nd(
             line_a_start=line_a[0],
             line_a_end=line_a[1],
             line_b_start=line_b[0],
@@ -718,7 +1052,7 @@ class TestLineSegToLineSeg:
         line_a = np.array([np.array([0, 0, 0]), np.array([0, 5, 5])])
         line_b = np.array([np.array([5, 5, 0]), np.array([5, 0, 5])])
 
-        test_result = utils.distance_lineseg_to_lineseg_nd(
+        test_result = geo_utils.distance_lineseg_to_lineseg_nd(
             line_a_start=line_a[0],
             line_a_end=line_a[1],
             line_b_start=line_b[0],
@@ -834,7 +1168,7 @@ class TestLineSegToLineSeg:
 
         try:
             jax.test_util.check_grads(
-                utils.distance_lineseg_to_lineseg_nd,
+                geo_utils.distance_lineseg_to_lineseg_nd,
                 (line_a[0], line_a[1], line_b[0], line_b[1]),
                 order=1,
             )
@@ -842,63 +1176,3 @@ class TestLineSegToLineSeg:
             pytest.fail(
                 "Unexpected AssertionError when checking gradients, gradients may be incorrect"
             )
-
-
-class TestSmoothNorm:
-    def setup_method(self):
-        self.smooth_norm_grad = jax.grad(utils.smooth_norm, [0])
-        self.norm_grad = jax.grad(jnp.linalg.norm, [0])
-        pass
-
-    def test_smooth_norm_large_values(self):
-
-        vec = np.array([10, 5, 20], dtype=float)
-
-        test_result = utils.smooth_norm(vec)
-
-        assert test_result == pytest.approx(np.linalg.norm(vec))
-
-    def test_smooth_norm_small_values(self):
-
-        vec = np.array([1e-6, 5e-6, 2e-6], dtype=float)
-
-        test_result = utils.smooth_norm(vec)
-
-        assert test_result == pytest.approx(np.linalg.norm(vec), abs=1e-6)
-
-    def test_smooth_norm_zero_values(self):
-
-        vec = np.array([0, 0, 0], dtype=float)
-
-        test_result = utils.smooth_norm(vec)
-
-        assert test_result == pytest.approx(np.linalg.norm(vec), abs=1e-6)
-
-    def test_smooth_norm_large_values_grad(self):
-
-        vec = np.array([10, 5, 20], dtype=float)
-
-        test_result = self.smooth_norm_grad(vec)
-        expected_result = self.norm_grad(vec)
-
-        assert np.all(test_result[0] == pytest.approx(expected_result[0]))
-
-    def test_smooth_norm_small_values_grad(self):
-
-        vec = np.array([1e-6, 5e-6, 2e-6], dtype=float)
-
-        test_result = self.smooth_norm_grad(vec)
-
-        # loose tolerance due to expected error in the grad of smooth_norm for small vector values
-        assert np.all(test_result[0] == pytest.approx(self.norm_grad(vec)[0], abs=1e-1))
-
-    def test_smooth_norm_zero_values_grad(self):
-
-        vec = np.array([0, 0, 0], dtype=float)
-
-        test_result = self.smooth_norm_grad(vec)
-
-        # zero valued gradient expected for the grad of smooth_norm for zero vector values
-        assert np.all(
-            test_result[0] == pytest.approx(np.array([0, 0, 0], dtype=float), abs=1e-1)
-        )

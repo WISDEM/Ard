@@ -1,13 +1,17 @@
 import numpy as np
 import jax.numpy as jnp
 import jax
+
+jax.config.update("jax_enable_x64", True)
 import ard.utils.mathematics
+import ard.utils.geometry
 import openmdao.api as om
 
 
-class TurbineSpacing(om.ExplicitComponent):
+class FarmBoundaryDistancePolygon(om.ExplicitComponent):
     """
-    A class to return distances between turbines
+    A class to return distances between turbines and a polygonal boundary, or
+    sets of polygonal boundary regions.
 
     Options
     -------
@@ -34,7 +38,14 @@ class TurbineSpacing(om.ExplicitComponent):
         # load modeling options
         self.modeling_options = self.options["modeling_options"]
         self.N_turbines = int(self.modeling_options["farm"]["N_turbines"])
-        self.N_distances = int((self.N_turbines - 1) * self.N_turbines / 2)
+        self.boundary_vertices = self.modeling_options["farm"]["boundary"]["vertices"]
+        self.boundary_regions = self.modeling_options["farm"]["boundary"][
+            "turbine_region_assignments"
+        ]
+
+        self.distance_multi_point_to_multi_polygon_ray_casting_jac = jax.jacfwd(
+            ard.utils.geometry.distance_multi_point_to_multi_polygon_ray_casting, [0, 1]
+        )
         # MANAGE ADDITIONAL LATENT VARIABLES HERE!!!!!
 
         # set up inputs and outputs for mooring system
@@ -46,15 +57,21 @@ class TurbineSpacing(om.ExplicitComponent):
         )  # y location of the mooring platform in km w.r.t. reference coordinates
 
         self.add_output(
-            "turbine_spacing",
-            jnp.zeros(self.N_distances),
+            "boundary_distances",
+            jnp.zeros(self.N_turbines),
             units="km",
         )
 
     def setup_partials(self):
         """Derivative setup for the OpenMDAO component."""
         # the default (but not preferred!) derivatives are FDM
-        self.declare_partials("*", "*", method="exact")
+        self.declare_partials(
+            "*",
+            "*",
+            method="exact",
+            rows=np.arange(self.N_turbines),
+            cols=np.arange(self.N_turbines),
+        )
 
     def compute(self, inputs, outputs, discrete_inputs=None, discrete_outputs=None):
         """Computation for the OpenMDAO component."""
@@ -63,9 +80,16 @@ class TurbineSpacing(om.ExplicitComponent):
         x_turbines = inputs["x_turbines"]
         y_turbines = inputs["y_turbines"]
 
-        spacing_distances = calculate_turbine_spacing(x_turbines, y_turbines)
+        boundary_distances = (
+            ard.utils.geometry.distance_multi_point_to_multi_polygon_ray_casting(
+                x_turbines,
+                y_turbines,
+                boundary_vertices=self.boundary_vertices,
+                regions=self.boundary_regions,
+            )
+        )
 
-        outputs["turbine_spacing"] = spacing_distances
+        outputs["boundary_distances"] = boundary_distances
 
     def compute_partials(self, inputs, partials, discrete_inputs=None):
 
@@ -73,31 +97,9 @@ class TurbineSpacing(om.ExplicitComponent):
         x_turbines = inputs["x_turbines"]
         y_turbines = inputs["y_turbines"]
 
-        jacobian = calculate_turbine_spacing_jac(x_turbines, y_turbines)
+        jacobian = self.distance_multi_point_to_multi_polygon_ray_casting_jac(
+            x_turbines, y_turbines, self.boundary_vertices, self.boundary_regions
+        )
 
-        partials["turbine_spacing", "x_turbines"] = jacobian[0]
-        partials["turbine_spacing", "y_turbines"] = jacobian[1]
-
-
-def calculate_turbine_spacing(
-    x_turbines: np.ndarray,
-    y_turbines: np.ndarray,
-):
-    N_turbines = len(x_turbines)
-
-    # Create index pairs for i < j (upper triangle without diagonal)
-    i_indices, j_indices = jnp.triu_indices(N_turbines, k=1)
-
-    # Compute deltas
-    dx = x_turbines[j_indices] - x_turbines[i_indices]
-    dy = y_turbines[j_indices] - y_turbines[i_indices]
-    deltas = jnp.stack([dx, dy], axis=1)
-
-    # Vectorized norm calculation
-    spacing_distance = ard.utils.mathematics.smooth_norm_vec(deltas)
-
-    return spacing_distance
-
-
-calculate_turbine_spacing = jax.jit(calculate_turbine_spacing)
-calculate_turbine_spacing_jac = jax.jacrev(calculate_turbine_spacing, argnums=[0, 1])
+        partials["boundary_distances", "x_turbines"] = jacobian[0].diagonal()
+        partials["boundary_distances", "y_turbines"] = jacobian[1].diagonal()

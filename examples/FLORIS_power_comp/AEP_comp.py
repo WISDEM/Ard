@@ -7,7 +7,7 @@ import openmdao.api as om
 
 import floris
 
-import ard.utils
+import ard.utils.io
 import ard.wind_query as wq
 import ard.layout.gridfarm as gridfarm
 import ard.farm_aero.floris as farmaero_floris
@@ -40,7 +40,7 @@ filename_turbine_spec = Path(
     "data",
     "turbine_spec_IEA-3p4-130-RWT.yaml",
 )  # toolset generalized turbine specification
-data_turbine_spec = ard.utils.load_turbine_spec(filename_turbine_spec)
+data_turbine_spec = ard.utils.io.load_turbine_spec(filename_turbine_spec)
 
 # set up the modeling options
 modeling_options = {

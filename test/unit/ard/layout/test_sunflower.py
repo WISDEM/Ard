@@ -6,7 +6,7 @@ import openmdao.api as om
 
 import pytest
 
-import ard.test_utils
+import ard.utils.test_utils as test_utils
 import ard.layout.sunflower as sunflower
 
 
@@ -97,7 +97,7 @@ class TestSunflowerFarm:
         }
 
         # validate data against pyrite file
-        ard.test_utils.pyrite_validator(
+        test_utils.pyrite_validator(
             validation_data,
             Path(__file__).parent / "test_sunflower_7D_pyrite.npz",
             rtol_val=5e-3,
@@ -128,7 +128,7 @@ class TestSunflowerFarm:
         }
 
         # validate data against pyrite file
-        ard.test_utils.pyrite_validator(
+        test_utils.pyrite_validator(
             validation_data,
             Path(__file__).parent / "test_sunflower_4D_pyrite.npz",
             rtol_val=5e-3,
