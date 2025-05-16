@@ -12,6 +12,7 @@ geometry:
 nameplate:
   power_rated: 22.0 # MW
   power_rated_aero: 22.86 # MW
+  windspeed_rated: 11.0 # m/s
   turbine_class: I # future-proofing
   turbulence_class: B # future-proofing
   drivetrain: direct-drive # future-proofing
@@ -58,7 +59,7 @@ costs:
     construction_plan_cost: 250000.0  # $
     installation_plan_cost: 1000000.0  # $
     boem_review_cost: 0.0  # $
-    
+
     transition_piece_mass: 100. # (ton)
     transition_piece_cost: 0. # (USD)
 
@@ -67,7 +68,7 @@ costs:
     monopile_cost: 4744119.28172591 # (USD)
     tcc_per_kW: 1397.17046735 # (USD/kW)
     opex_per_kW: 110. # (USD/kWh)
-    
+
     # Floating configuration
     num_mooring_lines: 3 # (-)
     mooring_line_mass: 843225.1875 # (kg)

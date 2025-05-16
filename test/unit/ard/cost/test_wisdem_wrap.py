@@ -83,7 +83,7 @@ class TestLandBOSSE:
         )
 
 
-class TestOrbit:
+class TestORBIT:
 
     def setup_method(self):
 
@@ -118,7 +118,7 @@ class TestOrbit:
         )
         self.orbit = self.model.add_subsystem(
             "orbit",
-            wcost.Orbit(),
+            wcost.ORBIT(),
         )
         self.model.connect(  # effective primary spacing for BOS
             "spacing_effective_primary", "orbit.plant_turbine_spacing"
@@ -130,7 +130,7 @@ class TestOrbit:
         self.prob = om.Problem(self.model)
         self.prob.setup()
 
-        # setup the latent variables for Orbit and FinanceSE
+        # setup the latent variables for ORBIT and FinanceSE
         wcost.ORBIT_setup_latents(self.prob, self.modeling_options)
         # wcost.FinanceSE_setup_latents(self.prob, self.modeling_options)
 
