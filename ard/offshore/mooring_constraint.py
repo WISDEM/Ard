@@ -186,8 +186,8 @@ def mooring_constraint_xyz(
     y_anchors: np.ndarray,
     z_anchors: np.ndarray,
 ):
-    """Mooring distance calculation in 3 dimensions. The third dimension 
-    is only required for the anchors since the turbine platforms are 
+    """Mooring distance calculation in 3 dimensions. The third dimension
+    is only required for the anchors since the turbine platforms are
     all assumed to be at sea level.
 
     Args:
@@ -224,7 +224,7 @@ def calc_mooring_distances(mooring_points: np.ndarray) -> np.ndarray:
     """Calculate the minimum distances between each set of mooring lines
 
     Args:
-        mooring_points (np.ndarray): array of mooring points of shape 
+        mooring_points (np.ndarray): array of mooring points of shape
         (n_turbines, n_anchors+1, n_dimensions) where n_dimensions may be 2 or 3
 
     Returns:
@@ -252,9 +252,9 @@ def convert_inputs_x_y_to_xy(
     x_anchors: np.ndarray,
     y_anchors: np.ndarray,
 ) -> np.ndarray:
-    """Convert from inputs of x for turbines, y for turbines, x for anchors, and y for 
-    anchors to single array for mooring specification that is of shape 
-    (n_turbines, n_anchors+1, 2). for each set of points, the turbine position is given 
+    """Convert from inputs of x for turbines, y for turbines, x for anchors, and y for
+    anchors to single array for mooring specification that is of shape
+    (n_turbines, n_anchors+1, 2). for each set of points, the turbine position is given
     first followed by the anchor positions.
 
     Args:
@@ -264,7 +264,7 @@ def convert_inputs_x_y_to_xy(
         y_anchors (np.ndarray): array of anchor y positions
 
     Returns:
-        np.ndarray: all turbine and anchor location information combined into a single 
+        np.ndarray: all turbine and anchor location information combined into a single
             array of shape (n_turbines, n_anchors+1, 2)
     """
 
@@ -286,9 +286,9 @@ def convert_inputs_x_y_z_to_xyz(
     y_anchors: np.ndarray,
     z_anchors: np.ndarray,
 ) -> np.ndarray:
-    """Convert from inputs of x for turbines, y for turbines, z for turbines, x for anchors, 
-    y for anchors, and z for anchors to single array for mooring specification that is of 
-    shape (n_turbines, n_anchors+1, 3). for each set of points, the turbine position is given 
+    """Convert from inputs of x for turbines, y for turbines, z for turbines, x for anchors,
+    y for anchors, and z for anchors to single array for mooring specification that is of
+    shape (n_turbines, n_anchors+1, 3). for each set of points, the turbine position is given
     first followed by the anchor positions.
 
     Args:
@@ -344,7 +344,7 @@ def distance_point_to_mooring(point: np.ndarray, P_mooring: np.ndarray) -> float
 def distance_mooring_to_mooring(
     P_mooring_A: np.ndarray, P_mooring_B: np.ndarray
 ) -> float:
-    """Calculate the distance from one set of mooring lines to another. Moorings 
+    """Calculate the distance from one set of mooring lines to another. Moorings
     are defined with the center point (platform location) first, followed by the
     anchor points in no specific order.
 

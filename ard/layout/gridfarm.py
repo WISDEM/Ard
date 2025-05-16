@@ -27,7 +27,7 @@ class GridFarmLayout(templates.LayoutTemplate):
     |                '    /       /       /       /       /             (rotated from
     |            '       x ----- x ----- x ----- x ----- x               north CW by
     |        '          /       /       /       /       /                orientation
-    |        NORTH    x ----- x ----- x ----- x ----- x                 angle)
+    |        NORTH     x ----- x ----- x ----- x ----- x                 angle)
     |                        /|
     |                       / |
     |                      /  | <- skew angle
