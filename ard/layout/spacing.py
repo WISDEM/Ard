@@ -24,7 +24,7 @@ class TurbineSpacing(om.ExplicitComponent):
         with length `N_turbines` (mirrored w.r.t. `FarmAeroTemplate`)
     turbine_spacing : np.ndarray
         a 1D numpy array indicating the distances between turbines,
-        with length (N_turbines - 1)*N_turbines/2. where, for 3 turbines, turbine_spacing[0] 
+        with length (N_turbines - 1)*N_turbines/2. where, for 3 turbines, turbine_spacing[0]
         is the distance between turbines 0 and 1, turbine_spacing[1] is the distance between
         turbines 0 and 2, and turbine_spacing[2] is the distance between turbines 1 and 2.
         The array is the flattened upper-triangular portion of the distance matrix.
@@ -98,7 +98,7 @@ def calculate_turbine_spacing(
 
     Returns:
         turbine distances (np.ndarray): a 1D numpy array indicating the distances between turbines
-            with length (N_turbines - 1)*N_turbines/2. The array is the flattened 
+            with length (N_turbines - 1)*N_turbines/2. The array is the flattened
             upper-triangular portion of the distance matrix. For 3 turbines, turbine_spacing[0] is the
             distance between turbines 0 and 1, turbine_spacing[1] is the distance between
             turbines 0 and 2, and turbine_spacing[2] is the distance between turbines 1 and 2.
