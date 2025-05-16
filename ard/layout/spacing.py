@@ -7,7 +7,7 @@ import openmdao.api as om
 
 class TurbineSpacing(om.ExplicitComponent):
     """
-    A class to return distances between turbines
+    A class to return distances between each pair of turbines without duplicates.
 
     Options
     -------
@@ -24,9 +24,10 @@ class TurbineSpacing(om.ExplicitComponent):
         with length `N_turbines` (mirrored w.r.t. `FarmAeroTemplate`)
     turbine_spacing : np.ndarray
         a 1D numpy array indicating the distances between turbines,
-        with length `N_distances` where, for 3 turbines, turbine_spacing[0] is the
-        distance between turbines 0 and 1, turbine_spacing[1] is the distance between
+        with length (N_turbines - 1)*N_turbines/2. where, for 3 turbines, turbine_spacing[0] 
+        is the distance between turbines 0 and 1, turbine_spacing[1] is the distance between
         turbines 0 and 2, and turbine_spacing[2] is the distance between turbines 1 and 2.
+        The array is the flattened upper-triangular portion of the distance matrix.
     """
 
     def initialize(self):
@@ -86,7 +87,23 @@ class TurbineSpacing(om.ExplicitComponent):
 def calculate_turbine_spacing(
     x_turbines: np.ndarray,
     y_turbines: np.ndarray,
-):
+) -> np.ndarray:
+    """Calculate the spacing between every pair of turbines with no duplicates.
+
+    Args:
+        x_turbines (np.ndarray): a 1D numpy array indicating the x-dimension locations of the turbines,
+            with length `N_turbines
+        y_turbines (np.ndarray): a 1D numpy array indicating the y-dimension locations of the turbines,
+            with length `N_turbines
+
+    Returns:
+        turbine distances (np.ndarray): a 1D numpy array indicating the distances between turbines
+            with length (N_turbines - 1)*N_turbines/2. The array is the flattened 
+            upper-triangular portion of the distance matrix. For 3 turbines, turbine_spacing[0] is the
+            distance between turbines 0 and 1, turbine_spacing[1] is the distance between
+            turbines 0 and 2, and turbine_spacing[2] is the distance between turbines 1 and 2.
+    """
+
     N_turbines = len(x_turbines)
 
     # Create index pairs for i < j (upper triangle without diagonal)
