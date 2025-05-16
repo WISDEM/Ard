@@ -24,3 +24,9 @@ parts:
   - caption: Explanation
     chapters:
     - file: structure
+    # - file: utilities
+    #   sections:
+    #     - file: core
+    #     - file: geometry
+    #     - file: io
+    #     - file: mathematics

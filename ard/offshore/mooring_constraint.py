@@ -81,14 +81,12 @@ class MooringConstraint(om.ExplicitComponent):
                 jnp.zeros((self.N_turbines, self.N_anchors)),
                 units="km",
             )  # z location of the mooring anchors in km w.r.t. reference coordinates
-        # ADD ADDITIONAL (DESIGN VARIABLE) INPUTS HERE!!!!!
 
         self.add_output(
-            "violation_distance",
+            "mooring_distance",
             jnp.zeros(self.N_distances),
             units="km",
         )  # consolidated violation length
-        # ADD ADDITIONAL (DESIGN VARIABLE) OUTPUTS HERE!!!!!
 
     def setup_partials(self):
         """Derivative setup for the OpenMDAO component."""
@@ -117,7 +115,7 @@ class MooringConstraint(om.ExplicitComponent):
         else:
             raise (ValueError("modeling_options['farm'][']"))
 
-        outputs["violation_distance"] = distances
+        outputs["mooring_spacing"] = distances
 
     def compute_partials(self, inputs, partials, discrete_inputs=None):
 
@@ -140,12 +138,12 @@ class MooringConstraint(om.ExplicitComponent):
         else:
             raise (ValueError("modeling_options['farm'][']"))
 
-        partials["violation_distance", "x_turbines"] = jacobian[0]
-        partials["violation_distance", "y_turbines"] = jacobian[1]
-        partials["violation_distance", "x_anchors"] = jacobian[2]
-        partials["violation_distance", "y_anchors"] = jacobian[3]
+        partials["mooring_spacing", "x_turbines"] = jacobian[0]
+        partials["mooring_spacing", "y_turbines"] = jacobian[1]
+        partials["mooring_spacing", "x_anchors"] = jacobian[2]
+        partials["mooring_spacing", "y_anchors"] = jacobian[3]
         if self.N_anchor_dimensions == 3:
-            partials["violation_distance", "z_anchors"] = jacobian[4]
+            partials["mooring_spacing", "z_anchors"] = jacobian[4]
 
 
 def mooring_constraint_xy(
@@ -338,8 +336,8 @@ def distance_point_to_mooring(point: np.ndarray, P_mooring: np.ndarray) -> float
 def distance_mooring_to_mooring(
     P_mooring_A: np.ndarray, P_mooring_B: np.ndarray
 ) -> float:
-    """Calculate the distance from one mooring to another. Moorings are defined with center point first
-        followed by anchor points in no specific order.
+    """Calculate the distance from one mooring to another. Moorings are defined with the center point 
+    (platform location) first, followed by anchor points in no specific order.
 
     Args:
         P_mooring_A (np.ndarray): ndarray of points of mooring A of shape (npoints, nd) (e.g. (4, (x, y, z))).

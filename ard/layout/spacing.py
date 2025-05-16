@@ -22,6 +22,11 @@ class TurbineSpacing(om.ExplicitComponent):
     y_turbines : np.ndarray
         a 1D numpy array indicating the y-dimension locations of the turbines,
         with length `N_turbines` (mirrored w.r.t. `FarmAeroTemplate`)
+    turbine_spacing : np.ndarray
+        a 1D numpy array indicating the distances between turbines,
+        with length `N_distances` where, for 3 turbines, turbine_spacing[0] is the 
+        distance between turbines 0 and 1, turbine_spacing[1] is the distance between 
+        turbines 0 and 2, and turbine_spacing[2] is the distance between turbines 1 and 2.
     """
 
     def initialize(self):
@@ -35,8 +40,7 @@ class TurbineSpacing(om.ExplicitComponent):
         self.modeling_options = self.options["modeling_options"]
         self.N_turbines = int(self.modeling_options["farm"]["N_turbines"])
         self.N_distances = int((self.N_turbines - 1) * self.N_turbines / 2)
-        # MANAGE ADDITIONAL LATENT VARIABLES HERE!!!!!
-
+        
         # set up inputs and outputs for mooring system
         self.add_input(
             "x_turbines", jnp.zeros((self.N_turbines,)), units="km"
