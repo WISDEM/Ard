@@ -119,24 +119,19 @@ class TestMooringConstraint2Turbines1Anchors2D:
 
     def test_mooring_constraint_component_output(self):
         assert np.all(
-            self.prob1["mooring_spacing"]
-            == pytest.approx(np.array([14.0]), rel=1e-3)
+            self.prob1["mooring_spacing"] == pytest.approx(np.array([14.0]), rel=1e-3)
         )
 
     def test_mooring_constraint_component_jacobian0(self):
         assert np.all(
             self.totals1[("mooring_spacing", "x_turbines")]
-            == pytest.approx(
-                self.totals_expected1[("mooring_spacing", "x_turbines")]
-            )
+            == pytest.approx(self.totals_expected1[("mooring_spacing", "x_turbines")])
         )
 
     def test_mooring_constraint_component_jacobian1(self):
         assert np.all(
             self.totals1[("mooring_spacing", "y_turbines")]
-            == pytest.approx(
-                self.totals_expected1[("mooring_spacing", "y_turbines")]
-            )
+            == pytest.approx(self.totals_expected1[("mooring_spacing", "y_turbines")])
         )
 
     def test_mooring_constraint_component_jacobian2(self):
@@ -201,24 +196,19 @@ class TestMooringConstraint2Turbines1Anchors3D:
 
     def test_mooring_constraint_component_output(self):
         assert np.all(
-            self.prob1["mooring_spacing"]
-            == pytest.approx(np.array([15.47]), rel=1e-3)
+            self.prob1["mooring_spacing"] == pytest.approx(np.array([15.47]), rel=1e-3)
         )
 
     def test_mooring_constraint_component_jacobian0(self):
         assert np.all(
             self.totals1[("mooring_spacing", "x_turbines")]
-            == pytest.approx(
-                self.totals_expected1[("mooring_spacing", "x_turbines")]
-            )
+            == pytest.approx(self.totals_expected1[("mooring_spacing", "x_turbines")])
         )
 
     def test_mooring_constraint_component_jacobian1(self):
         assert np.all(
             self.totals1[("mooring_spacing", "y_turbines")]
-            == pytest.approx(
-                self.totals_expected1[("mooring_spacing", "y_turbines")]
-            )
+            == pytest.approx(self.totals_expected1[("mooring_spacing", "y_turbines")])
         )
 
     def test_mooring_constraint_component_jacobian2(self):

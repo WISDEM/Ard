@@ -15,7 +15,7 @@ def get_nearest_polygons(
     Determines the nearest polygon for each point using the ray-casting algorithm. This
     function may be used to assign turbines to regions in a wind farm layout, but is not
     intended for use in a gradient-based optimization context. The function is not
-    differentiable. This implementation is based on FLOWFarm.jl 
+    differentiable. This implementation is based on FLOWFarm.jl
     (https://github.com/byuflowlab/FLOWFarm.jl)
 
     Args:
@@ -80,7 +80,7 @@ def distance_multi_point_to_multi_polygon_ray_casting(
 ) -> np.ndarray:
     """
     Calculate the distance from each point to the nearest point on a polygon or set of polygons using
-    the ray-casting (Jordan curve theorem) algorithm. Negative means the turbine is inside at least 
+    the ray-casting (Jordan curve theorem) algorithm. Negative means the turbine is inside at least
     one polygon. This implementation is based on FLOWFarm.jl (https://github.com/byuflowlab/FLOWFarm.jl)
 
     Args:
@@ -143,10 +143,10 @@ def distance_point_to_polygon_ray_casting(
     return_distance: bool = True,
 ):
     """
-    Determines the signed distance from a point to a polygon using the Jordan curve 
-    theorem (ray-casting) approach as discussed in [1] and [2]. The polygon is 
-    assumed to be simple and defined in counterclockwise order. Complex polygons 
-    (where edges cross one another) are not supported. The function is 
+    Determines the signed distance from a point to a polygon using the Jordan curve
+    theorem (ray-casting) approach as discussed in [1] and [2]. The polygon is
+    assumed to be simple and defined in counterclockwise order. Complex polygons
+    (where edges cross one another) are not supported. The function is
     differentiable with respect to the point coordinates.
 
     [1] Numerical Recipes: The Art of Scientific Computing by Press, et al. 3rd edition, sec. 21.4.3 (p. 1124)
@@ -158,7 +158,7 @@ def distance_point_to_polygon_ray_casting(
         s (float, optional): Smoothing factor for the smoothmin function. Defaults to 700.
         shift (float, optional): Small shift to handle edge cases. Defaults to 1e-10.
         return_distance (bool, optional): Whether to return the signed distance or just
-            inside/outside status. Defaults to True. When False, the function is not 
+            inside/outside status. Defaults to True. When False, the function is not
             differentiable.
 
     Returns:
@@ -190,7 +190,7 @@ def distance_point_to_polygon_ray_casting(
         distance = distance_point_to_lineseg_nd(point, edge_start, edge_end)
 
         return is_below, distance
-    
+
     # Vectorize the edge processing function
     process_edge_vec = jax.vmap(process_edge, in_axes=(0, 0, None))
 
@@ -332,7 +332,7 @@ def _distance_lineseg_to_lineseg_coplanar(
     line_b_end: np.ndarray,
 ) -> float:
     """Returns the distance between two finite line segments assuming the segments are coplanar.
-    It is up to the user to check the required condition. There may be some error in the case 
+    It is up to the user to check the required condition. There may be some error in the case
     when the line segments are parallel since multiple points may have equal distances, leading to
     some error from the smooth minimum function.
 
@@ -369,11 +369,11 @@ def distance_lineseg_to_lineseg_nd(
     line_b_end: np.ndarray,
     tol=1e-12,
 ) -> float:
-    """Find the distance between two line segments in 2d or 3d. This method is primarily based on reference [1], 
-    using a parametric approach based on the determinant and cross product to find the closest points on the two line 
-    segments. However, to handle the special case of line segments that are coplanar, we use the smooth minimum of the 
-    distance between the endpoints of the two line segments and the other line segment. In the coplanar case, the 
-    returned distance between the two line segments may have a noticeable error due to possibly having multiple points 
+    """Find the distance between two line segments in 2d or 3d. This method is primarily based on reference [1],
+    using a parametric approach based on the determinant and cross product to find the closest points on the two line
+    segments. However, to handle the special case of line segments that are coplanar, we use the smooth minimum of the
+    distance between the endpoints of the two line segments and the other line segment. In the coplanar case, the
+    returned distance between the two line segments may have a noticeable error due to possibly having multiple points
     with the same distance, which leads to error in the smooth minimum function.
 
     [1] Numerical Recipes: The Art of Scientific Computing by Press, et al. 3rd edition, sec. 21.4.2 (p. 1121)
@@ -608,7 +608,7 @@ def get_closest_point_on_line_seg(
     segment_end: np.ndarray,
     segment_vector: np.ndarray,
 ) -> np.ndarray:
-    """Get the closest point on a line segment to the point of interest in N-Dimensions 
+    """Get the closest point on a line segment to the point of interest in N-Dimensions
     using vector projection.
 
     Args:

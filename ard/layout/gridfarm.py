@@ -8,11 +8,11 @@ class GridFarmLayout(templates.LayoutTemplate):
     A simplified, uniform four-parameter parallelepiped grid farm layout class.
 
     This is a class to take a parameterized, structured grid farm defined by a
-    gridded parallelepiped with spacing variables defined to: 
-    1) orient the farm with respect to North, 
-    2) space the rows of turbines along this primary vector, 
-    3) space the columns of turbines along the perpendicular, and 
-    4) skew the positioning along a parallel to the primary (orientation) vector. 
+    gridded parallelepiped with spacing variables defined to:
+    1) orient the farm with respect to North,
+    2) space the rows of turbines along this primary vector,
+    3) space the columns of turbines along the perpendicular, and
+    4) skew the positioning along a parallel to the primary (orientation) vector.
 
     The layout model is shown in a ASCII image below:
 
@@ -32,7 +32,7 @@ class GridFarmLayout(templates.LayoutTemplate):
     |                       / |
     |                      /  | <- skew angle
 
-                   
+
     Options
     -------
     modeling_options : dict

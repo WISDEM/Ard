@@ -83,7 +83,7 @@ class MooringConstraint(om.ExplicitComponent):
             )  # z location of the mooring anchors in km w.r.t. reference coordinates
 
         self.add_output(
-            "mooring_distance",
+            "mooring_spacing",
             jnp.zeros(self.N_distances),
             units="km",
         )  # consolidated violation length
@@ -336,7 +336,7 @@ def distance_point_to_mooring(point: np.ndarray, P_mooring: np.ndarray) -> float
 def distance_mooring_to_mooring(
     P_mooring_A: np.ndarray, P_mooring_B: np.ndarray
 ) -> float:
-    """Calculate the distance from one mooring to another. Moorings are defined with the center point 
+    """Calculate the distance from one mooring to another. Moorings are defined with the center point
     (platform location) first, followed by anchor points in no specific order.
 
     Args:
