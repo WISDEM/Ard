@@ -3,7 +3,24 @@
 
 format: jb-book
 root: intro
-chapters:
-- file: utils
-- file: LCOE_analysis
-- file: reference
+parts:
+  # introductory material
+  - caption: Getting Started
+    chapters:
+    - file: installation
+  # Tutorials
+  - caption: Tutorials
+    chapters:
+    - file: LCOE_analysis
+  # How-to Guides
+  - caption: How-to Guides
+    chapters:
+    - file: multi_fidelity_aep
+  # Reference Material
+  - caption: Reference
+    chapters:
+    - file: api_reference
+  # Explanations
+  - caption: Explanation
+    chapters:
+    - file: structure

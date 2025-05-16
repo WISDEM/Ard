@@ -8,26 +8,31 @@ class GridFarmLayout(templates.LayoutTemplate):
     A simplified, uniform four-parameter parallelepiped grid farm layout class.
 
     This is a class to take a parameterized, structured grid farm defined by a
-    gridded parallelepiped with spacing variables defined to 1) orient the farm
-    with respect to North, 2) space the rows of turbines along this primary
-    vector, 3) space the columns of turbines along the perpendicular, and
-    4) skew the positioning along a parallel to the primary (orientation)
-    vector. The layout model is shown in a ASCII image below:
+    gridded parallelepiped with spacing variables defined to: 
+    1) orient the farm with respect to North, 
+    2) space the rows of turbines along this primary vector, 
+    3) space the columns of turbines along the perpendicular, and 
+    4) skew the positioning along a parallel to the primary (orientation) vector. 
 
-                                      |-------| <- streamwise spacing
-      orient.         x ----- x ----- x ----- x ----- x -
-       angle         /       /       /       /       /  | <- spanwise spacing
-        |           x ----- x ----- x ----- x ----- x   -      (perpendicular
-        v          /       /       /       /       /            w.r.t. primary)
-       -------    x ----- x ----- x ----- x ----- x    ----- primary vector
-            '    /       /       /       /       /             (rotated from
-        '       x ----- x ----- x ----- x ----- x               north CW by
-    '          /       /       /       /       /                orientation
-     NORTH    x ----- x ----- x ----- x ----- x                 angle)
-                     /|
-                    / |
-                   /  | <- skew angle
+    The layout model is shown in a ASCII image below:
 
+    ::
+
+    |                                          |-------| <- streamwise spacing
+    |          orient.         x ----- x ----- x ----- x ----- x -
+    |           angle         /       /       /       /       /  | <- spanwise spacing
+    |            |           x ----- x ----- x ----- x ----- x   -      (perpendicular
+    |            v          /       /       /       /       /            w.r.t. primary)
+    |           -------    x ----- x ----- x ----- x ----- x    ----- primary vector
+    |                '    /       /       /       /       /             (rotated from
+    |            '       x ----- x ----- x ----- x ----- x               north CW by
+    |        '          /       /       /       /       /                orientation
+    |        NORTH    x ----- x ----- x ----- x ----- x                 angle)
+    |                        /|
+    |                       / |
+    |                      /  | <- skew angle
+
+                   
     Options
     -------
     modeling_options : dict
