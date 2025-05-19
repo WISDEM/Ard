@@ -197,7 +197,7 @@ model.add_subsystem(  # turbine capital costs component
 if modeling_options["offshore"]:
     model.add_subsystem(  # Orbit component
         "orbit",
-        ard.cost.wisdem_wrap.Orbit(floating=True),
+        ard.cost.wisdem_wrap.ORBIT(floating=True),
     )
     model.connect(  # effective primary spacing for BOS
         "spacing_effective_primary", "orbit.plant_turbine_spacing"
