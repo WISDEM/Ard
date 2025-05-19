@@ -279,8 +279,8 @@ test_data = {
     "coll_length": float(
         prob.get_val("optiwindnet_coll.total_length_cables", units="km")[0]
     ),
-    "violation_distance": float(
-        np.min(prob.get_val("mooring_constraint.violation_distance", units="km"))
+    "mooring_spacing": float(
+        np.min(prob.get_val("mooring_constraint.mooring_spacing", units="km"))
     ),
 }
 
@@ -300,7 +300,7 @@ if True:
     prob.model.add_design_var("angle_skew", lower=-75.0, upper=75.0)
     prob.model.add_design_var("phi_platform", lower=-30.0, upper=30.0)
     prob.model.add_constraint(
-        "mooring_constraint.violation_distance", units="m", lower=50.0
+        "mooring_constraint.mooring_spacing", units="m", lower=50.0
     )
     prob.model.add_constraint(
         "spacing_constraint.turbine_spacing", units="m", lower=284.0 * 3.0
@@ -348,8 +348,8 @@ if True:
         "coll_length": float(
             prob.get_val("optiwindnet_coll.total_length_cables", units="km")[0]
         ),
-        "violation_distance": float(
-            np.min(prob.get_val("mooring_constraint.violation_distance", units="km"))
+        "mooring_spacing": float(
+            np.min(prob.get_val("mooring_constraint.mooring_spacing", units="km"))
         ),
         "turbine_spacing": float(
             np.min(prob.get_val("spacing_constraint.turbine_spacing", units="km"))

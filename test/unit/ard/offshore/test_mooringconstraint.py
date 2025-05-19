@@ -36,7 +36,7 @@ class TestMooringConstraint3Turbines3Anchors2D:
 
     def test_mooring_constraint_component_output(self):
         assert np.all(
-            self.prob0["violation_distance"]
+            self.prob0["mooring_spacing"]
             == pytest.approx(np.array([10.0, 30.0, 10.0]), rel=1e-3)
         )
 
@@ -72,7 +72,7 @@ class TestMooringConstraint3Turbines3Anchors3D:
 
     def test_mooring_constraint_component_output(self):
         assert np.all(
-            self.prob0["violation_distance"]
+            self.prob0["mooring_spacing"]
             == pytest.approx(np.array([10.0, 30.0, 10.0]), rel=1e-3)
         )
 
@@ -102,15 +102,15 @@ class TestMooringConstraint2Turbines1Anchors2D:
         prob1.setup()
         prob1.run_model()
         totals1 = prob1.compute_totals(
-            of=["violation_distance"],
+            of=["mooring_spacing"],
             wrt=["x_turbines", "y_turbines", "x_anchors", "y_anchors"],
         )
 
         totals_expected1 = {
-            ("violation_distance", "x_turbines"): np.array([[0.0, 0.0]]),
-            ("violation_distance", "y_turbines"): np.array([[0.0, 0.0]]),
-            ("violation_distance", "x_anchors"): np.array([[0.0, -1.0, 1.0, 0.0]]),
-            ("violation_distance", "y_anchors"): np.array([[0.0, 0.0, 0.0, 0.0]]),
+            ("mooring_spacing", "x_turbines"): np.array([[0.0, 0.0]]),
+            ("mooring_spacing", "y_turbines"): np.array([[0.0, 0.0]]),
+            ("mooring_spacing", "x_anchors"): np.array([[0.0, -1.0, 1.0, 0.0]]),
+            ("mooring_spacing", "y_anchors"): np.array([[0.0, 0.0, 0.0, 0.0]]),
         }
 
         self.prob1 = prob1
@@ -119,36 +119,31 @@ class TestMooringConstraint2Turbines1Anchors2D:
 
     def test_mooring_constraint_component_output(self):
         assert np.all(
-            self.prob1["violation_distance"]
-            == pytest.approx(np.array([14.0]), rel=1e-3)
+            self.prob1["mooring_spacing"] == pytest.approx(np.array([14.0]), rel=1e-3)
         )
 
     def test_mooring_constraint_component_jacobian0(self):
         assert np.all(
-            self.totals1[("violation_distance", "x_turbines")]
-            == pytest.approx(
-                self.totals_expected1[("violation_distance", "x_turbines")]
-            )
+            self.totals1[("mooring_spacing", "x_turbines")]
+            == pytest.approx(self.totals_expected1[("mooring_spacing", "x_turbines")])
         )
 
     def test_mooring_constraint_component_jacobian1(self):
         assert np.all(
-            self.totals1[("violation_distance", "y_turbines")]
-            == pytest.approx(
-                self.totals_expected1[("violation_distance", "y_turbines")]
-            )
+            self.totals1[("mooring_spacing", "y_turbines")]
+            == pytest.approx(self.totals_expected1[("mooring_spacing", "y_turbines")])
         )
 
     def test_mooring_constraint_component_jacobian2(self):
         assert np.all(
-            self.totals1[("violation_distance", "x_anchors")]
-            == pytest.approx(self.totals_expected1[("violation_distance", "x_anchors")])
+            self.totals1[("mooring_spacing", "x_anchors")]
+            == pytest.approx(self.totals_expected1[("mooring_spacing", "x_anchors")])
         )
 
     def test_mooring_constraint_component_jacobian3(self):
         assert np.all(
-            self.totals1[("violation_distance", "y_anchors")]
-            == pytest.approx(self.totals_expected1[("violation_distance", "y_anchors")])
+            self.totals1[("mooring_spacing", "y_anchors")]
+            == pytest.approx(self.totals_expected1[("mooring_spacing", "y_anchors")])
         )
 
 
@@ -179,18 +174,18 @@ class TestMooringConstraint2Turbines1Anchors3D:
         prob1.setup()
         prob1.run_model()
         totals1 = prob1.compute_totals(
-            of=["violation_distance"],
+            of=["mooring_spacing"],
             wrt=["x_turbines", "y_turbines", "x_anchors", "y_anchors", "z_anchors"],
         )
 
         totals_expected1 = {
-            ("violation_distance", "x_turbines"): np.array([[-0.48060241, 0.0]]),
-            ("violation_distance", "y_turbines"): np.array([[0.0, 0.0]]),
-            ("violation_distance", "x_anchors"): np.array(
+            ("mooring_spacing", "x_turbines"): np.array([[-0.48060241, 0.0]]),
+            ("mooring_spacing", "y_turbines"): np.array([[0.0, 0.0]]),
+            ("mooring_spacing", "x_anchors"): np.array(
                 [[0.0, -0.51760243, 0.9982048, 0.0]]
             ),
-            ("violation_distance", "y_anchors"): np.array([[0.0, 0.0, 0.0, 0.0]]),
-            ("violation_distance", "z_anchors"): np.array(
+            ("mooring_spacing", "y_anchors"): np.array([[0.0, 0.0, 0.0, 0.0]]),
+            ("mooring_spacing", "z_anchors"): np.array(
                 [[0.0, -0.03105615, 0.05989229, 0.0]]
             ),
         }
@@ -201,42 +196,37 @@ class TestMooringConstraint2Turbines1Anchors3D:
 
     def test_mooring_constraint_component_output(self):
         assert np.all(
-            self.prob1["violation_distance"]
-            == pytest.approx(np.array([15.47]), rel=1e-3)
+            self.prob1["mooring_spacing"] == pytest.approx(np.array([15.47]), rel=1e-3)
         )
 
     def test_mooring_constraint_component_jacobian0(self):
         assert np.all(
-            self.totals1[("violation_distance", "x_turbines")]
-            == pytest.approx(
-                self.totals_expected1[("violation_distance", "x_turbines")]
-            )
+            self.totals1[("mooring_spacing", "x_turbines")]
+            == pytest.approx(self.totals_expected1[("mooring_spacing", "x_turbines")])
         )
 
     def test_mooring_constraint_component_jacobian1(self):
         assert np.all(
-            self.totals1[("violation_distance", "y_turbines")]
-            == pytest.approx(
-                self.totals_expected1[("violation_distance", "y_turbines")]
-            )
+            self.totals1[("mooring_spacing", "y_turbines")]
+            == pytest.approx(self.totals_expected1[("mooring_spacing", "y_turbines")])
         )
 
     def test_mooring_constraint_component_jacobian2(self):
         assert np.all(
-            self.totals1[("violation_distance", "x_anchors")]
-            == pytest.approx(self.totals_expected1[("violation_distance", "x_anchors")])
+            self.totals1[("mooring_spacing", "x_anchors")]
+            == pytest.approx(self.totals_expected1[("mooring_spacing", "x_anchors")])
         )
 
     def test_mooring_constraint_component_jacobian3(self):
         assert np.all(
-            self.totals1[("violation_distance", "y_anchors")]
-            == pytest.approx(self.totals_expected1[("violation_distance", "y_anchors")])
+            self.totals1[("mooring_spacing", "y_anchors")]
+            == pytest.approx(self.totals_expected1[("mooring_spacing", "y_anchors")])
         )
 
     def test_mooring_constraint_component_jacobian4(self):
         assert np.all(
-            self.totals1[("violation_distance", "z_anchors")]
-            == pytest.approx(self.totals_expected1[("violation_distance", "z_anchors")])
+            self.totals1[("mooring_spacing", "z_anchors")]
+            == pytest.approx(self.totals_expected1[("mooring_spacing", "z_anchors")])
         )
 
 

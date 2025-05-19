@@ -19,7 +19,7 @@ The documentation organized as follows:
 - **Getting Started**: helpful information to get you started using Ard, including installation instructions
 - **Tutorials**: example problems with solutions
 - **How-to Guides**: instructions on solving particular problems and using specific features of Ard
-- **Reference**: dry, but helpfully useful, reference material including the API reference manual
+- **Reference**: dry, but hopefully useful, reference material including the API reference manual
 - **Explanation**: discursive content on the whys, hows, and the wherefores of Ard for those that are interested
 
 

@@ -12,8 +12,11 @@ def get_nearest_polygons(
     tol=1e-6,
 ):
     """
-    Determines the nearest polygon for each point using the ray-casting algorithm.
-    This implementation is based on FLOWFarm.jl (https://github.com/byuflowlab/FLOWFarm.jl)
+    Determines the nearest polygon for each point using the ray-casting algorithm. This
+    function may be used to assign turbines to regions in a wind farm layout, but is not
+    intended for use in a gradient-based optimization context. The function is not
+    differentiable. This implementation is based on FLOWFarm.jl
+    (https://github.com/byuflowlab/FLOWFarm.jl)
 
     Args:
         boundary_vertices (np.ndarray or list of np.ndarray): Vertices of the boundary in
@@ -77,14 +80,14 @@ def distance_multi_point_to_multi_polygon_ray_casting(
 ) -> np.ndarray:
     """
     Calculate the distance from each point to the nearest point on a polygon or set of polygons using
-    the ray-casting algorithm. Negative means the turbine is inside at least one polygon.
-    This implementation is based on FLOWFarm.jl (https://github.com/byuflowlab/FLOWFarm.jl)
+    the ray-casting (Jordan curve theorem) algorithm. Negative means the turbine is inside at least
+    one polygon. This implementation is based on FLOWFarm.jl (https://github.com/byuflowlab/FLOWFarm.jl)
 
     Args:
         points_x (np.ndarray[list]): points x coordinates.
         points_y (np.ndarray[list]): points y coordinates.
-        boundary_vertices (list[list[np.ndarray]]): Vertices of the boundary in
-            counterclockwise order.
+        boundary_vertices (list[list[np.ndarray]]): Vertices of the each boundary in
+            counterclockwise order. Boundaries should be simple polygons but do not need to have the same number of vertices.
         regions (np.array[int]): Predefined region assignments for each point. Defaults to None.
         s (float, optional): Smoothing factor for smooth max. Defaults to 700.
         tol (float, optional): Tolerance for determining proximity of point to polygon to be considered inside the polygon. Defaults to 1e-6.
@@ -140,18 +143,26 @@ def distance_point_to_polygon_ray_casting(
     return_distance: bool = True,
 ):
     """
-    Determine the signed distance from a point to a polygon in a differentiable way.
+    Determines the signed distance from a point to a polygon using the Jordan curve
+    theorem (ray-casting) approach as discussed in [1] and [2]. The polygon is
+    assumed to be simple and defined in counterclockwise order. Complex polygons
+    (where edges cross one another) are not supported. The function is
+    differentiable with respect to the point coordinates.
+
+    [1] Numerical Recipes: The Art of Scientific Computing by Press, et al. 3rd edition, sec. 21.4.3 (p. 1124)
+    [2] https://en.wikipedia.org/wiki/Point_in_polygon
 
     Args:
         point (jnp.ndarray): Point of interest (2D vector).
-        vertices (jnp.ndarray): Vertices of the polygon (Nx2 array).
+        vertices (jnp.ndarray): Vertices of the polygon (Nx2 array) in counterclockwise order.
         s (float, optional): Smoothing factor for the smoothmin function. Defaults to 700.
         shift (float, optional): Small shift to handle edge cases. Defaults to 1e-10.
         return_distance (bool, optional): Whether to return the signed distance or just
-            inside/outside status. Defaults to True.
+            inside/outside status. Defaults to True. When False, the function is not
+            differentiable.
 
     Returns:
-        float: Signed distance or inside/outside status.
+        float: Signed distance or inside/outside status. Negative if inside, positive if outside.
     """
     # Ensure inputs are JAX arrays with explicit data types
     point = jnp.asarray(point, dtype=jnp.float32)
@@ -181,11 +192,11 @@ def distance_point_to_polygon_ray_casting(
         return is_below, distance
 
     # Vectorize the edge processing function
+    process_edge_vec = jax.vmap(process_edge, in_axes=(0, 0, None))
+
     edge_starts = vertices[:-1]
     edge_ends = vertices[1:]
-    is_below, distances = jax.vmap(process_edge, in_axes=(0, 0, None))(
-        edge_starts, edge_ends, point
-    )
+    is_below, distances = process_edge_vec(edge_starts, edge_ends, point)
 
     # Count the number of intersections
     intersection_counter = jnp.sum(is_below)
@@ -219,7 +230,8 @@ def polygon_normals_calculator(
 
     Args:
         boundary_vertices (list of np.ndarray): List of m-by-2 arrays, where each array contains
-            the boundary vertices of a polygon in counterclockwise order.
+            the boundary vertices of a polygon in counter-clockwise order. The number of vertices (m)
+            in each polygon does not need to be the same.
         nboundaries (int, optional): The number of boundaries in the set. Defaults to 1.
 
     Returns:
@@ -320,7 +332,9 @@ def _distance_lineseg_to_lineseg_coplanar(
     line_b_end: np.ndarray,
 ) -> float:
     """Returns the distance between two finite line segments assuming the segments are coplanar.
-    It is up to the user to check the required condition.
+    It is up to the user to check the required condition. There may be some error in the case
+    when the line segments are parallel since multiple points may have equal distances, leading to
+    some error from the smooth minimum function.
 
     Args:
         line_a_start (np.ndarray): start point of line a
@@ -355,9 +369,14 @@ def distance_lineseg_to_lineseg_nd(
     line_b_end: np.ndarray,
     tol=1e-12,
 ) -> float:
-    """Find the distance between two line segments in 2d or 3d. This method is primarily based on reference [1].
+    """Find the distance between two line segments in 2d or 3d. This method is primarily based on reference [1],
+    using a parametric approach based on the determinant and cross product to find the closest points on the two line
+    segments. However, to handle the special case of line segments that are coplanar, we use the smooth minimum of the
+    distance between the endpoints of the two line segments and the other line segment. In the coplanar case, the
+    returned distance between the two line segments may have a noticeable error due to possibly having multiple points
+    with the same distance, which leads to error in the smooth minimum function.
 
-    [1] Numerical Recipes: The Art of Scientific Computing by Press, et al. 3rd edition
+    [1] Numerical Recipes: The Art of Scientific Computing by Press, et al. 3rd edition, sec. 21.4.2 (p. 1121)
 
     Args:
         line_a_start (np.ndarray): The start point of line segment "a" as either [x,y,z] or [x,y]
@@ -532,7 +551,11 @@ distance_lineseg_to_lineseg_nd = jax.jit(distance_lineseg_to_lineseg_nd)
 def distance_point_to_lineseg_nd(
     point: np.ndarray, segment_start: np.ndarray, segment_end: np.ndarray
 ) -> float:
-    """Find the distance from a point to a finite line segment in N-Dimensions
+    """Find the distance from a point to a line segment in N-Dimensions. This
+    implementation can handle any number of dimensions as well as the reduced case
+    of point to point distance. If the same point is passed for the start and end
+    of the line segment, then the distance is simply the distance from the point
+    of interest to the single start/end point.
 
     Args:
         point (np.ndarray): point of interest [x,y,...]
@@ -585,7 +608,8 @@ def get_closest_point_on_line_seg(
     segment_end: np.ndarray,
     segment_vector: np.ndarray,
 ) -> np.ndarray:
-    """Get the closest point on the line segment to the point of interest in N-Dimensions
+    """Get the closest point on a line segment to the point of interest in N-Dimensions
+    using vector projection.
 
     Args:
         point (np.ndarray): point of interest [x,y,...]

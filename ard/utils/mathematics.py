@@ -18,9 +18,9 @@ def smooth_max(x: jnp.ndarray, s: float = 1000.0) -> float:
 
     Args:
         x (list): list of values to be compared
-        s (float, optional): alpha for smooth max function. Defaults to 100.0.
+        s (float, optional): alpha for smooth max function. Defaults to 1000.0.
             Larger values of `s` lead to more accurate results, but reduce the smoothness
-            of the output values.
+            of the function.
 
     Returns:
         float: the smooth max of the provided `x` list
@@ -47,9 +47,9 @@ def smooth_min(x: np.ndarray, s: float = 1000.0) -> float:
 
     Args:
         x (list): list of values to be compared
-        s (float, optional): alpha for smooth min function. Defaults to 100.0.
+        s (float, optional): alpha for smooth min function. Defaults to 1000.0.
             Larger values of `s` lead to more accurate results, but reduce the smoothness
-            of the output values.
+            of the function.
 
     Returns:
         float: the smooth min of the provided `x` list
@@ -64,8 +64,8 @@ smooth_min = jax.jit(smooth_min)
 def smooth_norm(vec: np.ndarray, buf: float = 1e-12) -> float:
     """Smooth version of the Frobenius, or 2, norm. This version is nearly equivalent to the 2-norm with the
     maximum absolute error corresponding to the order of the buffer value. The maximum error in the gradient is near unity, but
-    the error is generally about twice the error in the absolute value. The key benefit of the smooth norm is
-    that it is differentiable near zero, while the standard norm is undefined.
+    the error in the gradient is generally about twice the error in the absolute value. The key benefit of the smooth norm is
+    that it is differentiable at 0.0, while the standard norm is undefined at 0.0.
 
     Args:
         vec (np.ndarray): input vector to be normed
