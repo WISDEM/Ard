@@ -51,7 +51,7 @@ modeling_options = {
         "solver_name": "appsi_highs",
         "solver_options": dict(
             time_limit=60,
-            mip_rel_gap=0.005,  # TODO ???
+            mip_rel_gap=0.005,
         ),
     },
 }
@@ -258,7 +258,8 @@ print("\n\nRESULTS:\n")
 pp.pprint(test_data)
 print("\n\n")
 
-if True:
+optimize = True
+if optimize:
     # now set up an optimization driver
 
     prob.driver = om.ScipyOptimizeDriver()
