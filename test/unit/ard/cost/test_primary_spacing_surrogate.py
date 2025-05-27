@@ -57,7 +57,7 @@ class TestLandBOSSEWithSurrogate:
     def test_primary_turbine_spacing(self):
         """Test the primary turbine spacing calculation."""
         # Check the output value
-        primary_turbine_spacing = self.prob.get_val("primary_turbine_spacing_diameters")
+        primary_turbine_spacing = self.prob.get_val("spacing_surrogate.primary_turbine_spacing_diameters")
         expected_spacing = 1000.0 / (
             self.modeling_options["farm"]["N_turbines"]
             * self.modeling_options["turbine"]["geometry"]["diameter_rotor"]
@@ -68,7 +68,7 @@ class TestLandBOSSEWithSurrogate:
         """Test that the internal turbine spacing is passed correctly to LandBOSSE."""
         # Check that LandBOSSE receives the correct input
         internal_turbine_spacing = self.prob.get_val("internal_turbine_spacing_rotor_diameters")
-        primary_turbine_spacing = self.prob.get_val("primary_turbine_spacing_diameters")
+        primary_turbine_spacing = self.prob.get_val("spacing_surrogate.primary_turbine_spacing_diameters")
         assert internal_turbine_spacing == pytest.approx(primary_turbine_spacing, abs=1E-12)
 
     def test_partial_derivatives(self):
