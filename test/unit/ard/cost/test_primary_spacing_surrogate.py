@@ -74,9 +74,9 @@ class TestLandBOSSEWithSurrogate:
     def test_partial_derivatives(self):
         """Test the partial derivatives."""
         # Check the partial derivatives
-        partials = self.prob.check_partials(out_stream=None)
-        total_length_cables_partials = partials["landbosse_group.spacing_surrogate"][
-            ("primary_turbine_spacing_diameters", "total_length_cables")
+        partials = self.prob.check_partials(out_stream=None, method="fd")
+        total_length_cables_partials = partials["landbosse_group"][
+            ("total_capex", "total_length_cables")
         ]["J_fwd"]
         expected_partial = 1.0 / (
             self.modeling_options["farm"]["N_turbines"]
