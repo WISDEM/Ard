@@ -12,14 +12,14 @@ class LandBOSSEWithSurrogate(om.Group):
 
     def initialize(self):
         """Initialize the group and declare options."""
-        self.options.declare("N_turbines", types=int, desc="Number of wind turbines")
+        self.options.declare("modeling_options", types=dict, desc="Ard modeling options")
 
     def setup(self):
         """Set up the group by adding and connecting components."""
         # Add the PrimarySpacingSurrogate component
         self.add_subsystem(
             "spacing_surrogate",
-            PrimarySpacingSurrogate(N_turbines=self.options["N_turbines"]),
+            PrimarySpacingSurrogate(modeling_options=self.options["modeling_options"]),
             promotes_inputs=["total_length_cables"],
         )
 
@@ -27,12 +27,12 @@ class LandBOSSEWithSurrogate(om.Group):
         self.add_subsystem(
             "landbosse",
             LandBOSSE(),
-            promotes_inputs=["*"],
+            promotes_inputs=["*", ("turbine_spacing_rotor_diameters", "internal_turbine_spacing_rotor_diameters")],
             promotes_outputs=["*"],  # Expose all outputs from LandBOSSE
         )
 
         # Connect the turbine spacing output from the surrogate to LandBOSSE
-        self.connect("spacing_surrogate.primary_turbine_spacing", "landbosse.turbine_spacing_rotor_diameters")
+        self.connect("spacing_surrogate.primary_turbine_spacing_diameters", "internal_turbine_spacing_rotor_diameters")
 
 class PrimarySpacingSurrogate(om.ExplicitComponent):
     """
@@ -62,7 +62,7 @@ class PrimarySpacingSurrogate(om.ExplicitComponent):
     def setup(self):
         """Set up the inputs and outputs."""
         self.add_input("total_length_cables", val=0.0, units="m", desc="Total cable length")
-        self.add_output("primary_turbine_spacing_diameters", val=0.0, units="m", desc="Turbine spacing")
+        self.add_output("primary_turbine_spacing_diameters", val=0.0, units=None, desc="Turbine spacing")
 
     def setup_partials(self):
         """Declare partial derivatives."""
