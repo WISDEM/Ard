@@ -77,9 +77,10 @@ def simple_mooring_design(
     return x_anchors, y_anchors
 
 
-class MooringDesign(om.ExplicitComponent):
+class ConstantDepthMooringDesign(om.ExplicitComponent):
     """
-    A class to create a mooring design for an floating offshore wind farm.
+    A class to create a constant-depth simplified mooring design for a floating
+    offshore wind farm.
 
     This is a class that should be used to generate a floating offshore wind
     farm's collective mooring system.

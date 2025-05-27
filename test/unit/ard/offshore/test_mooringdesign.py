@@ -2,7 +2,7 @@ import pytest
 import numpy as np
 import jax
 import jax.numpy as jnp
-import ard.offshore.mooring_design as md
+import ard.offshore.mooring_design_constant_depth as md
 import openmdao.api as om
 from jax.test_util import check_grads
 
@@ -89,7 +89,7 @@ class TestMooringDesignSimple3Turbines3Anchors2D:
         prob = om.Problem(model=om.Group())
         prob.model.add_subsystem(
             "md",
-            md.MooringDesign(
+            md.ConstantDepthMooringDesign(
                 modeling_options=modeling_options, wind_query=None, bathymetry_data=None
             ),
             promotes=["*"],

@@ -21,13 +21,16 @@ class GeomorphologyGridData:
     y_data = np.atleast_2d([0.0])  # y location in km
     z_data = np.atleast_2d([0.0])  # depth in m
 
+    # alias for meshed material data, promote dimension to 2
+    x_material_data = np.atleast_2d([0.0])  # x location in km of material datapoint
+    y_material_data = np.atleast_2d([0.0])  # y location in km of material datapoint
     material_data = np.atleast_2d(["soil"])  # bed material at each point
 
     sea_level = 0.0  # sea level in m
 
     _interpolator_device = None  # placeholder for interpolator (for depth evaluation)
 
-    def check_valid(self):
+    def check_valid_geomorphology(self):
         assert self.x_data.ndim == 2, "data must be 2D"  # make sure it's 2D first
 
         assert np.all(
@@ -36,7 +39,18 @@ class GeomorphologyGridData:
         assert np.all(
             self.x_data.shape == self.z_data.shape
         ), "x and depth data must be the same shape"
-        assert np.all(self.x_data.shape == self.material_data.shape) or (
+
+        return True
+
+    def check_valid_material(self):
+        assert (
+            self.x_material_data.ndim == 2
+        ), "data must be 2D"  # make sure it's 2D first
+
+        assert np.all(
+            self.x_material_data.shape == self.y_material_data.shape
+        ), "x and y material data must be the same shape"
+        assert np.all(self.x_material_data.shape == self.material_data.shape) or (
             self.material_data.size == 1
         ), "x and material data must be the same shape or material data must be a singleton"
 
@@ -52,15 +66,27 @@ class GeomorphologyGridData:
             The shape of the geomorphology data.
         """
 
-        self.check_valid()  # ensure that the current data is valid
-        return self.z_data.shape  # data
+        self.check_valid_geomorphology()  # ensure that the current data is valid
+        return self.z_data.shape  # data shape
 
-    def set_values(
+    def get_material_shape(self):
+        """
+        Get the shape of the material data.
+
+        Returns
+        -------
+        tuple
+            The shape of the material data.
+        """
+
+        self.check_valid_material()  # ensure that the current data is valid
+        return self.material_data.shape  # data shape
+
+    def set_data_values(
         self,
         x_data_in,
         y_data_in,
         z_data_in,
-        material_data_in=None,
     ):
         """
         Set the values of the geomorphology data.
@@ -81,14 +107,42 @@ class GeomorphologyGridData:
         self.x_data = x_data_in.copy()
         self.y_data = y_data_in.copy()
         self.z_data = z_data_in.copy()
-        if material_data_in is not None:
-            self.material_data = material_data_in.copy()
 
-        self.check_valid()  # ensure that the input data is valid
+        self.check_valid_geomorphology()  # ensure that the input data is valid
+
+    def set_material_values(
+        self,
+        x_material_data_in,
+        y_material_data_in,
+        material_data_in,
+    ):
+        """
+        Set the values of the material data.
+
+        Parameters
+        ----------
+        x_material_data_in : np.ndarray
+            A 2D numpy array indicating the x-dimension locations of the points.
+        y_material_data_in : np.ndarray
+            A 2D numpy array indicating the y-dimension locations of the points.
+        material_data_in : np.ndarray
+            A 2D numpy array indicating the bed material at each point.
+        """
+
+        # set the values that are handed in
+        self.x_material_data = x_material_data_in.copy()
+        self.y_material_data = y_material_data_in.copy()
+        self.material_data = material_data_in.copy()
+
+        self.check_valid_material()  # ensure that the input data is valid
 
     def get_z_data(self):
         """Get the depth at a given location."""
         return self.z_data
+
+    def get_material_data(self):
+        """Get the material data at a given location."""
+        return self.material_data
 
     def evaluate(
         self,
@@ -168,12 +222,45 @@ class BathymetryGridData(GeomorphologyGridData):
     geomorphology data for bathymetry-specific considerations.
     """
 
+    def load_moorpy_soil(self, file_soil: PathLike):
+        """
+        Load soil data from a MoorPy soil file.
+
+        Experimental: reader may not be able to read validly formatted file in
+        in the presence of unanticipated comments, whitespace, etc.
+
+        Parameters
+        ----------
+        file_soil : PathLike
+            The path to the soil data file
+        """
+
+        # create placholder objects in function local scope
+        grid_soil = None
+        x_coord = None
+        y_coord = None
+
+        with open(file_soil, "r") as f_soil:
+            idx_y = 0  # indexer for y coordinate as file is read
+
+            # iterate over lines in the soil file
+            for idx_line, line in enumerate(f_soil.readlines()):
+
+                if idx_line == 0:  # moorpy header line must be first
+                    assert line.startswith("--- MoorPy Soil Input File ---")
+                    continue
+                if idx_line == 1:  # next line defines the grid size in x
+                    assert line.startswith("nGridX")  # guarantee this is the case
+                    nGridX = int(line.split()[1])  # extract the number
+                    x_coord = np.zeros((nGridX,))  # prepare a coord array
+                    continue
+
     def load_moorpy_bathymetry(self, file_bathymetry: PathLike):
         """
         Load bathymetry data from a MoorPy bathymetry grid file.
 
-        Experimental: reader may not be able to read validly formatted comments,
-        whitespace, etc.
+        Experimental: reader may not be able to read validly formatted file in
+        in the presence of unanticipated comments, whitespace, etc.
 
         Parameters
         ----------
@@ -233,7 +320,7 @@ class BathymetryGridData(GeomorphologyGridData):
         self.y_data, self.x_data = np.meshgrid(y_coord, x_coord)
         self.z_data = grid_bathy
 
-        self.check_valid()  # make sure the loaded file is legit before exiting
+        self.check_valid_geomorphology()  # make sure the loaded file is legit before exiting
 
 
 class TopographyGridData(GeomorphologyGridData):
