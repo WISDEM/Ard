@@ -239,7 +239,9 @@ print("\n\nRESULTS:\n")
 pp.pprint(test_data)
 print("\n\n")
 
-if True:
+optimize = True  # set to False to skip optimization
+
+if optimize:
     # now set up an optimization driver
 
     prob.driver = om.ScipyOptimizeDriver()
