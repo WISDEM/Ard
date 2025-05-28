@@ -3,6 +3,7 @@ import openmdao.api as om
 
 from ard.cost.approximate_turbine_spacing import SpacingApproximations
 
+
 class TestSpacingApproximations:
 
     def setup_method(self):
@@ -46,14 +47,12 @@ class TestSpacingApproximations:
         turbine_spacing = self.prob.get_val("primary_turbine_spacing_diameters")
         assert turbine_spacing == pytest.approx(10.0, abs=1e-12)
 
-
     def test_row_spacing_calculation(self):
         """Test the turbine spacing calculation."""
 
         # Check the output value
         row_spacing = self.prob.get_val("secondary_turbine_spacing_diameters")
         assert row_spacing == pytest.approx(10.0, abs=1e-12)
-
 
     def test_partial_derivatives(self):
         """Test the partial derivatives."""

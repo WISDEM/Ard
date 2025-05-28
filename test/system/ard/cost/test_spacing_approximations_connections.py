@@ -6,6 +6,7 @@ import ard
 import ard.utils.io
 from ard.cost.approximate_turbine_spacing import LandBOSSEWithSpacingApproximations
 
+
 class TestLandBOSSEWithSpacingApproximations:
     def setup_method(self):
 
@@ -87,7 +88,6 @@ class TestLandBOSSEWithSpacingApproximations:
             primary_turbine_spacing, abs=1e-12
         )
 
-    
     def test_internal_secondary_turbine_spacing(self):
         """Test that the internal turbine spacing is passed correctly to LandBOSSE."""
         # Check that LandBOSSE receives the correct input
@@ -113,4 +113,3 @@ class TestLandBOSSEWithSpacingApproximations:
     #         * self.modeling_options["turbine"]["geometry"]["diameter_rotor"]
     #     )
     #     assert total_length_cables_partials == pytest.approx(expected_partial, abs=1E-12)
-
