@@ -12,6 +12,7 @@ import optiwindnet.plotting
 import ard
 import ard.layout.spacing
 
+
 def run_example():
 
     # layout type
@@ -128,7 +129,9 @@ def run_example():
     elif layout_type == "sunflower":
         model.add_subsystem(  # landuse component
             "landuse",
-            ard.layout.sunflower.SunflowerFarmLanduse(modeling_options=modeling_options),
+            ard.layout.sunflower.SunflowerFarmLanduse(
+                modeling_options=modeling_options
+            ),
         )
         model.connect("layout2aep.x_turbines", "landuse.x_turbines")
         model.connect("layout2aep.y_turbines", "landuse.y_turbines")
@@ -143,7 +146,6 @@ def run_example():
     )
     model.connect("layout2aep.x_turbines", "optiwindnet_coll.x_turbines")
     model.connect("layout2aep.y_turbines", "optiwindnet_coll.y_turbines")
-
 
     model.add_subsystem(  # constraints for turbine proximity
         "spacing_constraint",
@@ -313,6 +315,7 @@ def run_example():
     optiwindnet.plotting.gplot(prob.model.optiwindnet_coll.graph)
 
     plt.show()
+
 
 if __name__ == "__main__":
 
