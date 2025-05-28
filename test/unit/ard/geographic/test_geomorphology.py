@@ -41,21 +41,41 @@ class TestGeomorphologyGridData:
             # do a setup that should fail because of check_valid
             with subtests.test(f"check_valid bad build assertion test {idx_case}"):
                 with pytest.raises(AssertionError):
-                    self.geomorphology.set_values(
-                        x_data_in=x_data if idx_case != 0 else x_data[:1, :],
-                        y_data_in=y_data if idx_case != 1 else y_data[:1, :],
-                        z_data_in=z_data if idx_case != 2 else z_data[:1, :],
+                    self.geomorphology.set_data_values(
+                        x_data_in=(
+                            x_data.copy() if idx_case != 0 else x_data.copy()[:1, :]
+                        ),
+                        y_data_in=(
+                            y_data.copy() if idx_case != 1 else y_data.copy()[:1, :]
+                        ),
+                        z_data_in=(
+                            z_data.copy() if idx_case != 2 else z_data.copy()[:1, :]
+                        ),
+                    )
+                    self.geomorphology.set_material_values(
+                        x_material_data_in=(
+                            x_data.copy() if idx_case != 0 else x_data.copy()[:1, :]
+                        ),
+                        y_material_data_in=(
+                            y_data.copy() if idx_case != 1 else y_data.copy()[:1, :]
+                        ),
                         material_data_in=(
-                            material_data if idx_case != 3 else material_data[:1, :]
+                            material_data.copy()
+                            if idx_case != 3
+                            else material_data.copy()[:1, :]
                         ),
                     )
 
             # reset to a legitimate setup
-            self.geomorphology.set_values(
-                x_data_in=x_data,
-                y_data_in=y_data,
-                z_data_in=z_data,
-                material_data_in=material_data,
+            self.geomorphology.set_data_values(
+                x_data_in=x_data.copy(),
+                y_data_in=y_data.copy(),
+                z_data_in=z_data.copy(),
+            )
+            self.geomorphology.set_material_values(
+                x_material_data_in=x_data.copy(),
+                y_material_data_in=y_data.copy(),
+                material_data_in=material_data.copy(),
             )
 
             # override one of the values to be invalid
@@ -73,9 +93,12 @@ class TestGeomorphologyGridData:
             # make sure check valid raises an exception
             with subtests.test(f"check_valid bad override assertion test {idx_case}"):
                 with pytest.raises(AssertionError):
-                    assert self.geomorphology.check_valid()
+                    if idx_case == 3:
+                        assert self.geomorphology.check_valid_material()
+                    else:
+                        assert self.geomorphology.check_valid_geomorphology()
 
-    def test_set_values(self, subtests):
+    def test_set_data_values(self, subtests):
 
         # create a mesh and try to upload it
         y_data, x_data = np.meshgrid([-1.0, 0.0, 1.0], [0.0, 2.0])
@@ -84,34 +107,41 @@ class TestGeomorphologyGridData:
         # set up a geomorphology grid data object
         self.geomorphology = ard.geographic.GeomorphologyGridData()
         # set the values
-        self.geomorphology.set_values(
+        self.geomorphology.set_data_values(
             x_data_in=x_data,
             y_data_in=y_data,
             z_data_in=z_data,
         )
 
         # make sure the values are set in correctly
-        with subtests.test(f"set_values data equivalence tests, x"):
+        with subtests.test(f"set_data_values data equivalence tests, x"):
             assert np.allclose(self.geomorphology.x_data, x_data)
-        with subtests.test(f"set_values data equivalence tests, y"):
+        with subtests.test(f"set_data_values data equivalence tests, y"):
             assert np.allclose(self.geomorphology.y_data, y_data)
-        with subtests.test(f"set_values data equivalence tests, z"):
+        with subtests.test(f"set_data_values data equivalence tests, z"):
             assert np.allclose(self.geomorphology.z_data, z_data)
-        with subtests.test(f"set_values data equivalence tests, z getter"):
+        with subtests.test(f"set_data_values data equivalence tests, z getter"):
             assert np.allclose(self.geomorphology.get_z_data(), z_data)
-        with subtests.test(f"set_values data equivalence tests, get_shape"):
+        with subtests.test(f"set_data_values data equivalence tests, get_shape"):
             assert np.all(self.geomorphology.get_shape() == x_data.shape)
-        with subtests.test(f"set_values data equivalence tests, material singleton"):
+        with subtests.test(
+            f"set_data_values data equivalence tests, material singleton"
+        ):
             assert self.geomorphology.material_data.size == 1
-        with subtests.test(f"set_values data equivalence tests, material default"):
+        with subtests.test(f"set_data_values data equivalence tests, material default"):
             assert np.array_equal(
                 self.geomorphology.material_data, np.array([["soil"]])
             )  # default value
 
         with subtests.test(f"check_valid final test"):
-            assert self.geomorphology.check_valid()  # check if the data is valid
+            assert (
+                self.geomorphology.check_valid_geomorphology()
+            )  # check if the data is valid
+            assert (
+                self.geomorphology.check_valid_material()
+            )  # check if the data is valid
 
-    def test_set_values_material(self, subtests):
+    def test_set_data_values_material(self, subtests):
 
         # create a mesh and try to upload it
         y_data, x_data = np.meshgrid([-1.0, 0.0, 1.0], [0.0, 2.0])
@@ -123,29 +153,38 @@ class TestGeomorphologyGridData:
         # set up a geomorphology grid data object
         self.geomorphology = ard.geographic.GeomorphologyGridData()
         # set the values
-        self.geomorphology.set_values(
+        self.geomorphology.set_data_values(
             x_data_in=x_data,
             y_data_in=y_data,
             z_data_in=z_data,
+        )
+        self.geomorphology.set_material_values(
+            x_material_data_in=x_data,
+            y_material_data_in=y_data,
             material_data_in=material_data,
         )
 
         # make sure the values are set in correctly
-        with subtests.test(f"set_values data equivalence tests, x"):
+        with subtests.test(f"set_data_values data equivalence tests, x"):
             assert np.allclose(self.geomorphology.x_data, x_data)
-        with subtests.test(f"set_values data equivalence tests, y"):
+        with subtests.test(f"set_data_values data equivalence tests, y"):
             assert np.allclose(self.geomorphology.y_data, y_data)
-        with subtests.test(f"set_values data equivalence tests, z"):
+        with subtests.test(f"set_data_values data equivalence tests, z"):
             assert np.allclose(self.geomorphology.z_data, z_data)
-        with subtests.test(f"set_values data equivalence tests, z getter"):
+        with subtests.test(f"set_data_values data equivalence tests, z getter"):
             assert np.allclose(self.geomorphology.get_z_data(), z_data)
-        with subtests.test(f"set_values data equivalence tests, material"):
+        with subtests.test(f"set_data_values data equivalence tests, material"):
             assert np.all(self.geomorphology.material_data == material_data)
-        with subtests.test(f"set_values data equivalence tests, get_shape"):
+        with subtests.test(f"set_data_values data equivalence tests, get_shape"):
             assert np.all(self.geomorphology.get_shape() == x_data.shape)
 
         with subtests.test(f"check_valid final test"):
-            assert self.geomorphology.check_valid()  # check if the data is valid
+            assert (
+                self.geomorphology.check_valid_geomorphology()
+            )  # check if the data is valid
+            assert (
+                self.geomorphology.check_valid_material()
+            )  # check if the data is valid
 
     def test_evaluate_default(self, subtests):
 
@@ -159,7 +198,7 @@ class TestGeomorphologyGridData:
         # set up a geomorphology grid data object
         self.geomorphology = ard.geographic.GeomorphologyGridData()
         # set the values
-        self.geomorphology.set_values(
+        self.geomorphology.set_data_values(
             x_data_in=x_data,
             y_data_in=y_data,
             z_data_in=z_data,
@@ -222,7 +261,7 @@ class TestGeomorphologyGridData:
         # set up a geomorphology grid data object
         self.geomorphology = ard.geographic.GeomorphologyGridData()
         # set the values
-        self.geomorphology.set_values(
+        self.geomorphology.set_data_values(
             x_data_in=x_data,
             y_data_in=y_data,
             z_data_in=z_data,
@@ -244,7 +283,7 @@ class TestGeomorphologyGridData:
         # set up a geomorphology grid data object
         self.geomorphology = ard.geographic.GeomorphologyGridData()
         # set the values
-        self.geomorphology.set_values(
+        self.geomorphology.set_data_values(
             x_data_in=x_data,
             y_data_in=y_data,
             z_data_in=z_data,
@@ -297,6 +336,7 @@ class TestBathymetryGridData(TestGeomorphologyGridData):
             Path(ard.__file__).parents[1]
             / "examples"
             / "data"
+            / "offshore"
             / "GulfOfMaine_bathymetry_100x99.txt"
         )
 

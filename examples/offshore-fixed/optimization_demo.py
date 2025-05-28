@@ -44,19 +44,14 @@ modeling_options = {
     },
     "turbine": data_turbine_spec,
     "offshore": True,
-    "floating": True,
-    "platform": {
-        "N_anchors": 3,
-        "min_mooring_line_length_m": 500.0,
-        "N_anchor_dimensions": 2,
-    },
+    "floating": False,
     "site_depth": 50.0,
     "collection": {
         "max_turbines_per_string": 8,
         "solver_name": "appsi_highs",
         "solver_options": dict(
             time_limit=60,
-            mip_rel_gap=0.005,  # TODO ???
+            mip_rel_gap=0.005,
         ),
     },
 }
@@ -153,28 +148,6 @@ model.add_subsystem(  # collection component
 model.connect("layout2aep.x_turbines", "optiwindnet_coll.x_turbines")
 model.connect("layout2aep.y_turbines", "optiwindnet_coll.y_turbines")
 
-model.add_subsystem(  # mooring system design
-    "mooring_design",
-    ard.offshore.mooring_design_constant_depth.ConstantDepthMooringDesign(
-        modeling_options=modeling_options,
-        wind_query=None,
-    ),
-    promotes_inputs=["phi_platform"],
-)
-model.connect("layout2aep.x_turbines", "mooring_design.x_turbines")
-model.connect("layout2aep.y_turbines", "mooring_design.y_turbines")
-
-model.add_subsystem(  # regulatory constraints for mooring
-    "mooring_constraint",
-    ard.offshore.mooring_constraint.MooringConstraint(
-        modeling_options=modeling_options,
-    ),
-)
-model.connect("layout2aep.x_turbines", "mooring_constraint.x_turbines")
-model.connect("layout2aep.y_turbines", "mooring_constraint.y_turbines")
-model.connect("mooring_design.x_anchors", "mooring_constraint.x_anchors")
-model.connect("mooring_design.y_anchors", "mooring_constraint.y_anchors")
-
 model.add_subsystem(  # constraints for turbine proximity
     "spacing_constraint",
     ard.layout.spacing.TurbineSpacing(
@@ -197,7 +170,7 @@ model.add_subsystem(  # turbine capital costs component
 if modeling_options["offshore"]:
     model.add_subsystem(  # Orbit component
         "orbit",
-        ard.cost.wisdem_wrap.ORBIT(floating=True),
+        ard.cost.wisdem_wrap.Orbit(floating=True),
     )
     model.connect(  # effective primary spacing for BOS
         "spacing_effective_primary", "orbit.plant_turbine_spacing"
@@ -279,16 +252,14 @@ test_data = {
     "coll_length": float(
         prob.get_val("optiwindnet_coll.total_length_cables", units="km")[0]
     ),
-    "mooring_spacing": float(
-        np.min(prob.get_val("mooring_constraint.mooring_spacing", units="km"))
-    ),
 }
 
 print("\n\nRESULTS:\n")
 pp.pprint(test_data)
 print("\n\n")
 
-if True:
+optimize = True
+if optimize:
     # now set up an optimization driver
 
     prob.driver = om.ScipyOptimizeDriver()
@@ -298,10 +269,6 @@ if True:
     prob.model.add_design_var("spacing_secondary", lower=3.0, upper=10.0)
     prob.model.add_design_var("angle_orientation", lower=-180.0, upper=180.0)
     prob.model.add_design_var("angle_skew", lower=-75.0, upper=75.0)
-    prob.model.add_design_var("phi_platform", lower=-30.0, upper=30.0)
-    prob.model.add_constraint(
-        "mooring_constraint.mooring_spacing", units="m", lower=50.0
-    )
     prob.model.add_constraint(
         "spacing_constraint.turbine_spacing", units="m", lower=284.0 * 3.0
     )
@@ -348,9 +315,6 @@ if True:
         "coll_length": float(
             prob.get_val("optiwindnet_coll.total_length_cables", units="km")[0]
         ),
-        "mooring_spacing": float(
-            np.min(prob.get_val("mooring_constraint.mooring_spacing", units="km"))
-        ),
         "turbine_spacing": float(
             np.min(prob.get_val("spacing_constraint.turbine_spacing", units="km"))
         ),
@@ -365,10 +329,4 @@ if True:
     print("\n\n")
 
 optiwindnet.plotting.gplot(prob.model.optiwindnet_coll.graph)
-for idx in range(modeling_options["farm"]["N_turbines"]):
-    plt.plot(
-        prob.get_val("mooring_design.x_anchors", units="m")[idx, :],
-        prob.get_val("mooring_design.y_anchors", units="m")[idx, :],
-        ".w",
-    )
 plt.show()
