@@ -7,7 +7,6 @@ import pytest
 
 import openmdao.api as om
 from ard.cost.surrogate_turbine_spacing import LandBOSSEWithSurrogate
-import pytest
 
 
 class TestLandBOSSEWithSurrogate:

@@ -8,8 +8,6 @@ import matplotlib.pyplot as plt
 import floris
 import openmdao.api as om
 
-from wisdem.optimization_drivers.nlopt_driver import NLoptDriver
-
 import optiwindnet.plotting
 import ard
 import ard.glue.prototype as glue
