@@ -11,6 +11,8 @@ import openmdao.api as om
 import optiwindnet.plotting
 import ard
 import ard.layout.spacing
+from ard.cost.approximate_turbine_spacing import LandBOSSEWithSpacingApproximations
+
 
 
 def run_example():
@@ -167,12 +169,10 @@ def run_example():
         ],
     )
 
-    from ard.cost.surrogate_turbine_spacing import LandBOSSEWithSurrogate
-
     model.add_subsystem(  # LandBOSSE component
         "landbosse",
         # ard.cost.wisdem_wrap.LandBOSSE(),
-        LandBOSSEWithSurrogate(modeling_options=modeling_options),
+        LandBOSSEWithSpacingApproximations(modeling_options=modeling_options),
     )
     model.connect(  # effective primary spacing for BOS
         "optiwindnet_coll.total_length_cables",

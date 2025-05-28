@@ -2,11 +2,11 @@ import openmdao.api as om
 from ard.cost.wisdem_wrap import LandBOSSE
 
 
-class LandBOSSEWithSurrogate(om.Group):
+class LandBOSSEWithSpacingApproximations(om.Group):
     """
-    OpenMDAO group that connects the PrimarySpacingSurrogate component to the LandBOSSE component.
+    OpenMDAO group that connects the SpacingApproximations component to the LandBOSSE component.
 
-    This group calculates the turbine spacing using the PrimarySpacingSurrogate and passes it
+    This group calculates the turbine spacing using the SpacingApproximations and passes it
     to the LandBOSSE component for further cost estimation.
     """
 
@@ -18,10 +18,10 @@ class LandBOSSEWithSurrogate(om.Group):
 
     def setup(self):
         """Set up the group by adding and connecting components."""
-        # Add the PrimarySpacingSurrogate component
+        # Add the PrimarySpacingApproximations component
         self.add_subsystem(
-            "spacing_surrogate",
-            PrimarySpacingSurrogate(modeling_options=self.options["modeling_options"]),
+            "spacing_approximations",
+            SpacingApproximations(modeling_options=self.options["modeling_options"]),
             promotes_inputs=["total_length_cables"],
         )
 
@@ -39,16 +39,16 @@ class LandBOSSEWithSurrogate(om.Group):
             promotes_outputs=["*"],  # Expose all outputs from LandBOSSE
         )
 
-        # Connect the turbine spacing output from the surrogate to LandBOSSE
+        # Connect the turbine and row spacing output from the approximations to LandBOSSE
         self.connect(
-            "spacing_surrogate.primary_turbine_spacing_diameters",
+            "spacing_approximations.primary_turbine_spacing_diameters",
             "internal_turbine_spacing_rotor_diameters",
         )
 
 
-class PrimarySpacingSurrogate(om.ExplicitComponent):
+class SpacingApproximations(om.ExplicitComponent):
     """
-    OpenMDAO component to calculate surrogate for turbine spacing based on the total length of cables
+    OpenMDAO component to calculate approximations for turbine spacing based on the total length of cables
     and the number of wind turbines.
 
     Inputs
@@ -59,7 +59,9 @@ class PrimarySpacingSurrogate(om.ExplicitComponent):
     Outputs
     -------
     primary_turbine_spacing_diameters : float
-        Surrogate of spacing between turbines in diameters for use in cost estimation using LandBOSSE.
+        Approximation of spacing between turbines in diameters for use in cost estimation using LandBOSSE.
+    secondary_spacing_diameters : float
+        Approximation of spacing between rows of turbines in diameters for use in cost estimation using LandBOSSE.
 
     Options
     -------
@@ -84,6 +86,12 @@ class PrimarySpacingSurrogate(om.ExplicitComponent):
             units=None,
             desc="Turbine spacing",
         )
+        self.add_output(
+            "secondary_turbine_spacing_diameters",
+            val=0.0,
+            units=None,
+            desc="Row spacing",
+        )
 
     def setup_partials(self):
         """Declare partial derivatives."""
@@ -99,6 +107,11 @@ class PrimarySpacingSurrogate(om.ExplicitComponent):
             "total_length_cables",
             val=const_partial,
         )
+        self.declare_partials(
+            "secondary_turbine_spacing_diameters",
+            "total_length_cables",
+            val=const_partial,
+        )
 
     def compute(self, inputs, outputs):
         """Compute the turbine spacing."""
@@ -108,8 +121,11 @@ class PrimarySpacingSurrogate(om.ExplicitComponent):
             "diameter_rotor"
         ]
 
-        # Calculate turbine spacing
+        # Calculate turbine and row spacing
         outputs["primary_turbine_spacing_diameters"] = total_length_cables / (
+            rotor_diameter_m * N_turbines
+        )
+        outputs["secondary_turbine_spacing_diameters"] = total_length_cables / (
             rotor_diameter_m * N_turbines
         )
 

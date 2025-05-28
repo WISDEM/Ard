@@ -1,15 +1,13 @@
 from pathlib import Path
+import pytest
 import openmdao.api as om
+
 import ard
 import ard.utils.io
-from ard.cost.surrogate_turbine_spacing import PrimarySpacingSurrogate
-import pytest
+from ard.cost.approximate_turbine_spacing import SpacingApproximations
+from ard.cost.approximate_turbine_spacing import LandBOSSEWithSpacingApproximations
 
-import openmdao.api as om
-from ard.cost.surrogate_turbine_spacing import LandBOSSEWithSurrogate
-
-
-class TestLandBOSSEWithSurrogate:
+class TestLandBOSSEWithSpacingApproximations:
     def setup_method(self):
 
         # specify the configuration/specification files to use
@@ -34,10 +32,10 @@ class TestLandBOSSEWithSurrogate:
         # Create the problem
         prob = om.Problem()
 
-        # Add the LandBOSSEWithSurrogate group
+        # Add the LandBOSSEWithSpacingApproximations group
         prob.model.add_subsystem(
             "landbosse_group",
-            LandBOSSEWithSurrogate(modeling_options=modeling_options),
+            LandBOSSEWithSpacingApproximations(modeling_options=modeling_options),
             promotes=["*"],
         )
 
@@ -57,7 +55,7 @@ class TestLandBOSSEWithSurrogate:
         """Test the primary turbine spacing calculation."""
         # Check the output value
         primary_turbine_spacing = self.prob.get_val(
-            "spacing_surrogate.primary_turbine_spacing_diameters"
+            "spacing_approximations.primary_turbine_spacing_diameters"
         )
         expected_spacing = 1000.0 / (
             self.modeling_options["farm"]["N_turbines"]
@@ -72,7 +70,7 @@ class TestLandBOSSEWithSurrogate:
             "internal_turbine_spacing_rotor_diameters"
         )
         primary_turbine_spacing = self.prob.get_val(
-            "spacing_surrogate.primary_turbine_spacing_diameters"
+            "spacing_approximations.primary_turbine_spacing_diameters"
         )
         assert internal_turbine_spacing == pytest.approx(
             primary_turbine_spacing, abs=1e-12
@@ -92,7 +90,7 @@ class TestLandBOSSEWithSurrogate:
     #     assert total_length_cables_partials == pytest.approx(expected_partial, abs=1E-12)
 
 
-class TestPrimarySpacingSurrogate:
+class TestSpacingApproximations:
 
     def setup_method(self):
         # Create the problem
@@ -110,10 +108,10 @@ class TestPrimarySpacingSurrogate:
             },
         }
 
-        # Add the PrimarySpacingSurrogate component with 10 turbines
+        # Add the SpacingApproximations component with 10 turbines
         prob.model.add_subsystem(
             "spacing_calc",
-            PrimarySpacingSurrogate(modeling_options=modeling_options),
+            SpacingApproximations(modeling_options=modeling_options),
             promotes=["*"],
         )
 
