@@ -35,14 +35,23 @@ class LandBOSSEWithSpacingApproximations(om.Group):
                     "turbine_spacing_rotor_diameters",
                     "internal_turbine_spacing_rotor_diameters",
                 ),
+                (
+                    "row_spacing_rotor_diameters",
+                    "internal_row_spacing_rotor_diameters",
+                ),
             ],
             promotes_outputs=["*"],  # Expose all outputs from LandBOSSE
         )
 
-        # Connect the turbine and row spacing output from the approximations to LandBOSSE
+        # Connect the turbine and row spacing outputs from the approximations to LandBOSSE
         self.connect(
             "spacing_approximations.primary_turbine_spacing_diameters",
             "internal_turbine_spacing_rotor_diameters",
+        )
+
+        self.connect(
+            "spacing_approximations.secondary_turbine_spacing_diameters",
+            "internal_row_spacing_rotor_diameters",
         )
 
 
