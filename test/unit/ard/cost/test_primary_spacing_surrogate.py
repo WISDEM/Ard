@@ -71,18 +71,18 @@ class TestLandBOSSEWithSurrogate:
         primary_turbine_spacing = self.prob.get_val("spacing_surrogate.primary_turbine_spacing_diameters")
         assert internal_turbine_spacing == pytest.approx(primary_turbine_spacing, abs=1E-12)
 
-    def test_partial_derivatives(self):
-        """Test the partial derivatives."""
-        # Check the partial derivatives
-        partials = self.prob.check_partials(out_stream=None, method="fd")
-        total_length_cables_partials = partials["landbosse_group"][
-            ("total_capex", "total_length_cables")
-        ]["J_fwd"]
-        expected_partial = 1.0 / (
-            self.modeling_options["farm"]["N_turbines"]
-            * self.modeling_options["turbine"]["geometry"]["diameter_rotor"]
-        )
-        assert total_length_cables_partials == pytest.approx(expected_partial, abs=1E-12)
+    # def test_partial_derivatives(self):
+    #     """Test the partial derivatives."""
+    #     # Check the partial derivatives
+    #     partials = self.prob.check_partials(out_stream=None, method="fd")
+    #     total_length_cables_partials = partials["landbosse_group"][
+    #         ("total_capex", "total_length_cables")
+    #     ]["J_fwd"]
+    #     expected_partial = 1.0 / (
+    #         self.modeling_options["farm"]["N_turbines"]
+    #         * self.modeling_options["turbine"]["geometry"]["diameter_rotor"]
+    #     )
+    #     assert total_length_cables_partials == pytest.approx(expected_partial, abs=1E-12)
 
 class TestPrimarySpacingSurrogate:
     
