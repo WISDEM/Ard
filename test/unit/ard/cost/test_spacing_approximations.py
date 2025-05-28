@@ -64,17 +64,43 @@ class TestLandBOSSEWithSpacingApproximations:
         )
         assert primary_turbine_spacing == pytest.approx(expected_spacing, abs=1e-12)
 
-    def test_internal_turbine_spacing(self):
+    def test_secondary_turbine_spacing(self):
+        """Test the primary turbine spacing calculation."""
+        # Check the output value
+        secondary_turbine_spacing = self.prob.get_val(
+            "spacing_approximations.secondary_turbine_spacing_diameters"
+        )
+        expected_spacing = 1000.0 / (
+            self.modeling_options["farm"]["N_turbines"]
+            * self.modeling_options["turbine"]["geometry"]["diameter_rotor"]
+        )
+        assert secondary_turbine_spacing == pytest.approx(expected_spacing, abs=1e-12)
+
+    def test_internal_primary_turbine_spacing(self):
         """Test that the internal turbine spacing is passed correctly to LandBOSSE."""
         # Check that LandBOSSE receives the correct input
-        internal_turbine_spacing = self.prob.get_val(
+        internal_primary_turbine_spacing = self.prob.get_val(
             "internal_turbine_spacing_rotor_diameters"
         )
         primary_turbine_spacing = self.prob.get_val(
             "spacing_approximations.primary_turbine_spacing_diameters"
         )
-        assert internal_turbine_spacing == pytest.approx(
+        assert internal_primary_turbine_spacing == pytest.approx(
             primary_turbine_spacing, abs=1e-12
+        )
+
+    
+    def test_internal_secondary_turbine_spacing(self):
+        """Test that the internal turbine spacing is passed correctly to LandBOSSE."""
+        # Check that LandBOSSE receives the correct input
+        internal_secondary_turbine_spacing = self.prob.get_val(
+            "internal_row_spacing_rotor_diameters"
+        )
+        secondary_turbine_spacing = self.prob.get_val(
+            "spacing_approximations.secondary_turbine_spacing_diameters"
+        )
+        assert internal_secondary_turbine_spacing == pytest.approx(
+            secondary_turbine_spacing, abs=1e-12
         )
 
     # def test_partial_derivatives(self):
@@ -133,6 +159,15 @@ class TestSpacingApproximations:
         # Check the output value
         turbine_spacing = self.prob.get_val("primary_turbine_spacing_diameters")
         assert turbine_spacing == pytest.approx(10.0, abs=1e-12)
+
+
+    def test_row_spacing_calculation(self):
+        """Test the turbine spacing calculation."""
+
+        # Check the output value
+        row_spacing = self.prob.get_val("secondary_turbine_spacing_diameters")
+        assert row_spacing == pytest.approx(10.0, abs=1e-12)
+
 
     def test_partial_derivatives(self):
         """Test the partial derivatives."""
