@@ -12,7 +12,9 @@ class LandBOSSEWithSurrogate(om.Group):
 
     def initialize(self):
         """Initialize the group and declare options."""
-        self.options.declare("modeling_options", types=dict, desc="Ard modeling options")
+        self.options.declare(
+            "modeling_options", types=dict, desc="Ard modeling options"
+        )
 
     def setup(self):
         """Set up the group by adding and connecting components."""
@@ -27,12 +29,22 @@ class LandBOSSEWithSurrogate(om.Group):
         self.add_subsystem(
             "landbosse",
             LandBOSSE(),
-            promotes_inputs=["*", ("turbine_spacing_rotor_diameters", "internal_turbine_spacing_rotor_diameters")],
+            promotes_inputs=[
+                "*",
+                (
+                    "turbine_spacing_rotor_diameters",
+                    "internal_turbine_spacing_rotor_diameters",
+                ),
+            ],
             promotes_outputs=["*"],  # Expose all outputs from LandBOSSE
         )
 
         # Connect the turbine spacing output from the surrogate to LandBOSSE
-        self.connect("spacing_surrogate.primary_turbine_spacing_diameters", "internal_turbine_spacing_rotor_diameters")
+        self.connect(
+            "spacing_surrogate.primary_turbine_spacing_diameters",
+            "internal_turbine_spacing_rotor_diameters",
+        )
+
 
 class PrimarySpacingSurrogate(om.ExplicitComponent):
     """
@@ -57,30 +69,49 @@ class PrimarySpacingSurrogate(om.ExplicitComponent):
 
     def initialize(self):
         """Initialize the component and declare options."""
-        self.options.declare("modeling_options", types=dict, desc="Ard modeling options")
+        self.options.declare(
+            "modeling_options", types=dict, desc="Ard modeling options"
+        )
 
     def setup(self):
         """Set up the inputs and outputs."""
-        self.add_input("total_length_cables", val=0.0, units="m", desc="Total cable length")
-        self.add_output("primary_turbine_spacing_diameters", val=0.0, units=None, desc="Turbine spacing")
+        self.add_input(
+            "total_length_cables", val=0.0, units="m", desc="Total cable length"
+        )
+        self.add_output(
+            "primary_turbine_spacing_diameters",
+            val=0.0,
+            units=None,
+            desc="Turbine spacing",
+        )
 
     def setup_partials(self):
         """Declare partial derivatives."""
         N_turbines = self.options["modeling_options"]["farm"]["N_turbines"]
-        rotor_diameter_m = self.options["modeling_options"]["turbine"]["geometry"]["diameter_rotor"]
+        rotor_diameter_m = self.options["modeling_options"]["turbine"]["geometry"][
+            "diameter_rotor"
+        ]
 
         # Partial derivative of primary_turbine_spacing_diameters w.r.t. total_length_cables are constant
-        const_partial = 1.0/(rotor_diameter_m*N_turbines)
-        self.declare_partials("primary_turbine_spacing_diameters", "total_length_cables", val=const_partial)
+        const_partial = 1.0 / (rotor_diameter_m * N_turbines)
+        self.declare_partials(
+            "primary_turbine_spacing_diameters",
+            "total_length_cables",
+            val=const_partial,
+        )
 
     def compute(self, inputs, outputs):
         """Compute the turbine spacing."""
         total_length_cables = inputs["total_length_cables"]
         N_turbines = self.options["modeling_options"]["farm"]["N_turbines"]
-        rotor_diameter_m = self.options["modeling_options"]["turbine"]["geometry"]["diameter_rotor"]
+        rotor_diameter_m = self.options["modeling_options"]["turbine"]["geometry"][
+            "diameter_rotor"
+        ]
 
         # Calculate turbine spacing
-        outputs["primary_turbine_spacing_diameters"] = total_length_cables/(rotor_diameter_m*N_turbines)
+        outputs["primary_turbine_spacing_diameters"] = total_length_cables / (
+            rotor_diameter_m * N_turbines
+        )
 
     def compute_partials(self, inputs, partials):
         "partials are constant, so no calculations needed here"

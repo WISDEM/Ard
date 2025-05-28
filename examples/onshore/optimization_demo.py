@@ -167,10 +167,11 @@ model.add_subsystem(  # turbine capital costs component
 )
 
 from ard.cost.surrogate_turbine_spacing import LandBOSSEWithSurrogate
+
 model.add_subsystem(  # LandBOSSE component
     "landbosse",
     # ard.cost.wisdem_wrap.LandBOSSE(),
-    LandBOSSEWithSurrogate(modeling_options=modeling_options)
+    LandBOSSEWithSurrogate(modeling_options=modeling_options),
 )
 model.connect(  # effective primary spacing for BOS
     "optiwindnet_coll.total_length_cables",
