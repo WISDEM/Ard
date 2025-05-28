@@ -10,7 +10,6 @@ import openmdao.api as om
 
 import optiwindnet.plotting
 import ard
-import ard.glue.prototype as glue
 import ard.layout.spacing
 
 # layout type
