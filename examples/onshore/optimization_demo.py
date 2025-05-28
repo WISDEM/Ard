@@ -14,7 +14,6 @@ import ard.layout.spacing
 from ard.cost.approximate_turbine_spacing import LandBOSSEWithSpacingApproximations
 
 
-
 def run_example():
 
     # layout type

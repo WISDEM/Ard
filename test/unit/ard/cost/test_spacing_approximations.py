@@ -7,6 +7,7 @@ import ard.utils.io
 from ard.cost.approximate_turbine_spacing import SpacingApproximations
 from ard.cost.approximate_turbine_spacing import LandBOSSEWithSpacingApproximations
 
+
 class TestLandBOSSEWithSpacingApproximations:
     def setup_method(self):
 
