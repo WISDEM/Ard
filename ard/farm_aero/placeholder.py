@@ -48,10 +48,6 @@ class PlaceholderBatchPower(templates.BatchFarmPowerTemplate):
         super().initialize()  # run super class script first!
 
     def setup(self):
-        """Setup of OM component."""
-        super().setup()  # run super class script first!
-
-    def setup(self):
         super().setup()
 
         # unpack wind query object
@@ -158,7 +154,7 @@ class PlaceholderAEP(templates.FarmAEPTemplate):
         super().setup()  # run super class script first!
 
     def setup_partials(self):
-        super().setup_partials()
+        self.declare_partials("*", "*", method="exact")
 
     def compute(self, inputs, outputs):
 
@@ -181,6 +177,3 @@ class PlaceholderAEP(templates.FarmAEPTemplate):
             * np.ones((self.N_turbines, self.N_wind_conditions))
         )
         outputs["thrust_turbines"] = np.zeros((self.N_turbines, self.N_wind_conditions))
-
-    def setup_partials(self):
-        self.declare_partials("*", "*", method="exact")

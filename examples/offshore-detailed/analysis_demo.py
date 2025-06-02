@@ -14,7 +14,7 @@ import optiwindnet.plotting
 import ard
 import ard.glue.prototype as glue
 import ard.layout.spacing
-# test
+
 # layout type
 layout_type = "gridfarm"
 
