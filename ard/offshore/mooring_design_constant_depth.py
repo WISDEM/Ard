@@ -2,35 +2,85 @@ import numpy as np
 
 import openmdao.api as om
 
+import math
 
-class BathymetryData:
+import ard.geographic
+
+
+def generate_anchor_points(
+    center: np.ndarray, length: float, rotation_deg: float, N: int
+) -> np.ndarray:
+    """Generates anchor points equally spaced around the platform
+
+    Args:
+        center (np.ndarray): x and y of platform in km
+        length (float): desired horizontal anchor length in km
+        rotation_deg (float): rotation in deg. counter-clockwise from east
+        N (int): number of anchors
+
+    Returns:
+        np.ndarray: array of size N by 2 containing the x and y positions of each anchor
     """
-    A draft class to hold and represent Bathymetry data for a mooring system.
 
-    This class should be modified by whoever is implementing it in order to
-    improve it! I just made it a boilerplate version of what I anticipated would
-    be in it, even though I'm an idiot! -cfrontin
+    cx, cy = center
+    angle_step = 360 / N
+    lines = np.zeros([N, 2])
+
+    for i in range(N):
+        angle_deg = rotation_deg + i * angle_step
+        angle_rad = math.radians(angle_deg)
+        x = cx + length * math.cos(angle_rad)
+        y = cy + length * math.sin(angle_rad)
+        lines[i, 0] = x
+        lines[i, 1] = y
+
+    return lines
+
+
+def simple_mooring_design(
+    phi_platform: np.ndarray,
+    x_turbines: np.ndarray,
+    y_turbines: np.ndarray,
+    length: float,
+    N_turbines: int,
+    N_anchors: int,
+) -> tuple[np.ndarray]:
+    """_summary_
+
+    Args:
+        phi_platform (np.ndarray): counterclockwise rotation from east in deg. for each platform
+        x_turbines (np.ndarray): list of platform/turbine easting in km
+        y_turbines (np.ndarray): list of platform/turbine northing in km
+        length (float): desired horizontal anchor length in km
+        N_turbines (int): number of wind turbines in the farm
+        N_anchors (int): number of anchors per turbine/platform
+
+    Returns:
+        tuple[np.ndarray]: x locations of anchors, y locations of anchors, each array of shape N_turbines by N_anchors
     """
 
-    x_mesh = np.atleast_2d([0.0])  # x location in km
-    y_mesh = np.atleast_2d([0.0])  # y location in km
-    depth_mesh = np.atleast_2d([0.0])  # depth in m? km?
+    x_anchors = np.zeros([N_turbines, N_anchors])
+    y_anchors = np.zeros_like(x_anchors)
 
-    material_mesh = np.atleast_2d(["sand"])  # DRAFT
+    for i, (x, y) in enumerate(zip(x_turbines, y_turbines)):
 
-    cost_dictionary = {
-        "sand": 10.0,  # DRAFT
-        "rock": 100.0,  # DRAFT
-    }  # cost of anchoring in a given material per relevant metric
+        center = (x, y)
 
-    def get_cost(self):
-        """Get the cost of anchor building at a given location."""
-        raise NotImplementedError("Bathymetry data must be implemented still.")
+        anchors = generate_anchor_points(
+            center=center, length=length, rotation_deg=phi_platform[i], N=N_anchors
+        )
+
+        for j in range(N_anchors):
+            x_anchors[i, j] = anchors[j, 0]
+            y_anchors[i, j] = anchors[j, 1]
+
+    return x_anchors, y_anchors
 
 
-class MooringDesign(om.ExplicitComponent):
+class ConstantDepthMooringDesign(om.ExplicitComponent):
     """
-    A class to create a mooring design for an floating offshore wind farm.
+    A class to create a constant-depth simplified mooring design for a floating
+    offshore wind farm.
 
     This is a class that should be used to generate a floating offshore wind
     farm's collective mooring system.
@@ -42,7 +92,7 @@ class MooringDesign(om.ExplicitComponent):
     wind_query : floris.wind_data.WindRose
         a WindQuery objects that specifies the wind conditions that are to be
         computed
-    bathymetry_data : BathymetryData
+    bathymetry_data : ard.geographic.BathymetryData
         a BathymetryData object to specify the bathymetry mesh/sampling
 
     Inputs
@@ -89,8 +139,13 @@ class MooringDesign(om.ExplicitComponent):
         self.modeling_options = self.options["modeling_options"]
         self.N_turbines = self.modeling_options["farm"]["N_turbines"]
         self.N_anchors = self.modeling_options["platform"]["N_anchors"]
+        self.min_mooring_line_length_m = self.modeling_options["platform"][
+            "min_mooring_line_length_m"
+        ]
+
         # get the number of wind conditions (for thrust measurements)
-        self.N_wind_conditions = self.options["wind_query"].N_conditions
+        if self.options["wind_query"] is not None:
+            self.N_wind_conditions = self.options["wind_query"].N_conditions
         # MANAGE ADDITIONAL LATENT VARIABLES HERE!!!!!
 
         # set up inputs and outputs for mooring system
@@ -103,11 +158,12 @@ class MooringDesign(om.ExplicitComponent):
         self.add_input(
             "y_turbines", np.zeros((self.N_turbines,)), units="km"
         )  # y location of the mooring platform in km w.r.t. reference coordinates
-        self.add_input(
-            "thrust_turbines",
-            np.zeros((self.N_turbines, self.N_wind_conditions)),
-            units="kN",
-        )  # turbine thrust coming from each wind direction
+        if self.options["wind_query"] is not None:
+            self.add_input(
+                "thrust_turbines",
+                np.zeros((self.N_turbines, self.N_wind_conditions)),
+                units="kN",
+            )  # turbine thrust coming from each wind direction
         # ADD ADDITIONAL (DESIGN VARIABLE) INPUTS HERE!!!!!
 
         self.add_output(
@@ -120,17 +176,6 @@ class MooringDesign(om.ExplicitComponent):
             np.zeros((self.N_turbines, self.N_anchors)),
             units="km",
         )  # y location of the mooring platform in km w.r.t. reference coordinates
-        self.add_output(
-            "cost_mooring_turbine",
-            np.zeros((self.N_turbines,)),
-            units="MUSD",
-        )  # cost of the mooring system for each turbine
-        self.add_output(
-            "cost_mooring_farm",
-            0.0,
-            units="MUSD",
-        )  # cost of the mooring system across all turbines
-        # ADD ADDITIONAL (DESIGN VARIABLE) OUTPUTS HERE!!!!!
 
     def setup_partials(self):
         """Derivative setup for the OpenMDAO component."""
@@ -144,22 +189,21 @@ class MooringDesign(om.ExplicitComponent):
         phi_platform = inputs["phi_platform"]
         x_turbines = inputs["x_turbines"]
         y_turbines = inputs["y_turbines"]
-        thrust_turbines = inputs["thrust_turbines"]  #
+        # thrust_turbines = inputs["thrust_turbines"]  #
 
-        ########################################################################
-        #
-        # this is where the magic will happen!
-        #
-        # here, the implementor will take the variables above and map them into
-        # the machinery for computing a mooring design for each of the turbines.
-        #
-        ########################################################################
+        # BEGIN: REPLACE ME
 
-        raise NotImplementedError("This component is awaiting implementation!")
+        x_anchors, y_anchors = simple_mooring_design(
+            phi_platform=phi_platform,
+            x_turbines=x_turbines,
+            y_turbines=y_turbines,
+            length=self.min_mooring_line_length_m * 1e-3,  # convert to km
+            N_turbines=self.N_turbines,
+            N_anchors=self.N_anchors,
+        )
+
+        # END REPLACE ME
 
         # replace the below with the final anchor locations...
-        outputs["x_anchors"] = None
-        outputs["y_anchors"] = None
-        # ... and the final costs
-        outputs["cost_mooring_turbine"] = None
-        outputs["cost_mooring_farm"] = None
+        outputs["x_anchors"] = x_anchors
+        outputs["y_anchors"] = y_anchors

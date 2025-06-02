@@ -53,12 +53,24 @@ class TestCollectionTemplate:
             # make sure that the outputs in the component match what we planned
             output_list = [k for k, v in self.coll_temp.list_outputs()]
             for var_to_check in [
-                "length_cables",
-                "load_cables",
+                # "length_cables",
+                # "load_cables",
                 "total_length_cables",
-                "max_load_cables",
+                # "max_load_cables",
             ]:
                 assert var_to_check in output_list
+
+            # make sure that the outputs in the component match what we planned
+            discrete_output_list = [
+                k for k, v in self.coll_temp._discrete_outputs.items()
+            ]
+            for var_to_check in [
+                "length_cables",
+                "load_cables",
+                # "total_length_cables",
+                "max_load_cables",
+            ]:
+                assert var_to_check in discrete_output_list
 
     def test_compute(self):
 

@@ -7,7 +7,7 @@ import openmdao.api as om
 
 from wisdem.optimization_drivers.nlopt_driver import NLoptDriver
 
-import ard.utils
+import ard.utils.io
 import ard.wind_query as wq
 import ard.glue.prototype as glue
 import ard.cost.wisdem_wrap as cost_wisdem
@@ -29,7 +29,7 @@ filename_turbine_spec = (
     / "data"
     / "turbine_spec_IEA-22-284-RWT.yaml"
 )
-data_turbine_spec = ard.utils.load_turbine_spec(filename_turbine_spec)
+data_turbine_spec = ard.utils.io.load_turbine_spec(filename_turbine_spec)
 
 # set up the modeling options
 modeling_options = {
@@ -48,8 +48,8 @@ prob = glue.create_setup_OM_problem(
 
 if False:  # set true to run one-shot analysis
 
-    # setup the latent variables for Orbit and FinanceSE
-    cost_wisdem.Orbit_setup_latents(prob, modeling_options)
+    # setup the latent variables for ORBIT and FinanceSE
+    cost_wisdem.ORBIT_setup_latents(prob, modeling_options)
     cost_wisdem.FinanceSE_setup_latents(prob, modeling_options)
 
     # set up the working/design variables
@@ -107,8 +107,8 @@ else:
     # setup the problem
     prob.setup()
 
-    # setup the latent variables for Orbit and FinanceSE
-    cost_wisdem.Orbit_setup_latents(prob, modeling_options)
+    # setup the latent variables for ORBIT and FinanceSE
+    cost_wisdem.ORBIT_setup_latents(prob, modeling_options)
     cost_wisdem.FinanceSE_setup_latents(prob, modeling_options)
 
     # set up the working/design variables

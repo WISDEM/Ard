@@ -13,8 +13,8 @@ import openmdao.api as om
 from wisdem.optimization_drivers.nlopt_driver import NLoptDriver
 
 import ard
-import ard.test_utils
-import ard.utils
+import ard.utils.test_utils
+import ard.utils.io
 import ard.wind_query as wq
 import ard.layout.sunflower as sunflower
 import ard.farm_aero.floris as farmaero_floris
@@ -46,7 +46,7 @@ class TestoptiwindnetLayout:
             / "data"
             / "turbine_spec_IEA-3p4-130-RWT.yaml"
         )  # toolset generalized turbine specification
-        data_turbine_spec = ard.utils.load_turbine_spec(filename_turbine_spec)
+        data_turbine_spec = ard.utils.io.load_turbine_spec(filename_turbine_spec)
 
         # set up the modeling options
         self.modeling_options = {
@@ -122,9 +122,8 @@ class TestoptiwindnetLayout:
 
         # collect optiwindnet data to validate
         validation_data = {
-            "length_cables": self.prob.get_val(
-                "optiwindnet_coll.length_cables", units="km"
-            ),
+            "length_cables": self.prob.get_val("optiwindnet_coll.length_cables")
+            / 1.0e3,
             "load_cables": self.prob.get_val("optiwindnet_coll.load_cables"),
             "total_length_cables": self.prob.get_val(
                 "optiwindnet_coll.total_length_cables"
@@ -133,7 +132,7 @@ class TestoptiwindnetLayout:
         }
 
         with subtests.test("pyrite validator"):
-            ard.test_utils.pyrite_validator(
+            ard.utils.test_utils.pyrite_validator(
                 validation_data,
                 Path(__file__).parent / "test_optiwindnet_pyrite.npz",
                 rtol_val=5e-3,

@@ -13,7 +13,7 @@ import ard.collection.templates as templates
 
 import logging
 
-logging.getLogger("optiwindnet").setLevel(logging.INFO)
+logging.getLogger("optiwindnet").setLevel(logging.CRITICAL)
 
 
 # custom length calculation
@@ -40,22 +40,25 @@ def optiwindnet_wrapper(
     max_turbines_per_string: int,
     solver_name: str = "appsi_highs",
     solver_options: dict = None,
+    verbose: bool = False,
 ):
-    """Simple wrapper to run OptiWindNet to get a caple layout
+    """Simple wrapper to run OptiWindNet to get a cable layout
 
     Args:
         XY_turbines (np.ndarray): x and y positions of turbines (easting and northing)
         XY_substations (np.ndarray): x and y positions of substations (easting and northing)
         XY_boundaries (np.ndarray): x and y locations of boundary nodes (easting and northing)
-        name_case (str): what to name the case
+        name_case (str):  what to name the case
         max_turbines_per_string (int): maximum number of turbines per cable string
+        solver_name (str, optional): which solver to use in pyomo. Defaults to "appsi_highs".
+        solver_options (dict, optional): pyomo solver options. Defaults to None.
+        verbose (bool, optional): whether to print information. Defaults to False.
 
     Returns:
         result: pyomo result
         S: OptiWindNet pyomo solution
         G: output from OptiWindNet G_from_S function
         H: output from OptiWindNet PathFinder function
-
     """
 
     # initialize solver
@@ -114,7 +117,7 @@ def optiwindnet_wrapper(
             )
 
     solver.options.update(solver_options)
-    result = solver.solve(model, tee=True)
+    result = solver.solve(model, tee=verbose)
 
     # do some postprocessing
     S = own_pyomo.S_from_solution(model, solver, result)
@@ -173,15 +176,20 @@ class optiwindnetCollection(templates.CollectionTemplate):
         """Setup of OM component gradients."""
 
         self.declare_partials(
-            ["length_cables", "total_length_cables"],
+            ["total_length_cables"],
             ["x_turbines", "y_turbines", "x_substations", "y_substations"],
             method="exact",
         )
 
-    def compute(self, inputs, outputs):
+    def compute(
+        self,
+        inputs,
+        outputs,
+        discrete_inputs=None,
+        discrete_outputs=None,
+    ):
         """
         Computation for the OptiWindNet collection system design
-
         """
 
         name_case = "farm"
@@ -228,24 +236,20 @@ class optiwindnetCollection(templates.CollectionTemplate):
             loads.append(edges[edge]["load"])
 
         # pack and ship
-        outputs["length_cables"] = np.array(lengths, dtype=np.float64)
-        outputs["load_cables"] = np.array(loads, dtype=np.float64)
-        outputs["total_length_cables"] = np.sum(outputs["length_cables"])
-        outputs["max_load_cables"] = np.max(outputs["load_cables"])
+        discrete_outputs["length_cables"] = np.array(lengths, dtype=np.float64)
+        discrete_outputs["load_cables"] = np.array(loads, dtype=np.float64)
+        outputs["total_length_cables"] = np.sum(discrete_outputs["length_cables"])
+        discrete_outputs["max_load_cables"] = np.max(discrete_outputs["load_cables"])
 
-    def compute_partials(self, inputs, J):
+    def compute_partials(self, inputs, J, discrete_inputs=None):
 
         # re-load the key variables back as locals
         XY_turbines = np.vstack([inputs["x_turbines"], inputs["y_turbines"]]).T
         XY_substations = np.vstack([inputs["x_substations"], inputs["y_substations"]]).T
-        # print(self.graph)
+
         H = self.graph
         edges = H.edges()
 
-        J["length_cables", "x_turbines"] = 0.0
-        J["length_cables", "y_turbines"] = 0.0
-        J["length_cables", "x_substations"] = 0.0
-        J["length_cables", "y_substations"] = 0.0
         J["total_length_cables", "x_turbines"] = 0.0
         J["total_length_cables", "y_turbines"] = 0.0
         J["total_length_cables", "x_substations"] = 0.0
@@ -268,17 +272,9 @@ class optiwindnetCollection(templates.CollectionTemplate):
             dLdx0, dLdy0, dLdx1, dLdy1 = distance_function_deriv(x0, y0, x1, y1)
 
             if e0 >= 0:
-                J["length_cables", "x_turbines"][idx_edge, e0] -= dLdx0
-                J["length_cables", "y_turbines"][idx_edge, e0] -= dLdy0
                 J["total_length_cables", "x_turbines"][0, e0] -= dLdx0
                 J["total_length_cables", "y_turbines"][0, e0] -= dLdy0
             else:
-                J["length_cables", "x_substations"][
-                    idx_edge, self.N_substations + e0
-                ] -= dLdx0
-                J["length_cables", "y_substations"][
-                    idx_edge, self.N_substations + e0
-                ] -= dLdy0
                 J["total_length_cables", "x_substations"][
                     0, self.N_substations + e0
                 ] -= dLdx0
@@ -286,17 +282,9 @@ class optiwindnetCollection(templates.CollectionTemplate):
                     0, self.N_substations + e0
                 ] -= dLdy0
             if e1 >= 0:
-                J["length_cables", "x_turbines"][idx_edge, e1] -= dLdx1
-                J["length_cables", "y_turbines"][idx_edge, e1] -= dLdy1
                 J["total_length_cables", "x_turbines"][0, e1] -= dLdx1
                 J["total_length_cables", "y_turbines"][0, e1] -= dLdy1
             else:
-                J["length_cables", "x_substations"][
-                    idx_edge, self.N_substations + e1
-                ] -= dLdx1
-                J["length_cables", "y_substations"][
-                    idx_edge, self.N_substations + e1
-                ] -= dLdy1
                 J["total_length_cables", "x_substations"][
                     0, self.N_substations + e1
                 ] -= dLdx1

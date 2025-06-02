@@ -33,14 +33,17 @@ class CollectionTemplate(om.ExplicitComponent):
 
     Outputs
     -------
-    length_cables : np.ndarray
-        a 1D numpy array that holds the lengths of each of the cables necessary
-        to collect energy generated, with length `N_turbines`
-    load_cables : np.ndarray
-        a 1D numpy array that holds the load integer (i.e. total number of
-        turbines) collected up to each cable, with length `N_turbines`
     total_length_cables : float
         the total length of cables to collect energy generated
+
+    Discrete Outputs
+    -------
+    length_cables : np.ndarray
+        a (variable-length) 1D numpy array that holds the lengths of each of the cables necessary
+        to collect energy generated, with length `N_turbines`
+    load_cables : np.ndarray
+        a (variable-length) 1D numpy array that holds the load integer (i.e. total number of
+        turbines) collected up to each cable, with length `N_turbines`
     max_load_cables : np.ndarray
         the maximum cable capacity required by the system
     """
@@ -59,16 +62,25 @@ class CollectionTemplate(om.ExplicitComponent):
         # set up inputs for farm layout
         self.add_input("x_turbines", np.zeros((self.N_turbines,)), units="m")
         self.add_input("y_turbines", np.zeros((self.N_turbines,)), units="m")
-        self.add_input("x_substations", np.zeros((self.N_substations,)))
-        self.add_input("y_substations", np.zeros((self.N_substations,)))
+        self.add_input("x_substations", np.zeros((self.N_substations,)), units="m")
+        self.add_input("y_substations", np.zeros((self.N_substations,)), units="m")
 
         # set up outputs for the collection system
-        self.add_output("length_cables", np.zeros((self.N_turbines,)), units="m")
-        self.add_output("load_cables", np.zeros((self.N_turbines,)))
+        self.add_discrete_output(
+            "length_cables",
+            np.zeros((self.N_turbines,)),  # units="m",
+        )
+        self.add_discrete_output("load_cables", np.zeros((self.N_turbines,)))
         self.add_output("total_length_cables", 0.0, units="m")
-        self.add_output("max_load_cables", 0.0)
+        self.add_discrete_output("max_load_cables", 0.0)
 
-    def compute(self, inputs, outputs):
+    def compute(
+        self,
+        inputs,
+        outputs,
+        discrete_inputs=None,
+        discrete_outputs=None,
+    ):
         """
         Computation for the OM component.
 

@@ -8,8 +8,8 @@ import openmdao.api as om
 from wisdem.optimization_drivers.nlopt_driver import NLoptDriver
 
 import ard
-import ard.test_utils
-import ard.utils
+import ard.utils.test_utils
+import ard.utils.io
 import ard.wind_query as wq
 import ard.glue.prototype as glue
 import ard.cost.wisdem_wrap as cost_wisdem
@@ -35,7 +35,7 @@ class TestLCOE_OFL_stack:
             / "data"
             / "turbine_spec_IEA-22-284-RWT.yaml"
         )  # toolset generalized turbine specification
-        data_turbine_spec = ard.utils.load_turbine_spec(filename_turbine_spec)
+        data_turbine_spec = ard.utils.io.load_turbine_spec(filename_turbine_spec)
 
         # set up the modeling options
         self.modeling_options = {
@@ -54,8 +54,8 @@ class TestLCOE_OFL_stack:
 
     def test_model(self):
 
-        # setup the latent variables for Orbit and FinanceSE
-        cost_wisdem.Orbit_setup_latents(self.prob, self.modeling_options)
+        # setup the latent variables for ORBIT and FinanceSE
+        cost_wisdem.ORBIT_setup_latents(self.prob, self.modeling_options)
         cost_wisdem.FinanceSE_setup_latents(self.prob, self.modeling_options)
 
         # set up the working/design variables
@@ -79,7 +79,7 @@ class TestLCOE_OFL_stack:
         }
 
         # check the data against a pyrite file
-        ard.test_utils.pyrite_validator(
+        ard.utils.test_utils.pyrite_validator(
             test_data,
             Path(ard.__file__).parents[1]
             / "test"
