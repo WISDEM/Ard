@@ -9,6 +9,7 @@ geometry:
 nameplate:
   power_rated: 3.37 # MW
   power_rated_aero: 3.62 # MW
+  windspeed_rated: 9.8 # m/s
   turbine_class: III # future-proofing
   turbulence_class: A # future-proofing
   drivetrain: geared # future-proofing

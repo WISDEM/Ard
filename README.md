@@ -88,7 +88,7 @@ The components that achieve this can be assembled to either run a single top-dow
 
 A second example is in progress to reoptimize the layout of two offshore wind farms, one fixed bottom (OFB) and one floating (OFL).
 Both wind farms are made of the [22 MW reference wind turbine](https://github.com/IEAWindSystems/IEA-22-280-RWT).
-In this example, BOS costs are estimated using the tool [Orbit](https://github.com/WISDEM/ORBIT).
+In this example, BOS costs are estimated using the tool [ORBIT](https://github.com/WISDEM/ORBIT).
 
 ## Roadmap to future capabilities
 
