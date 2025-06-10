@@ -25,6 +25,8 @@ class GeomorphologyGridData:
     x_material_data = np.atleast_2d([0.0])  # x location in km of material datapoint
     y_material_data = np.atleast_2d([0.0])  # y location in km of material datapoint
     material_data = np.atleast_2d(["soil"])  # bed material at each point
+    material_types = {}  # soil type lookup table
+    material_type_units = {}  # soil type lookup table
 
     sea_level = 0.0  # sea level in m
 
@@ -235,25 +237,94 @@ class BathymetryGridData(GeomorphologyGridData):
             The path to the soil data file
         """
 
+        # read modes
+        read_grid = False
+        read_soiltypes = False
+
         # create placholder objects in function local scope
         grid_soil = None
         x_coord = None
         y_coord = None
+        soil_types = {}
+        sth = []  # soil type headers
+        sth_units = {}  # soil type header units
 
         with open(file_soil, "r") as f_soil:
             idx_y = 0  # indexer for y coordinate as file is read
+            skip_lines = 0
 
             # iterate over lines in the soil file
             for idx_line, line in enumerate(f_soil.readlines()):
 
                 if idx_line == 0:  # moorpy header line must be first
                     assert line.startswith("--- MoorPy Soil Input File ---")
+                    read_grid = True
                     continue
-                if idx_line == 1:  # next line defines the grid size in x
+                elif idx_line == 1:  # next line defines the grid size in x
                     assert line.startswith("nGridX")  # guarantee this is the case
                     nGridX = int(line.split()[1])  # extract the number
                     x_coord = np.zeros((nGridX,))  # prepare a coord array
                     continue
+                elif idx_line == 2:  # next line defines the grid size in y
+                    assert line.startswith("nGridY")  # guarantee this is the case
+                    nGridY = int(line.split()[1])  # extract the number
+                    y_coord = np.zeros((nGridY,))  # prepare a coord array
+                    grid_soil = np.empty((nGridX, nGridY), dtype='U64')  # prepare a grid
+                    continue
+                elif idx_line == 3:  # next line should define the x coordinates
+                    x_coord_tgt = [float(x) for x in line.split()]  # extract
+                    assert len(x_coord_tgt) == nGridX  # verify length
+                    x_coord = np.array(x_coord_tgt)  # convert to array
+                    continue
+                elif idx_line < (3 + nGridY + skip_lines + 1):  # next lines should be y coordinate then gridpoint data
+                    assert read_grid
+                    if not line.strip():
+                        skip_lines += 1
+                        continue  # if the line is empty or whitespace, skip it
+
+                    y_coord_tgt = float(line.split()[0])  # extract the y coordinate
+                    soil_row_tgt = [
+                        str(b) for b in line.split()[1:]
+                    ]  # extract the bathymetry data
+                    assert len(soil_row_tgt) == nGridX  # verify length
+                    y_coord[idx_y] = y_coord_tgt  # set the y coordinate
+                    grid_soil[:, idx_y] = soil_row_tgt  # set the bathymetry data
+                    idx_y += 1  # increment the y indexer
+                elif idx_line == (4 + nGridY + skip_lines):  # soil types line
+                    assert line.startswith("--- SOIL TYPES ---")
+                    assert read_grid  # should be coming out of grid-reading mode
+                    read_grid = False
+                    read_soiltypes = True
+                    continue
+                elif idx_line == (4 + nGridY + skip_lines + 1):  # soil type header
+                    assert read_soiltypes
+                    sth = line.split()
+                    # for now I assume there's one specification for this
+                    assert line.startswith("Class 		Gamma 	Su0 	k	alpha	phi	UCS	Em")
+                elif idx_line == (4 + nGridY + skip_lines + 2):  # soil types units
+                    assert read_soiltypes
+                    sth_units = dict.fromkeys(sth, line.split())
+                    # for now I assume there's one specification for this
+                    assert line.startswith("(name) 		(kN/m^3) (kPa) 	(kPa/m) (-) 	(deg) 	(MPa) 	(MPa)")
+                elif idx_line > (4 + nGridY + skip_lines + 2):
+                    assert read_soiltypes
+                    if line.startswith("------------------"): break  # last line
+
+                    lv = line.split()  # line values
+                    key = lv[0]  # get the mud type
+                    soil_types[key] = dict.fromkeys(sth, lv)
+                else:
+                    if not line.strip():
+                        skip_lines += 1
+                        continue  # if the line is empty or whitespace, skip it
+                    raise IndexError(f"LINE {idx_line} failed to be handled.")
+
+        # save into the geomorphology data object
+        self.y_material_data, self.x_material_data = np.meshgrid(y_coord, x_coord)
+        self.material_data = grid_soil
+        self.soil_types = soil_types
+        self.soil_type_units = sth_units
+
 
     def load_moorpy_bathymetry(self, file_bathymetry: PathLike):
         """
@@ -282,27 +353,23 @@ class BathymetryGridData(GeomorphologyGridData):
                 if idx_line == 0:  # moorpy header line must be first
                     assert line.startswith("--- MoorPy Bathymetry Input File ---")
                     continue
-                if idx_line == 1:  # next line defines the grid size in x
+                elif idx_line == 1:  # next line defines the grid size in x
                     assert line.startswith("nGridX")  # guarantee this is the case
                     nGridX = int(line.split()[1])  # extract the number
                     x_coord = np.zeros((nGridX,))  # prepare a coord array
                     continue
-                if idx_line == 2:  # next line defines the grid size in y
+                elif idx_line == 2:  # next line defines the grid size in y
                     assert line.startswith("nGridY")  # guarantee this is the case
                     nGridY = int(line.split()[1])  # extract the number
                     y_coord = np.zeros((nGridY,))  # prepare a coord array
                     grid_bathy = np.zeros((nGridX, nGridY))  # prepare a grid
                     continue
-
-                if idx_line == 3:  # next line should define the x coordinates
+                elif idx_line == 3:  # next line should define the x coordinates
                     x_coord_tgt = [float(x) for x in line.split()]  # extract
                     assert len(x_coord_tgt) == nGridX  # verify length
                     x_coord = np.array(x_coord_tgt)  # convert to array
                     continue
-
-                if (
-                    idx_line > 3
-                ):  # all other lines should be y coordinate then gridpoint data
+                else:  # all other lines should be y coordinate then gridpoint data
                     if not line.strip():
                         continue  # if the line is empty or whitespace, skip it
 
