@@ -403,8 +403,6 @@ class TestBathymetryGridData(TestGeomorphologyGridData):
 
         # make sure all of the types appear
         with subtests.test(f"moorpy soil set"):
-            # load the soil data
-            self.bathymetry.load_moorpy_soil(file_soil=file_soil)
             # print(f"DEBUG!!!!! material_data: {self.bathymetry.material_data}")
             umd = np.unique(self.bathymetry.material_data).tolist()
             for mv in ["mud_4", "mud_3", "mud_2", "mud_1", "mud_0"]:
@@ -417,10 +415,20 @@ class TestBathymetryGridData(TestGeomorphologyGridData):
             quantities_expected = ["Class", "Gamma", "Su0", "k", "alpha", "phi", "UCS", "Em"]
             units_expected = dict.fromkeys(
                 quantities_expected,
-                ["(name)", "(kN/m^3)", "(kPa)", "(kPa/m)", "(-)", "(deg)", "(MPa)", "(MPa)"],
+                ["name", "kN/m^3", "kPa", "kPa/m", "-", "deg", "MPa", "MPa"],
             )
 
             # make sure material types that appear match expected, unit storage
-            for mat_type in self.bathymetry.material_types.keys():
-                assert mat_type in quantities_expected
-                assert mat_type in self.bathymetry.material_type_units.keys()
+            for k, v in self.bathymetry.material_types.items():
+                for kv in v.keys():
+                    assert kv in quantities_expected  # expected values
+                    assert kv in self.bathymetry.material_type_units.keys()  # unit holder
+                for k_quantity in v.keys():  # each QoI for a material
+                    assert k_quantity in quantities_expected  # make sure the quantity is eqpected
+
+            # make sure the units for the thing match up
+            for k, v in units_expected.items():
+                assert k in self.bathymetry.material_type_units.keys()
+                assert self.bathymetry.material_type_units[k] in v
+
+

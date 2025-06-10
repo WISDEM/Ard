@@ -303,7 +303,7 @@ class BathymetryGridData(GeomorphologyGridData):
                     assert line.startswith("Class 		Gamma 	Su0 	k	alpha	phi	UCS	Em")
                 elif idx_line == (4 + nGridY + skip_lines + 2):  # soil types units
                     assert read_soiltypes
-                    sth_units = dict.fromkeys(sth, line.split())
+                    sth_units = dict(zip(sth, [v.strip('()') for v in line.split()]))
                     # for now I assume there's one specification for this
                     assert line.startswith("(name) 		(kN/m^3) (kPa) 	(kPa/m) (-) 	(deg) 	(MPa) 	(MPa)")
                 elif idx_line > (4 + nGridY + skip_lines + 2):
@@ -312,7 +312,7 @@ class BathymetryGridData(GeomorphologyGridData):
 
                     lv = line.split()  # line values
                     key = lv[0]  # get the mud type
-                    soil_types[key] = dict.fromkeys(sth, lv)
+                    soil_types[key] = dict(zip(sth, lv))
                 else:
                     if not line.strip():
                         skip_lines += 1
@@ -322,8 +322,8 @@ class BathymetryGridData(GeomorphologyGridData):
         # save into the geomorphology data object
         self.y_material_data, self.x_material_data = np.meshgrid(y_coord, x_coord)
         self.material_data = grid_soil
-        self.soil_types = soil_types
-        self.soil_type_units = sth_units
+        self.material_types = soil_types
+        self.material_type_units = sth_units
 
 
     def load_moorpy_bathymetry(self, file_bathymetry: PathLike):
