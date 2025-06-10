@@ -269,14 +269,18 @@ class BathymetryGridData(GeomorphologyGridData):
                     assert line.startswith("nGridY")  # guarantee this is the case
                     nGridY = int(line.split()[1])  # extract the number
                     y_coord = np.zeros((nGridY,))  # prepare a coord array
-                    grid_soil = np.empty((nGridX, nGridY), dtype='U64')  # prepare a grid
+                    grid_soil = np.empty(
+                        (nGridX, nGridY), dtype="U64"
+                    )  # prepare a grid
                     continue
                 elif idx_line == 3:  # next line should define the x coordinates
                     x_coord_tgt = [float(x) for x in line.split()]  # extract
                     assert len(x_coord_tgt) == nGridX  # verify length
                     x_coord = np.array(x_coord_tgt)  # convert to array
                     continue
-                elif idx_line < (3 + nGridY + skip_lines + 1):  # next lines should be y coordinate then gridpoint data
+                elif idx_line < (
+                    3 + nGridY + skip_lines + 1
+                ):  # next lines should be y coordinate then gridpoint data
                     assert read_grid
                     if not line.strip():
                         skip_lines += 1
@@ -303,12 +307,15 @@ class BathymetryGridData(GeomorphologyGridData):
                     assert line.startswith("Class 		Gamma 	Su0 	k	alpha	phi	UCS	Em")
                 elif idx_line == (4 + nGridY + skip_lines + 2):  # soil types units
                     assert read_soiltypes
-                    sth_units = dict(zip(sth, [v.strip('()') for v in line.split()]))
+                    sth_units = dict(zip(sth, [v.strip("()") for v in line.split()]))
                     # for now I assume there's one specification for this
-                    assert line.startswith("(name) 		(kN/m^3) (kPa) 	(kPa/m) (-) 	(deg) 	(MPa) 	(MPa)")
+                    assert line.startswith(
+                        "(name) 		(kN/m^3) (kPa) 	(kPa/m) (-) 	(deg) 	(MPa) 	(MPa)"
+                    )
                 elif idx_line > (4 + nGridY + skip_lines + 2):
                     assert read_soiltypes
-                    if line.startswith("------------------"): break  # last line
+                    if line.startswith("------------------"):
+                        break  # last line
 
                     lv = line.split()  # line values
                     key = lv[0]  # get the mud type
@@ -324,7 +331,6 @@ class BathymetryGridData(GeomorphologyGridData):
         self.material_data = grid_soil
         self.material_types = soil_types
         self.material_type_units = sth_units
-
 
     def load_moorpy_bathymetry(self, file_bathymetry: PathLike):
         """

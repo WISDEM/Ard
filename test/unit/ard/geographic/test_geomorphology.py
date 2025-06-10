@@ -390,8 +390,7 @@ class TestBathymetryGridData(TestGeomorphologyGridData):
             assert np.all(self.bathymetry.x_material_data.shape == np.array([100, 99]))
             assert np.all(self.bathymetry.y_material_data.shape == np.array([100, 99]))
 
-        # make sure the data matches the statistical properties of the original data
-
+        # make sure the data matches the some properties of the original data
         with subtests.test(f"moorpy soil coordinate checks: x min"):
             assert np.isclose(np.min(self.bathymetry.x_material_data), -4757.64)
         with subtests.test(f"moorpy soil coordinate checks: x max"):
@@ -400,6 +399,13 @@ class TestBathymetryGridData(TestGeomorphologyGridData):
             assert np.isclose(np.min(self.bathymetry.y_material_data), -4336.04)
         with subtests.test(f"moorpy soil coordinate checks: y max"):
             assert np.isclose(np.max(self.bathymetry.y_material_data), 3453.22)
+        with subtests.test(f"moorypy type count checks"):
+            assert int(np.sum(self.bathymetry.material_data == "mud_0")) == 646
+            assert int(np.sum(self.bathymetry.material_data == "mud_1")) == 2792
+            assert int(np.sum(self.bathymetry.material_data == "mud_2")) == 3090
+            assert int(np.sum(self.bathymetry.material_data == "mud_3")) == 2656
+            assert int(np.sum(self.bathymetry.material_data == "mud_4")) == 716
+        # purely making sure the data is coming in correctly
 
         # make sure all of the types appear
         with subtests.test(f"moorpy soil set"):
@@ -410,9 +416,19 @@ class TestBathymetryGridData(TestGeomorphologyGridData):
                 umd.remove(mv)
             assert not umd  # no extra entries
 
+        # make sure the types and their units are pulled out correctly
         with subtests.test(f"moorpy soil type headers"):
 
-            quantities_expected = ["Class", "Gamma", "Su0", "k", "alpha", "phi", "UCS", "Em"]
+            quantities_expected = [
+                "Class",
+                "Gamma",
+                "Su0",
+                "k",
+                "alpha",
+                "phi",
+                "UCS",
+                "Em",
+            ]
             units_expected = dict.fromkeys(
                 quantities_expected,
                 ["name", "kN/m^3", "kPa", "kPa/m", "-", "deg", "MPa", "MPa"],
@@ -422,13 +438,15 @@ class TestBathymetryGridData(TestGeomorphologyGridData):
             for k, v in self.bathymetry.material_types.items():
                 for kv in v.keys():
                     assert kv in quantities_expected  # expected values
-                    assert kv in self.bathymetry.material_type_units.keys()  # unit holder
+                    assert (
+                        kv in self.bathymetry.material_type_units.keys()
+                    )  # unit holder
                 for k_quantity in v.keys():  # each QoI for a material
-                    assert k_quantity in quantities_expected  # make sure the quantity is eqpected
+                    assert (
+                        k_quantity in quantities_expected
+                    )  # make sure the quantity is eqpected
 
             # make sure the units for the thing match up
             for k, v in units_expected.items():
                 assert k in self.bathymetry.material_type_units.keys()
                 assert self.bathymetry.material_type_units[k] in v
-
-
