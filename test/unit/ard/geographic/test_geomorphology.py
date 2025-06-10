@@ -40,7 +40,7 @@ class TestGeomorphologyGridData:
 
             # do a setup that should fail because of check_valid
             with subtests.test(f"check_valid bad build assertion test {idx_case}"):
-                with pytest.raises(AssertionError):
+                with pytest.raises(ValueError):
                     self.geomorphology.set_data_values(
                         x_data_in=(
                             x_data.copy() if idx_case != 0 else x_data.copy()[:1, :]
@@ -92,7 +92,7 @@ class TestGeomorphologyGridData:
 
             # make sure check valid raises an exception
             with subtests.test(f"check_valid bad override assertion test {idx_case}"):
-                with pytest.raises(AssertionError):
+                with pytest.raises(ValueError):
                     if idx_case == 3:
                         assert self.geomorphology.check_valid_material()
                     else:

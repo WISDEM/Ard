@@ -33,28 +33,29 @@ class GeomorphologyGridData:
     _interpolator_device = None  # placeholder for interpolator (for depth evaluation)
 
     def check_valid_geomorphology(self):
-        assert self.x_data.ndim == 2, "data must be 2D"  # make sure it's 2D first
+        if self.x_data.ndim != 2:
+            raise ValueError("data must be 2D")  # make sure it's 2D first
 
-        assert np.all(
-            self.x_data.shape == self.y_data.shape
-        ), "x and y data must be the same shape"
-        assert np.all(
-            self.x_data.shape == self.z_data.shape
-        ), "x and depth data must be the same shape"
+        if not np.all(self.x_data.shape == self.y_data.shape):
+            raise ValueError("x and y data must be the same shape")
+        if not np.all(self.x_data.shape == self.z_data.shape):
+            raise ValueError("x and depth data must be the same shape")
 
         return True
 
     def check_valid_material(self):
-        assert (
-            self.x_material_data.ndim == 2
-        ), "data must be 2D"  # make sure it's 2D first
+        if self.x_material_data.ndim != 2:
+            raise ValueError("data must be 2D")  # make sure it's 2D first
 
-        assert np.all(
-            self.x_material_data.shape == self.y_material_data.shape
-        ), "x and y material data must be the same shape"
-        assert np.all(self.x_material_data.shape == self.material_data.shape) or (
-            self.material_data.size == 1
-        ), "x and material data must be the same shape or material data must be a singleton"
+        if not np.all(self.x_material_data.shape == self.y_material_data.shape):
+            raise ValueError("x and y material data must be the same shape")
+        if not (
+            np.all(self.x_material_data.shape == self.material_data.shape)
+            or (self.material_data.size == 1)
+        ):
+            raise ValueError(
+                "x and material data must be the same shape or material data must be a singleton"
+            )
 
         return True
 
@@ -192,9 +193,8 @@ class GeomorphologyGridData:
                 )
             else:
                 # assert the interpolator is of the smoothbivariate spline type or its parent class
-                assert isinstance(
-                    self._interpolator_device, SmoothBivariateSpline
-                ), "interpolator must be a SmoothBivariateSpline"
+                if not isinstance(self._interpolator_device, SmoothBivariateSpline):
+                    raise TypeError("interpolator must be a SmoothBivariateSpline")
                 # alias
                 interpolator_sbs = self._interpolator_device
 
@@ -257,16 +257,21 @@ class BathymetryGridData(GeomorphologyGridData):
             for idx_line, line in enumerate(f_soil.readlines()):
 
                 if idx_line == 0:  # moorpy header line must be first
-                    assert line.startswith("--- MoorPy Soil Input File ---")
+                    if not line.startswith("--- MoorPy Soil Input File ---"):
+                        raise IOError(
+                            "First line must start with '--- MoorPy Soil Input File ---'"
+                        )
                     read_grid = True
                     continue
                 elif idx_line == 1:  # next line defines the grid size in x
-                    assert line.startswith("nGridX")  # guarantee this is the case
+                    if not line.startswith("nGridX"):
+                        raise IOError("Second line must start with 'nGridX'")
                     nGridX = int(line.split()[1])  # extract the number
                     x_coord = np.zeros((nGridX,))  # prepare a coord array
                     continue
                 elif idx_line == 2:  # next line defines the grid size in y
-                    assert line.startswith("nGridY")  # guarantee this is the case
+                    if not line.startswith("nGridY"):
+                        raise IOError("Third line must start with 'nGridY'")
                     nGridY = int(line.split()[1])  # extract the number
                     y_coord = np.zeros((nGridY,))  # prepare a coord array
                     grid_soil = np.empty(
@@ -275,13 +280,15 @@ class BathymetryGridData(GeomorphologyGridData):
                     continue
                 elif idx_line == 3:  # next line should define the x coordinates
                     x_coord_tgt = [float(x) for x in line.split()]  # extract
-                    assert len(x_coord_tgt) == nGridX  # verify length
+                    if len(x_coord_tgt) != nGridX:
+                        raise IOError("Number of x coordinates does not match nGridX")
                     x_coord = np.array(x_coord_tgt)  # convert to array
                     continue
                 elif idx_line < (
                     3 + nGridY + skip_lines + 1
                 ):  # next lines should be y coordinate then gridpoint data
-                    assert read_grid
+                    if not read_grid:
+                        raise IOError("Grid reading mode not enabled when expected")
                     if not line.strip():
                         skip_lines += 1
                         continue  # if the line is empty or whitespace, skip it
@@ -290,30 +297,48 @@ class BathymetryGridData(GeomorphologyGridData):
                     soil_row_tgt = [
                         str(b) for b in line.split()[1:]
                     ]  # extract the bathymetry data
-                    assert len(soil_row_tgt) == nGridX  # verify length
+                    if len(soil_row_tgt) != nGridX:
+                        raise IOError(
+                            "Number of soil data entries does not match nGridX"
+                        )
                     y_coord[idx_y] = y_coord_tgt  # set the y coordinate
                     grid_soil[:, idx_y] = soil_row_tgt  # set the bathymetry data
                     idx_y += 1  # increment the y indexer
                 elif idx_line == (4 + nGridY + skip_lines):  # soil types line
-                    assert line.startswith("--- SOIL TYPES ---")
-                    assert read_grid  # should be coming out of grid-reading mode
+                    if not line.startswith("--- SOIL TYPES ---"):
+                        raise IOError("Expected '--- SOIL TYPES ---' line")
+                    if not read_grid:
+                        raise IOError(
+                            "Expected to be in grid reading mode before soil types"
+                        )
                     read_grid = False
                     read_soiltypes = True
                     continue
                 elif idx_line == (4 + nGridY + skip_lines + 1):  # soil type header
-                    assert read_soiltypes
+                    if not read_soiltypes:
+                        raise IOError(
+                            "Soil types reading mode not enabled when expected"
+                        )
                     sth = line.split()
                     # for now I assume there's one specification for this
-                    assert line.startswith("Class 		Gamma 	Su0 	k	alpha	phi	UCS	Em")
+                    if not line.startswith("Class 		Gamma 	Su0 	k	alpha	phi	UCS	Em"):
+                        raise IOError("Soil type header line format is incorrect")
                 elif idx_line == (4 + nGridY + skip_lines + 2):  # soil types units
-                    assert read_soiltypes
+                    if not read_soiltypes:
+                        raise IOError(
+                            "Soil types reading mode not enabled when expected"
+                        )
                     sth_units = dict(zip(sth, [v.strip("()") for v in line.split()]))
                     # for now I assume there's one specification for this
-                    assert line.startswith(
+                    if not line.startswith(
                         "(name) 		(kN/m^3) (kPa) 	(kPa/m) (-) 	(deg) 	(MPa) 	(MPa)"
-                    )
+                    ):
+                        raise IOError("Soil type units line format is incorrect")
                 elif idx_line > (4 + nGridY + skip_lines + 2):
-                    assert read_soiltypes
+                    if not read_soiltypes:
+                        raise IOError(
+                            "Soil types reading mode not enabled when expected"
+                        )
                     if line.startswith("------------------"):
                         break  # last line
 
@@ -324,7 +349,7 @@ class BathymetryGridData(GeomorphologyGridData):
                     if not line.strip():
                         skip_lines += 1
                         continue  # if the line is empty or whitespace, skip it
-                    raise IndexError(f"LINE {idx_line} failed to be handled.")
+                    raise IOError(f"LINE {idx_line} failed to be handled.")
 
         # save into the geomorphology data object
         self.y_material_data, self.x_material_data = np.meshgrid(y_coord, x_coord)
@@ -357,22 +382,28 @@ class BathymetryGridData(GeomorphologyGridData):
             for idx_line, line in enumerate(f_bathy.readlines()):
 
                 if idx_line == 0:  # moorpy header line must be first
-                    assert line.startswith("--- MoorPy Bathymetry Input File ---")
+                    if not line.startswith("--- MoorPy Bathymetry Input File ---"):
+                        raise IOError(
+                            "First line must start with '--- MoorPy Bathymetry Input File ---'"
+                        )
                     continue
                 elif idx_line == 1:  # next line defines the grid size in x
-                    assert line.startswith("nGridX")  # guarantee this is the case
+                    if not line.startswith("nGridX"):
+                        raise IOError("Second line must start with 'nGridX'")
                     nGridX = int(line.split()[1])  # extract the number
                     x_coord = np.zeros((nGridX,))  # prepare a coord array
                     continue
                 elif idx_line == 2:  # next line defines the grid size in y
-                    assert line.startswith("nGridY")  # guarantee this is the case
+                    if not line.startswith("nGridY"):
+                        raise IOError("Third line must start with 'nGridY'")
                     nGridY = int(line.split()[1])  # extract the number
                     y_coord = np.zeros((nGridY,))  # prepare a coord array
                     grid_bathy = np.zeros((nGridX, nGridY))  # prepare a grid
                     continue
                 elif idx_line == 3:  # next line should define the x coordinates
                     x_coord_tgt = [float(x) for x in line.split()]  # extract
-                    assert len(x_coord_tgt) == nGridX  # verify length
+                    if len(x_coord_tgt) != nGridX:
+                        raise IOError("Number of x coordinates does not match nGridX")
                     x_coord = np.array(x_coord_tgt)  # convert to array
                     continue
                 else:  # all other lines should be y coordinate then gridpoint data
@@ -383,11 +414,15 @@ class BathymetryGridData(GeomorphologyGridData):
                     bathy_row_tgt = [
                         float(b) for b in line.split()[1:]
                     ]  # extract the bathymetry data
-                    assert len(bathy_row_tgt) == nGridX  # verify length
+                    if len(bathy_row_tgt) != nGridX:
+                        raise IOError(
+                            "Number of bathymetry data entries does not match nGridX"
+                        )
                     y_coord[idx_y] = y_coord_tgt  # set the y coordinate
                     grid_bathy[:, idx_y] = bathy_row_tgt  # set the bathymetry data
                     idx_y += 1  # increment the y indexer
-            assert idx_y == nGridY  # verify that all y coordinates were read
+            if idx_y != nGridY:
+                raise IOError("Number of y coordinates read does not match nGridY")
 
         # save into the geomorphology data object
         self.y_data, self.x_data = np.meshgrid(y_coord, x_coord)
