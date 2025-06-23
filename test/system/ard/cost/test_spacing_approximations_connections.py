@@ -4,7 +4,7 @@ import openmdao.api as om
 
 import ard
 import ard.utils.io
-from ard.cost.approximate_turbine_spacing import LandBOSSEWithSpacingApproximations
+from ard.cost.wisdem_wrap import LandBOSSEWithSpacingApproximations
 
 
 class TestLandBOSSEWithSpacingApproximations:

@@ -41,7 +41,7 @@ dependencies = [
   "openmdao",
   "shapely",
   "jax",
-  "optiwindnet",
+  "optiwindnet[test]==0.0.2",
   "highspy",
 ]
 [project.optional-dependencies]

@@ -1,14 +1,14 @@
 import numpy as np
 import pytest
-import jax
+from jax import grad, test_util
 import jax.numpy as jnp
 import ard.utils.mathematics as math_utils
 
 
 class TestSmoothMaxMin:
     def setup_method(self):
-        self.smooth_max_grad = jax.grad(math_utils.smooth_max)
-        self.smooth_min_grad = jax.grad(math_utils.smooth_min)
+        self.smooth_max_grad = grad(math_utils.smooth_max)
+        self.smooth_min_grad = grad(math_utils.smooth_min)
         pass
 
     def test_smooth_max_close(self):
@@ -67,7 +67,7 @@ class TestSmoothMaxMin:
         assert test_result == pytest.approx([0, 0, 1, 0], rel=1e-6)
 
         try:
-            jax.test_util.check_grads(math_utils.smooth_max, ([test_list]), order=1)
+            test_util.check_grads(math_utils.smooth_max, ([test_list]), order=1)
         except AssertionError:
             pytest.fail(
                 "Unexpected AssertionError when checking gradients, gradients may be incorrect"
@@ -87,8 +87,8 @@ class TestSmoothMaxMin:
 
 class TestSmoothNorm:
     def setup_method(self):
-        self.smooth_norm_grad = jax.grad(math_utils.smooth_norm, [0])
-        self.norm_grad = jax.grad(jnp.linalg.norm, [0])
+        self.smooth_norm_grad = grad(math_utils.smooth_norm, [0])
+        self.norm_grad = grad(jnp.linalg.norm, [0])
         pass
 
     def test_smooth_norm_large_values(self):

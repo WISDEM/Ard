@@ -43,7 +43,7 @@ class TestLandBOSSE:
         )
         self.landbosse = self.model.add_subsystem(
             "landbosse",
-            wcost.LandBOSSE(),
+            wcost.LandBOSSEArdComp(),
         )
         self.model.connect(  # effective primary spacing for BOS
             "spacing_effective_primary", "landbosse.turbine_spacing_rotor_diameters"
@@ -174,3 +174,26 @@ class TestOperatingExpenses:
 
     def setup_method(self):
         pass
+
+
+class TestSetValues:
+
+    def setup_method(self):
+
+        # build paraboloid model for testing
+        prob = om.Problem()
+        prob.model.add_subsystem(
+            "paraboloid", om.ExecComp("f = (x-3)**2 + x*y + (y+4)**2 - 3")
+        )
+        prob.setup()
+
+        # Set initial values.
+        wcost.set_values(prob, {"x": 3.0, "y": -4.0})
+
+        self.prob = prob
+
+    def test_x(self):
+        assert self.prob["paraboloid.x"] == 3.0
+
+    def test_y(self):
+        assert self.prob["paraboloid.y"] == -4.0
