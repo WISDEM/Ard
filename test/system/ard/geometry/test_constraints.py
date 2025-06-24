@@ -224,7 +224,8 @@ class TestConstraints:
         spacing_target_validation = 5.46721656  # from a run on 24 June 2025
         area_target_validation = 10.49498327  # from a run on 24 June 2025
         with subtests.test("validation spacing matches"):
-            assert np.isclose(self.prob.get_val("spacing_target"), spacing_target_validation)
+            assert np.isclose(
+                self.prob.get_val("spacing_target"), spacing_target_validation
+            )
         with subtests.test("validation area matches"):
             assert np.isclose(self.prob.get_val("area_tight"), area_target_validation)
-
