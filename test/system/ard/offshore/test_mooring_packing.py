@@ -146,8 +146,17 @@ class TestMooringPacking:
 
         # compute the derivatives
         totals = self.prob.compute_totals(
-            of=["mooring_constraint.mooring_spacing", "spacing_constraint.turbine_spacing"],
-            wrt=["spacing_primary", "spacing_secondary", "angle_orientation", "angle_skew", "phi_platform"],
+            of=[
+                "mooring_constraint.mooring_spacing",
+                "spacing_constraint.turbine_spacing",
+            ],
+            wrt=[
+                "spacing_primary",
+                "spacing_secondary",
+                "angle_orientation",
+                "angle_skew",
+                "phi_platform",
+            ],
         )
         print(totals)
 
