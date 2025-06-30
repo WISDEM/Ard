@@ -86,7 +86,7 @@ class TestConstraints:
         self.prob.setup()
 
     def test_constraint_evaluation(self, subtests):
-        """test one-shot evaluation of contraint distances (no derivatives)"""
+        """test one-shot evaluation of constraint distances (no derivatives)"""
 
         # loop over validation cases
         for spacing in [2.0, 5.0, 7.0]:
