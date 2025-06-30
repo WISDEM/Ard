@@ -3,6 +3,7 @@ from pathlib import Path
 import numpy as np
 
 import openmdao.api as om
+from openmdao.utils.assert_utils import assert_check_totals
 
 import pytest
 
@@ -158,8 +159,8 @@ class TestMooringPacking:
             ],
         )
 
-        # check total derivatives using OpenMDAO's check_totals
-        deriv_check = self.prob.check_totals(
+        # check total derivatives using OpenMDAO's check_totals and assert tools
+        assert_check_totals(self.prob.check_totals(
             of=[
                 "mooring_constraint.mooring_spacing",
                 "spacing_constraint.turbine_spacing",
@@ -174,14 +175,7 @@ class TestMooringPacking:
             step=1e-6,
             form="central",
             show_only_incorrect=False,
-            compact_print=True,
-        )
-
-        # optionally, assert that the analytic and finite difference derivatives are close
-        for out_var, in_var in deriv_check.keys():
-            analytic = deriv_check[(out_var, in_var)]["J_fwd"]
-            fd = deriv_check[(out_var, in_var)]["J_fd"]
-            np.testing.assert_allclose(analytic, fd, rtol=1e-5, atol=1e-8)
-
+            out_stream=None,
+        ))
 
 # FIN!
