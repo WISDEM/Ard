@@ -128,7 +128,7 @@ class TestMooringPacking:
         self.prob.driver = om.ScipyOptimizeDriver(optimizer="SLSQP")
         self.prob.driver.options["maxiter"] = 50  # short run
 
-        # setupt the problem
+        # setup the problem
         self.prob.setup()
 
         # set up the variables
