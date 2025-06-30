@@ -160,22 +160,25 @@ class TestMooringPacking:
         )
 
         # check total derivatives using OpenMDAO's check_totals and assert tools
-        assert_check_totals(self.prob.check_totals(
-            of=[
-                "mooring_constraint.mooring_spacing",
-                "spacing_constraint.turbine_spacing",
-            ],
-            wrt=[
-                "spacing_primary",
-                "spacing_secondary",
-                "angle_orientation",
-                "angle_skew",
-                "phi_platform",
-            ],
-            step=1e-6,
-            form="central",
-            show_only_incorrect=False,
-            out_stream=None,
-        ))
+        assert_check_totals(
+            self.prob.check_totals(
+                of=[
+                    "mooring_constraint.mooring_spacing",
+                    "spacing_constraint.turbine_spacing",
+                ],
+                wrt=[
+                    "spacing_primary",
+                    "spacing_secondary",
+                    "angle_orientation",
+                    "angle_skew",
+                    "phi_platform",
+                ],
+                step=1e-6,
+                form="central",
+                show_only_incorrect=False,
+                out_stream=None,
+            )
+        )
+
 
 # FIN!
