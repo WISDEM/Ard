@@ -158,11 +158,31 @@ class TestMooringPacking:
                 "phi_platform",
             ],
         )
-        print(totals)
 
-        # not sure what to do here... pyrite test or what?
+        # check total derivatives using OpenMDAO's check_totals
+        deriv_check = self.prob.check_totals(
+            of=[
+                "mooring_constraint.mooring_spacing",
+                "spacing_constraint.turbine_spacing",
+            ],
+            wrt=[
+                "spacing_primary",
+                "spacing_secondary",
+                "angle_orientation",
+                "angle_skew",
+                "phi_platform",
+            ],
+            step=1e-6,
+            form="central",
+            show_only_incorrect=False,
+            compact_print=True,
+        )
 
-        raise NotImplementedError("finish me!")
+        # optionally, assert that the analytic and finite difference derivatives are close
+        for out_var, in_var in deriv_check.keys():
+                analytic = deriv_check[(out_var, in_var)]['J_fwd']
+                fd = deriv_check[(out_var, in_var)]['J_fd']
+                np.testing.assert_allclose(analytic, fd, rtol=1e-5, atol=1e-8)
 
 
 # FIN!
