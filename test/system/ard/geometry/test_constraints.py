@@ -2,8 +2,6 @@ from pathlib import Path
 
 import numpy as np
 
-# import matplotlib.pyplot as plt
-
 import openmdao.api as om
 
 import pytest
@@ -86,7 +84,7 @@ class TestConstraints:
         self.prob.setup()
 
     def test_constraint_evaluation(self, subtests):
-        """test one-shot evaluation of contraint distances (no derivatives)"""
+        """test one-shot evaluation of constraint distances (no derivatives)"""
 
         # loop over validation cases
         for spacing in [2.0, 5.0, 7.0]:
@@ -122,7 +120,7 @@ class TestConstraints:
         self.prob.driver = om.ScipyOptimizeDriver(optimizer="SLSQP")
         self.prob.driver.options["maxiter"] = 10  # short run
 
-        # setupt the problem
+        # setup the problem
         self.prob.setup()
 
         # set up the working/design variables
