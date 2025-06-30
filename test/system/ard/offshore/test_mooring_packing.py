@@ -180,9 +180,9 @@ class TestMooringPacking:
 
         # optionally, assert that the analytic and finite difference derivatives are close
         for out_var, in_var in deriv_check.keys():
-                analytic = deriv_check[(out_var, in_var)]['J_fwd']
-                fd = deriv_check[(out_var, in_var)]['J_fd']
-                np.testing.assert_allclose(analytic, fd, rtol=1e-5, atol=1e-8)
+            analytic = deriv_check[(out_var, in_var)]["J_fwd"]
+            fd = deriv_check[(out_var, in_var)]["J_fd"]
+            np.testing.assert_allclose(analytic, fd, rtol=1e-5, atol=1e-8)
 
 
 # FIN!
