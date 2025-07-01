@@ -12,6 +12,7 @@ from wisdem.optimization_drivers.nlopt_driver import NLoptDriver
 
 import optiwindnet.plotting
 import ard
+import ard.cost.orbit_wrap
 import ard.glue.prototype as glue
 import ard.layout.spacing
 
@@ -197,7 +198,8 @@ model.add_subsystem(  # turbine capital costs component
 if modeling_options["offshore"]:
     model.add_subsystem(  # Orbit component
         "orbit",
-        ard.cost.wisdem_wrap.ORBIT(floating=True),
+        ard.cost.orbit_wrap.ORBITDetail(floating=True),
+        # ard.cost.wisdem_wrap.ORBIT(floating=True),
     )
     model.connect(  # effective primary spacing for BOS
         "spacing_effective_primary", "orbit.plant_turbine_spacing"
