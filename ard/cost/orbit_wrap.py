@@ -13,8 +13,10 @@ from ORBIT.core.library import initialize_library
 
 def generate_orbit_location_from_graph(
     graph_pyomo,
-    X_turbines, Y_turbines,
-    X_substations, Y_substations,
+    X_turbines,
+    Y_turbines,
+    X_substations,
+    Y_substations,
 ):
 
     # get all edges, sorted by the first node then the second node
@@ -41,7 +43,9 @@ def generate_orbit_location_from_graph(
     order = 0
     for edge in edges_inclsub:  # every edge w/ a substation starts a string
 
-        def handle_edge(edge, turbine_origination, idx_string, order, recursion_level=0):
+        def handle_edge(
+            edge, turbine_origination, idx_string, order, recursion_level=0
+        ):
             # recursively handle the edges
 
             if recursion_level > 10:  # for safe recursion
@@ -727,8 +731,10 @@ class ORBITWisdemDetail(orbit_wisdem.OrbitWisdem):
         # generate the csv data needed to locate the farm elements
         generate_orbit_location_from_graph(
             discrete_inputs["graph"],
-            inputs["x_turbines"], inputs["y_turbines"],
-            inputs["x_substations"], inputs["y_substations"],
+            inputs["x_turbines"],
+            inputs["y_turbines"],
+            inputs["x_substations"],
+            inputs["y_substations"],
         ).to_csv(path_farm_location, index=False)
 
         print(f"\nBEGIN DEBUG!!!!!")
