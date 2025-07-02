@@ -4,7 +4,7 @@ import numpy as np
 import openmdao.api as om
 from wisdem.plant_financese.plant_finance import PlantFinance as PlantFinance_orig
 from wisdem.landbosse.landbosse_omdao.landbosse import LandBOSSE as LandBOSSE_orig
-from wisdem.orbit.api.wisdem import Orbit as Orbit_orig
+from wisdem.orbit.orbit_api import Orbit as Orbit_orig
 
 from ard.cost.approximate_turbine_spacing import SpacingApproximations
 
