@@ -35,7 +35,7 @@ classifiers = [
 dependencies = [
   "numpy<2.3",
   "floris>=4.3",
-  "wisdem==3.18.1",
+  "wisdem",
   "NLopt",
   "marmot-agents",
   "openmdao",
