@@ -50,7 +50,9 @@ def pyrite_validator(
                 )
                 print(f"\tto a tolerance of {rtol_val:e}", file=sys.stderr)
                 print(f"pyrite data for {k}: {v}", file=sys.stderr)
-                print(f"computed data for {k}: {data_for_validation[k]}", file=sys.stderr)
+                print(
+                    f"computed data for {k}: {data_for_validation[k]}", file=sys.stderr
+                )
                 stack = traceback.format_stack(limit=3)
                 print("".join(stack[-2]).replace("  File", "test:"), file=sys.stderr)
                 print(file=sys.stderr)
