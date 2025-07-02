@@ -150,6 +150,7 @@ model.add_subsystem(  # collection component
     ard.collection.optiwindnetCollection(
         modeling_options=modeling_options,
     ),
+    promotes=["x_substations", "y_substations"],
 )
 model.connect("layout2aep.x_turbines", "optiwindnet_coll.x_turbines")
 model.connect("layout2aep.y_turbines", "optiwindnet_coll.y_turbines")
@@ -198,15 +199,17 @@ model.add_subsystem(  # turbine capital costs component
 if modeling_options["offshore"]:
     model.add_subsystem(  # Orbit component
         "orbit",
-        ard.cost.orbit_wrap.ORBITDetail(floating=True),
+        ard.cost.orbit_wrap.ORBITDetail(
+            modeling_options=modeling_options,
+            floating=True,
+        ),
         # ard.cost.wisdem_wrap.ORBIT(floating=True),
+        promotes=["x_substations", "y_substations"],
     )
-    model.connect(  # effective primary spacing for BOS
-        "spacing_effective_primary", "orbit.plant_turbine_spacing"
-    )
-    model.connect(  # effective secondary spacing for BOS
-        "spacing_effective_secondary", "orbit.plant_row_spacing"
-    )
+    model.connect("layout2aep.x_turbines", "orbit.x_turbines")
+    model.connect("layout2aep.y_turbines", "orbit.y_turbines")
+    model.connect("optiwindnet_coll.graph", "orbit.graph")
+
 else:
     model.add_subsystem(  # LandBOSSE component
         "landbosse",
@@ -248,6 +251,9 @@ if modeling_options["offshore"]:
 else:
     model.connect("landbosse.total_capex_kW", "financese.bos_per_kW")
 
+model.set_input_defaults("x_substations", units="km")
+model.set_input_defaults("y_substations", units="km")
+
 # build out the problem based on this model
 prob = om.Problem(model)
 prob.setup()
@@ -263,8 +269,8 @@ prob.set_val("spacing_secondary", 7.0)
 prob.set_val("angle_orientation", 0.0)
 prob.set_val("angle_skew", 0.0)
 
-prob.set_val("optiwindnet_coll.x_substations", [100.0])
-prob.set_val("optiwindnet_coll.y_substations", [100.0])
+prob.set_val("x_substations", [0.100])
+prob.set_val("y_substations", [0.100])
 
 # run the model
 prob.run_model()
@@ -333,8 +339,8 @@ if optimize:
     prob.set_val("angle_orientation", 0.0)
     prob.set_val("angle_skew", 0.0)
 
-    prob.set_val("optiwindnet_coll.x_substations", [100.0])
-    prob.set_val("optiwindnet_coll.y_substations", [100.0])
+    prob.set_val("x_substations", [100.0])
+    prob.set_val("y_substations", [100.0])
 
     # run the optimization
     prob.run_driver()
