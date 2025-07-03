@@ -696,21 +696,42 @@ class ORBITWisdemDetail(orbit_wisdem.OrbitWisdem):
                 f"Can not find default ORBIT library at {path_library_default}."
             )
 
-        # remove the grid plant option, and replace with a custom plant
-        del config["plant"]
-        config["plant"] = {
-            "layout": "custom",
-            "num_turbines": int(discrete_inputs["number_of_turbines"]),
-        }
+        nerfed = False
+        if not nerfed:
+            # remove the grid plant option, and replace with a custom plant
+            del config["plant"]
+            config["plant"] = {
+                "layout": "custom",
+                "num_turbines": int(discrete_inputs["number_of_turbines"]),
+            }
 
-        # switch to the custom array system design
-        if not ("ArraySystemDesign" in config["design_phases"]):
-            raise KeyError(
-                "I assumed that 'ArraySystemDesign' would be in the config. Something changed."
-            )
-        config["design_phases"][
-            config["design_phases"].index("ArraySystemDesign")
-        ] = "CustomArraySystemDesign"
+            # switch to the custom array system design
+            if not ("ArraySystemDesign" in config["design_phases"]):
+                raise KeyError(
+                    "I assumed that 'ArraySystemDesign' would be in the config. Something changed."
+                )
+            config["design_phases"][
+                config["design_phases"].index("ArraySystemDesign")
+            ] = "CustomArraySystemDesign"
+
+        debug = True
+        if debug:
+            #  'install_phases': {'ArrayCableInstallation': ('MooredSubInstallation', 0.25),
+            #         'ExportCableInstallation': 0,
+            #         'MooredSubInstallation': ('MooringSystemInstallation',
+            #                                   0.25),
+            #         'MooringSystemInstallation': 0,
+            #         'OffshoreSubstationInstallation': 0},
+            config["design_phases"] = [
+                "CustomArraySystemDesign",
+            ]
+            config["install_phases"] = [
+                'ArrayCableInstallation',
+                # 'ExportCableInstallation',
+                # 'MooredSubInstallation',
+                # 'MooringSystemInstallation',
+                # 'OffshoreSubstationInstallation',
+            ]
 
         # add a turbine location csv on the config
         basename_farm_location = "wisdem_detailed_array"
@@ -719,9 +740,9 @@ class ORBITWisdemDetail(orbit_wisdem.OrbitWisdem):
         config["array_system_design"]["cables"] = [
             # "XLPE_185mm_66kV_dynamic",
             "XLPE_500mm_132kV_dynamic",
-            # "XLPE_630mm_66kV_dynamic",
-            "XLPE_1000mm_220kV_dynamic",
-        ]  # we require bigger cables
+            "XLPE_630mm_66kV_dynamic",
+            # "XLPE_1000mm_220kV_dynamic",
+        ]  # we require bigger cables, I think
 
         # create the csv file that holds the farm layout
         path_farm_location = (
@@ -766,7 +787,12 @@ class ORBITWisdemDetail(orbit_wisdem.OrbitWisdem):
         project = ProjectManager(config)
         project.run()
         print(f"DEBUG!!!!! project location: {project}")
-        project.array.plot_array_system(show=True)  # DEBUG!!!!!
+
+        # if "ArraySystemDesign" in project._phases.keys():
+        #     project._phases["ArraySystemDesign"].plot_array_system(show=True)
+        # else:
+        #     project._phases["CustomArraySystemDesign"].plot_array_system(show=True)
+        # assert False
 
         # The ORBIT version of total_capex includes turbine capex, so we do our own sum of
         # the parts here that wisdem doesn't account for
