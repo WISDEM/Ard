@@ -9,6 +9,7 @@ from ORBIT import ProjectManager
 from ORBIT.core.library import default_library
 from ORBIT.core.library import initialize_library
 
+
 def generate_orbit_location_from_graph(
     graph_pyomo,
     X_turbines,
@@ -98,8 +99,8 @@ def generate_orbit_location_from_graph(
             data_orbit["id"].append(substation_id)
             data_orbit["substation_id"].append(substation_id)
             data_orbit["name"].append(substation_name)
-            data_orbit["longitude"].append(X_substations[substation_index]/1.0e3)
-            data_orbit["latitude"].append(Y_substations[substation_index]/1.0e3)
+            data_orbit["longitude"].append(X_substations[substation_index] / 1.0e3)
+            data_orbit["latitude"].append(Y_substations[substation_index] / 1.0e3)
             data_orbit["string"].append(None)
             data_orbit["order"].append(None)
             data_orbit["cable_length"].append(None)
