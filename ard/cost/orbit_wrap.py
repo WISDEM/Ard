@@ -1,6 +1,7 @@
 from pathlib import Path
 from pprint import pprint
 import shutil
+import yaml
 
 import numpy as np
 import pandas as pd
@@ -10,6 +11,8 @@ from ORBIT import ProjectManager
 from ORBIT.core.library import default_library
 from ORBIT.core.library import initialize_library
 
+# import optiwindnet.plotting  # DEBUG!!!!!
+# import matplotlib.pyplot as plt  # DEBUG!!!!!
 
 def generate_orbit_location_from_graph(
     graph_pyomo,
@@ -18,6 +21,11 @@ def generate_orbit_location_from_graph(
     X_substations,
     Y_substations,
 ):
+
+    # print(f"DEBUG!!!!! X_turbines: {X_turbines}")
+    # print(f"DEBUG!!!!! X_substations: {X_substations}")
+    # optiwindnet.plotting.gplot(graph_pyomo)  # DEBUG!!!!!
+    # plt.show()  # DEBUG!!!!!
 
     # get all edges, sorted by the first node then the second node
     edges_to_process = [edge for edge in graph_pyomo.edges]
@@ -41,6 +49,8 @@ def generate_orbit_location_from_graph(
 
     idx_string = 0
     order = 0
+
+    # print(f"DEBUG!!!!! edges: {edges_to_process}")
     for edge in edges_inclsub:  # every edge w/ a substation starts a string
 
         def handle_edge(
@@ -55,6 +65,8 @@ def generate_orbit_location_from_graph(
             turbine_tgt_index = edge[0] if edge[0] != turbine_origination else edge[1]
             # get the turbine name
             turbine_name = turbine_id = f"t{turbine_tgt_index:03d}"
+
+            # print(f"DEBUG!!!!! working edge: {edge}, turbine target index: {turbine_tgt_index}")
 
             # add the turbine to the dataset
             data_orbit["id"].append(turbine_id)
@@ -101,8 +113,8 @@ def generate_orbit_location_from_graph(
             data_orbit["id"].append(substation_id)
             data_orbit["substation_id"].append(substation_id)
             data_orbit["name"].append(substation_name)
-            data_orbit["longitude"].append(X_substations[substation_index])
-            data_orbit["latitude"].append(Y_substations[substation_index])
+            data_orbit["longitude"].append(X_substations[substation_index]/1.0e3)
+            data_orbit["latitude"].append(Y_substations[substation_index]/1.0e3)
             data_orbit["string"].append(None)
             data_orbit["order"].append(None)
             data_orbit["cable_length"].append(None)
@@ -696,10 +708,16 @@ class ORBITWisdemDetail(orbit_wisdem.OrbitWisdem):
                 f"Can not find default ORBIT library at {path_library_default}."
             )
 
-        nerfed = False
+        # # hack example cable lay vessel to be able to work with up to the IEA22
+        # cable_lay_vessel_path = self._path_library / "vessels" / "example_cable_lay_vessel.yaml"
+        # # read the YAML file, overwrite the spool capacity value, write the yaml back
+        # with open(cable_lay_vessel_path, "r") as f: vessel_data = yaml.safe_load(f)
+        # vessel_data["cable_storage"]["max_mass"] = 26000
+        # with open(cable_lay_vessel_path, "w") as f: yaml.safe_dump(vessel_data, f)
+
+        nerfed = True
         if not nerfed:
             # remove the grid plant option, and replace with a custom plant
-            del config["plant"]
             config["plant"] = {
                 "layout": "custom",
                 "num_turbines": int(discrete_inputs["number_of_turbines"]),
@@ -714,34 +732,36 @@ class ORBITWisdemDetail(orbit_wisdem.OrbitWisdem):
                 config["design_phases"].index("ArraySystemDesign")
             ] = "CustomArraySystemDesign"
 
-        debug = True
-        if debug:
-            #  'install_phases': {'ArrayCableInstallation': ('MooredSubInstallation', 0.25),
-            #         'ExportCableInstallation': 0,
-            #         'MooredSubInstallation': ('MooringSystemInstallation',
-            #                                   0.25),
-            #         'MooringSystemInstallation': 0,
-            #         'OffshoreSubstationInstallation': 0},
-            config["design_phases"] = [
-                "CustomArraySystemDesign",
-            ]
-            config["install_phases"] = [
-                'ArrayCableInstallation',
-                # 'ExportCableInstallation',
-                # 'MooredSubInstallation',
-                # 'MooringSystemInstallation',
-                # 'OffshoreSubstationInstallation',
-            ]
-
         # add a turbine location csv on the config
         basename_farm_location = "wisdem_detailed_array"
         config["array_system_design"]["distance"] = True  # don't use WGS84 lat/long
         config["array_system_design"]["location_data"] = basename_farm_location
         config["array_system_design"]["cables"] = [
-            # "XLPE_185mm_66kV_dynamic",
+            "XLPE_185mm_66kV_dynamic",
             "XLPE_500mm_132kV_dynamic",
             "XLPE_630mm_66kV_dynamic",
+            "XLPE_1000mm_220kV_dynamic",
+            # "HVDC_2000mm_320kV",
+            # "HVDC_2000mm_320kV_dynamic",
+            # "HVDC_2000mm_400kV",
+            # "HVDC_2500mm_525kV",
+            # "XLPE_1000mm_220kV",
             # "XLPE_1000mm_220kV_dynamic",
+            # "XLPE_1200mm_220kV",
+            # "XLPE_1200mm_275kV",
+            # "XLPE_1600mm_275kV",
+            # "XLPE_185mm_66kV",
+            # "XLPE_185mm_66kV_dynamic",
+            # "XLPE_1900mm_275kV",
+            # "XLPE_400mm_33kV",
+            # "XLPE_500mm_132kV",
+            # "XLPE_500mm_132kV_dynamic",
+            # "XLPE_500mm_220kV",
+            # "XLPE_630mm_220kV",
+            # "XLPE_630mm_33kV",
+            # "XLPE_630mm_66kV",
+            # "XLPE_630mm_66kV_dynamic",
+            # "XLPE_800mm_220kV",
         ]  # we require bigger cables, I think
 
         # create the csv file that holds the farm layout
@@ -758,9 +778,9 @@ class ORBITWisdemDetail(orbit_wisdem.OrbitWisdem):
             inputs["y_substations"],
         ).to_csv(path_farm_location, index=False)
 
-        print(f"\nBEGIN DEBUG!!!!!")
-        pprint(config)  # DEBUG!!!!!
-        print(f"END DEBUG!!!!!\n")
+        # print(f"\nBEGIN DEBUG!!!!!")
+        # pprint(config)  # DEBUG!!!!!
+        # print(f"END DEBUG!!!!!\n")
 
         self._orbit_config = config  # reinstall- probably not needed due to reference
         return config  # and return
@@ -770,23 +790,13 @@ class ORBITWisdemDetail(orbit_wisdem.OrbitWisdem):
             inputs, outputs, discrete_inputs, discrete_outputs
         )
 
-        debug = False
-        if debug:
-            import json
-
-            fname = "orbit_dump.json"
-            with open(fname, "w") as f:
-                f.write(json.dumps(config))
-            with open(fname) as f:
-                config = json.loads(f.read())
-
         # setup the custom-location library
         if self._path_library:
             initialize_library(self._path_library)
 
         project = ProjectManager(config)
         project.run()
-        print(f"DEBUG!!!!! project location: {project}")
+        # print(f"DEBUG!!!!! project location: {project}")
 
         # if "ArraySystemDesign" in project._phases.keys():
         #     project._phases["ArraySystemDesign"].plot_array_system(show=True)

@@ -339,8 +339,8 @@ if optimize:
     prob.set_val("angle_orientation", 0.0)
     prob.set_val("angle_skew", 0.0)
 
-    prob.set_val("x_substations", [100.0])
-    prob.set_val("y_substations", [100.0])
+    prob.set_val("x_substations", [100.0], units="m")
+    prob.set_val("y_substations", [100.0], units="m")
 
     # run the optimization
     prob.run_driver()
