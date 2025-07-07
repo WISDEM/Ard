@@ -694,29 +694,20 @@ class ORBITWisdemDetail(orbit_wisdem.OrbitWisdem):
                 f"Can not find default ORBIT library at {path_library_default}."
             )
 
-        # # hack example cable lay vessel to be able to work with up to the IEA22
-        # cable_lay_vessel_path = self._path_library / "vessels" / "example_cable_lay_vessel.yaml"
-        # # read the YAML file, overwrite the spool capacity value, write the yaml back
-        # with open(cable_lay_vessel_path, "r") as f: vessel_data = yaml.safe_load(f)
-        # vessel_data["cable_storage"]["max_mass"] = 26000
-        # with open(cable_lay_vessel_path, "w") as f: yaml.safe_dump(vessel_data, f)
+        # remove the grid plant option, and replace with a custom plant
+        config["plant"] = {
+            "layout": "custom",
+            "num_turbines": int(discrete_inputs["number_of_turbines"]),
+        }
 
-        nerfed = True
-        if not nerfed:
-            # remove the grid plant option, and replace with a custom plant
-            config["plant"] = {
-                "layout": "custom",
-                "num_turbines": int(discrete_inputs["number_of_turbines"]),
-            }
-
-            # switch to the custom array system design
-            if not ("ArraySystemDesign" in config["design_phases"]):
-                raise KeyError(
-                    "I assumed that 'ArraySystemDesign' would be in the config. Something changed."
-                )
-            config["design_phases"][
-                config["design_phases"].index("ArraySystemDesign")
-            ] = "CustomArraySystemDesign"
+        # switch to the custom array system design
+        if not ("ArraySystemDesign" in config["design_phases"]):
+            raise KeyError(
+                "I assumed that 'ArraySystemDesign' would be in the config. Something changed."
+            )
+        config["design_phases"][
+            config["design_phases"].index("ArraySystemDesign")
+        ] = "CustomArraySystemDesign"
 
         # add a turbine location csv on the config
         basename_farm_location = "wisdem_detailed_array"
