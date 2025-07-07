@@ -1,7 +1,5 @@
 from pathlib import Path
-from pprint import pprint
 import shutil
-import yaml
 
 import numpy as np
 import pandas as pd
@@ -11,9 +9,6 @@ from ORBIT import ProjectManager
 from ORBIT.core.library import default_library
 from ORBIT.core.library import initialize_library
 
-# import optiwindnet.plotting  # DEBUG!!!!!
-# import matplotlib.pyplot as plt  # DEBUG!!!!!
-
 def generate_orbit_location_from_graph(
     graph_pyomo,
     X_turbines,
@@ -21,11 +16,6 @@ def generate_orbit_location_from_graph(
     X_substations,
     Y_substations,
 ):
-
-    # print(f"DEBUG!!!!! X_turbines: {X_turbines}")
-    # print(f"DEBUG!!!!! X_substations: {X_substations}")
-    # optiwindnet.plotting.gplot(graph_pyomo)  # DEBUG!!!!!
-    # plt.show()  # DEBUG!!!!!
 
     # get all edges, sorted by the first node then the second node
     edges_to_process = [edge for edge in graph_pyomo.edges]
@@ -50,7 +40,6 @@ def generate_orbit_location_from_graph(
     idx_string = 0
     order = 0
 
-    # print(f"DEBUG!!!!! edges: {edges_to_process}")
     for edge in edges_inclsub:  # every edge w/ a substation starts a string
 
         def handle_edge(
@@ -65,8 +54,6 @@ def generate_orbit_location_from_graph(
             turbine_tgt_index = edge[0] if edge[0] != turbine_origination else edge[1]
             # get the turbine name
             turbine_name = turbine_id = f"t{turbine_tgt_index:03d}"
-
-            # print(f"DEBUG!!!!! working edge: {edge}, turbine target index: {turbine_tgt_index}")
 
             # add the turbine to the dataset
             data_orbit["id"].append(turbine_id)
@@ -84,7 +71,6 @@ def generate_orbit_location_from_graph(
 
             # get the set of remaining edges that include the terminal turbine
             edges_turbine = [e for e in edges_to_process if (turbine_tgt_index in e)]
-            # print(f"\tadditional edges touching this turbine: {edges_turbine}")  # DEBUG!!!!!
 
             order += 1
 
@@ -92,7 +78,6 @@ def generate_orbit_location_from_graph(
                 if new_string:
                     idx_string += 1
                     order = 0
-                # print(f"edge_next: {edge_next}")  # DEBUG!!!!!
                 idx_string, order = handle_edge(
                     edge_next,
                     turbine_tgt_index,
@@ -778,10 +763,6 @@ class ORBITWisdemDetail(orbit_wisdem.OrbitWisdem):
             inputs["y_substations"],
         ).to_csv(path_farm_location, index=False)
 
-        # print(f"\nBEGIN DEBUG!!!!!")
-        # pprint(config)  # DEBUG!!!!!
-        # print(f"END DEBUG!!!!!\n")
-
         self._orbit_config = config  # reinstall- probably not needed due to reference
         return config  # and return
 
@@ -796,13 +777,6 @@ class ORBITWisdemDetail(orbit_wisdem.OrbitWisdem):
 
         project = ProjectManager(config)
         project.run()
-        # print(f"DEBUG!!!!! project location: {project}")
-
-        # if "ArraySystemDesign" in project._phases.keys():
-        #     project._phases["ArraySystemDesign"].plot_array_system(show=True)
-        # else:
-        #     project._phases["CustomArraySystemDesign"].plot_array_system(show=True)
-        # assert False
 
         # The ORBIT version of total_capex includes turbine capex, so we do our own sum of
         # the parts here that wisdem doesn't account for
