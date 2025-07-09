@@ -95,8 +95,8 @@ class GridFarmLayout(templates.LayoutTemplate):
     def setup_partials(self):
         """Derivative setup for OM component."""
 
-        # default complex step for the layout tools, since they're often algebraic
-        self.declare_partials("*", "*", method="cs")
+        # default FD for the layout tools
+        self.declare_partials("*", "*", method="fd")
 
     def compute(self, inputs, outputs):
         """Computation for the OM component."""
