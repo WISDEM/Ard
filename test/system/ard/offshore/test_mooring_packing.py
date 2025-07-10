@@ -68,7 +68,7 @@ class TestMooringPacking:
 
         model.add_subsystem(
             "optiwindnet_coll",
-            ard.collection.optiwindnetCollection(
+            ard.collection.OptiwindnetCollection(
                 modeling_options=self.modeling_options,
             ),
             promotes=["x_turbines", "y_turbines"],

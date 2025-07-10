@@ -8,42 +8,35 @@ from optiwindnet.MILP import solver_factory, ModelOptions
 from . import templates
 
 
-def optiwindnet_wrapper(
-    XY_turbines: np.ndarray,
-    XY_substations: np.ndarray,
-    XY_boundaries: np.ndarray | None,
-    name_case: str,
-    max_turbines_per_string: int,
-    solver_name: str = "highs",
-    time_limit: int = 60,
-    mip_gap: float = 0.005,
-    solver_options: dict | None = None,
-    verbose: bool = False,
-):
-    """Simple wrapper to run OptiWindNet to get a cable layout
-
-    Args:
-        XY_turbines (np.ndarray): x and y positions of turbines (easting and northing)
-        XY_substations (np.ndarray): x and y positions of substations (easting and northing)
-        XY_boundaries (np.ndarray): x and y locations of boundary nodes (easting and northing)
-        name_case (str):  what to name the case
-        max_turbines_per_string (int): maximum number of turbines per cable string
-        solver_name (str, optional): solver to use. Defaults to "highs".
-        time_limit: maximum time (s) to allow the solver to run.
-        mip_gap: relative distance to stop the search (from incumbent solution
-            to best bound).
-        solver_options (dict, optional): solver options. Defaults to None.
-        verbose (bool, optional): whether to print information. Defaults to False.
-
-    Returns:
-        result: MILP solver result
-        S: OptiWindNet solution topology
-        G: OptiWindNet route-set for the solution
-    """
-    pass
+def _own_L_from_inputs(inputs: dict) -> dict:
+    T = len(inputs["x_turbines"])
+    R = len(inputs["x_substations"])
+    name_case = "farm"
+    if "x_borders" in inputs:
+        B = len(inputs["x_borders"])
+    else:
+        B = 0
+    VertexC = np.empty((R + T + B, 2), dtype=float)
+    VertexC[:T, 0] = inputs["x_turbines"]
+    VertexC[:T, 1] = inputs["y_turbines"]
+    VertexC[-R:, 0] = inputs["x_substations"]
+    VertexC[-R:, 1] = inputs["y_substations"]
+    site = dict(
+        T=T,
+        R=R,
+        name=name_case,
+        handle=name_case,
+        VertexC=VertexC,
+    )
+    if B > 0:
+        VertexC[T:-R, 0] = inputs["x_borders"]
+        VertexC[T:-R, 1] = inputs["y_borders"]
+        site["B"] = B
+        site["border"] = np.arange(T, T + B)
+    return L_from_site(**site)
 
 
-class optiwindnetCollection(templates.CollectionTemplate):
+class OptiwindnetCollection(templates.CollectionTemplate):
     """
     Component class for modeling optiwindnet-optimized energy collection systems.
 
@@ -114,7 +107,8 @@ class optiwindnetCollection(templates.CollectionTemplate):
         solver_name = self.modeling_options["collection"]["solver_name"]
 
         # get a graph representing the updated location
-        L = L_from_site(**self.site_from_inputs(inputs))
+        L = _own_L_from_inputs(inputs)
+        T = L.graph['T']
 
         # create planar embedding and set of available links
         P, A = make_planar_embedding(L)
@@ -131,26 +125,53 @@ class optiwindnetCollection(templates.CollectionTemplate):
             ModelOptions(**self.modeling_options["collection"]["model_options"]),
             warmstart=S_warm,
         )
-        result = solver.solve(**self.modeling_options["collection"]["solver_options"])
+        info = solver.solve(**self.modeling_options["collection"]["solver_options"])
         S, G = solver.get_solution()
 
         # extract the outputs
-        self.graph = G
-        # ATTENTION: The number of edges in G may be greater than T, because
-        # of contours and detours.
-        num_edges = G.number_of_edges()
-        lengths = np.empty((num_edges,), dtype=np.float64)
-        loads = np.empty((num_edges,), dtype=np.float64)
+        terse_links = np.zeros((T,), dtype=np.int_)
+        length_cables = np.zeros((T,))
+        load_cables = np.zeros((T,))
 
-        for i, (_, _, edge_data) in enumerate(G.edges(data=True)):
-            lengths[i] = edge_data["length"]
-            loads[i] = edge_data["load"]
-
+        d2roots = A.graph['d2roots']
+        # convert the graph to array representing the tree (edges i->terse[i])
+        for u, v, edgeD in S.edges(data=True):
+            u, v = (u, v) if u < v else (v, u)
+            i, target = (u, v) if edgeD['reverse'] else (v, u)
+            terse_links[i] = target
+            load = edgeD['load']
+            load_cables[i] = load
+            if u < 0:
+                # u is a substation
+                if v in G[u]:
+                    # feeder <u, v> has a straight route
+                    length_cables[i] = d2roots[v, u]
+                else:
+                    # feeder <u, v> is segmented (detoured route)
+                    v_neighbors = G[v]
+                    for fwd_hop in v_neighbors:
+                        if fwd_hop >= T and v_neighbors[fwd_hop]['load'] == load:
+                            break
+                    length_cables[i] = v_neighbors[fwd_hop]['length']
+                    rev_hop = v
+                    while fwd_hop >= T:
+                        s, t = G[fwd_hop]
+                        temp = s if t == rev_hop else t
+                        fwd_hop, cur_hop, rev_hop = temp, fwd_hop, cur_hop
+                        length_cables[i] += G[cur_hop][fwd_hop]['length']
+            else:
+                # link (u, v) is not a feeder, so A has length data
+                length_cables[i] = A[u][v]['length']
+                
         # pack and ship
-        discrete_outputs["length_cables"] = lengths
-        discrete_outputs["load_cables"] = loads
-        discrete_outputs["max_load_cables"] = loads.max().item()
-        outputs["total_length_cables"] = lengths.sum().item()
+        self.graph = G
+        discrete_outputs["terse_links"] = terse_links
+        outputs["length_cables"] = length_cables
+        outputs["load_cables"] = load_cables
+        outputs["max_load_cables"] = S.graph['max_load']
+        # TODO: remove this assert after enough testing
+        assert abs(length_cables.sum() - G.size(weight='length')) < 1e-7, f'difference: {length_cables.sum() - G.size(weight='length')}'
+        outputs["total_length_cables"] = length_cables.sum()
 
     def compute_partials(self, inputs, J, discrete_inputs=None):
 
@@ -184,31 +205,3 @@ class optiwindnetCollection(templates.CollectionTemplate):
         J["total_length_cables", "y_substations"] = gradients[-R:, 1]
 
         return J
-
-    @classmethod
-    def site_from_inputs(cls, inputs: dict) -> dict:
-        T = len(inputs["x_turbines"])
-        R = len(inputs["x_substations"])
-        name_case = "farm"
-        if "x_borders" in inputs:
-            B = len(inputs["x_borders"])
-        else:
-            B = 0
-        VertexC = np.empty((R + T + B, 2), dtype=float)
-        VertexC[:T, 0] = inputs["x_turbines"]
-        VertexC[:T, 1] = inputs["y_turbines"]
-        VertexC[-R:, 0] = inputs["x_substations"]
-        VertexC[-R:, 1] = inputs["y_substations"]
-        site = dict(
-            T=T,
-            R=R,
-            name=name_case,
-            handle=name_case,
-            VertexC=VertexC,
-        )
-        if B > 0:
-            VertexC[T:-R, 0] = inputs["x_borders"]
-            VertexC[T:-R, 1] = inputs["y_borders"]
-            site["B"] = B
-            site["border"] = np.arange(T, T + B)
-        return site

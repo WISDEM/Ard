@@ -61,7 +61,7 @@ class TestOptiWindNetCollection:
                 ),
                 "solver_name": "highs",
                 "solver_options": dict(
-                    time_limit=60,
+                    time_limit=10,
                     mip_gap=0.005,  # TODO ???
                 ),
             },
@@ -71,68 +71,13 @@ class TestOptiWindNetCollection:
         model = om.Group()
         self.optiwindnet_coll = model.add_subsystem(
             "optiwindnet_coll",
-            ard_own.optiwindnetCollection(
+            ard_own.OptiwindnetCollection(
                 modeling_options=modeling_options,
             ),
         )
 
         self.prob = om.Problem(model)
         self.prob.setup()
-
-    def test_distance_function_vs_optiwindnet(self, subtests):
-
-        name_case = "farm"
-        capacity = 8  # maximum load on a chain #TODO make the capacity a user input
-
-        # roll up the coordinates into a form that optiwindnet
-        XY_turbines = np.vstack(
-            [130 * self.farm_spec["xD_farm"], 130 * self.farm_spec["yD_farm"]]
-        ).T
-
-        x_min = np.min(XY_turbines[:, 0]) - 0.25 * np.ptp(XY_turbines[:, 0])
-        x_max = np.max(XY_turbines[:, 0]) + 0.25 * np.ptp(XY_turbines[:, 0])
-        y_min = np.min(XY_turbines[:, 1]) - 0.25 * np.ptp(XY_turbines[:, 1])
-        y_max = np.max(XY_turbines[:, 1]) + 0.25 * np.ptp(XY_turbines[:, 1])
-        XY_boundaries = np.array(
-            [
-                [x_max, y_max],
-                [x_min, y_max],
-                [x_min, y_min],
-                [x_max, y_min],
-            ]
-        )
-        XY_substations = np.vstack(
-            [self.farm_spec["x_substations"], self.farm_spec["y_substations"]]
-        ).T
-
-        result, S, G = ard_own.optiwindnet_wrapper(
-            XY_turbines, XY_substations, XY_boundaries, name_case, capacity
-        )
-
-        # extract the outputs
-        edges = G.edges()
-        self.graph = G
-
-        lengths = []
-
-        for idx_edge, edge in enumerate(edges):
-            e0, e1 = edge
-            x0, y0 = (
-                XY_substations[self.N_substations + e0, :]
-                if e0 < 0
-                else XY_turbines[e0, :]
-            )
-            x1, y1 = (
-                XY_substations[self.N_substations + e1, :]
-                if e1 < 0
-                else XY_turbines[e1, :]
-            )
-
-            with subtests.test(f"edge: {idx_edge}"):
-                lengths.append(edges[edge]["length"])
-                assert np.isclose(
-                    edges[edge]["length"], ard_own.distance_function(x0, y0, x1, y1)
-                )
 
     def test_modeling(self, subtests):
         """
@@ -172,10 +117,10 @@ class TestOptiWindNetCollection:
             # make sure that the outputs in the component match what we planned
             output_list = [k for k, v in self.optiwindnet_coll.list_outputs()]
             for var_to_check in [
-                # "length_cables",
-                # "load_cables",
+                "length_cables",
+                "load_cables",
                 "total_length_cables",
-                # "max_load_cables",
+                "max_load_cables",
             ]:
                 assert var_to_check in output_list
 
@@ -184,16 +129,10 @@ class TestOptiWindNetCollection:
                 k for k, v in self.optiwindnet_coll._discrete_outputs.items()
             ]
             for var_to_check in [
-                "length_cables",
-                "load_cables",
-                # "total_length_cables",
-                "max_load_cables",
+                "terse_links",
             ]:
                 assert var_to_check in discrete_output_list
 
-    @pytest.mark.skipif(
-        platform.system() in ["Linux", "Windows"], reason="Test does not pass on Linux"
-    )
     def test_compute_pyrite(self):
 
         # set in the variables
@@ -215,43 +154,20 @@ class TestOptiWindNetCollection:
 
         # collect data to validate
         validation_data = {
-            "length_cables": self.prob.get_val("optiwindnet_coll.length_cables")
-            / 1.0e3,
+            "terse_links": self.prob.get_val("optiwindnet_coll.terse_links"),
+            "length_cables": self.prob.get_val("optiwindnet_coll.length_cables"),
             "load_cables": self.prob.get_val("optiwindnet_coll.load_cables"),
+            "total_length_cables": self.prob.get_val("optiwindnet_coll.total_length_cables"),
+            "max_load_cables": self.prob.get_val("optiwindnet_coll.max_load_cables"),
         }
 
-        os_name = platform.system()
-
-        if os_name == "Linux":
-            pass
-            # Run Linux specific tests
-            # validate data against pyrite file
-            ard.utils.test_utils.pyrite_validator(
-                validation_data,
-                Path(__file__).parent / "test_optiwindnet_pyrite_macos.npz",
-                rtol_val=5e-3,
-                # rewrite=True,  # uncomment to write new pyrite file
-            )
-        elif os_name == "Darwin":
-            # Run macos specific tests
-            # validate data against pyrite file
-            ard.utils.test_utils.pyrite_validator(
-                validation_data,
-                Path(__file__).parent / "test_optiwindnet_pyrite_macos.npz",
-                rtol_val=5e-3,
-                # rewrite=True,  # uncomment to write new pyrite file
-            )
-        elif os_name == "Windows":
-            # Run Windows specific tests
-            # validate data against pyrite file
-            ard.utils.test_utils.pyrite_validator(
-                validation_data,
-                Path(__file__).parent / "test_optiwindnet_pyrite_macos.npz",
-                rtol_val=5e-3,
-                # rewrite=True,  # uncomment to write new pyrite file
-            )
-        else:
-            pass
+        # validate data against pyrite file
+        ard.utils.test_utils.pyrite_validator(
+            validation_data,
+            Path(__file__).parent / "test_optiwindnet_pyrite.npz",
+            rtol_val=5e-3,
+            #  rewrite=True,  # uncomment to write new pyrite file
+        )
 
     def test_compute_partials_mini_pentagon(self):
         """
@@ -269,7 +185,7 @@ class TestOptiWindNetCollection:
         model = om.Group()
         optiwindnet_coll_mini = model.add_subsystem(
             "optiwindnet_coll",
-            ard_own.optiwindnetCollection(
+            ard_own.OptiwindnetCollection(
                 modeling_options=modeling_options,
             ),
         )
@@ -293,8 +209,8 @@ class TestOptiWindNetCollection:
         prob.run_model()
 
         # # DEBUG!!!!! viz for verification
-        # gplot(optiwindnet_coll_mini.graph)
-        # plt.savefig("/Users/cfrontin/Downloads/dummy.png")  # DEBUG!!!!!
+        #  ax = gplot(optiwindnet_coll_mini.graph)
+        #  ax.figure.savefig("collection_mini_pentagon.png")  # DEBUG!!!!!
 
         if False:  # for hand-debugging
             J0 = prob.compute_totals(
@@ -332,7 +248,7 @@ class TestOptiWindNetCollection:
         model = om.Group()
         optiwindnet_coll_mini = model.add_subsystem(
             "optiwindnet_coll",
-            ard_own.optiwindnetCollection(
+            ard_own.OptiwindnetCollection(
                 modeling_options=modeling_options,
             ),
         )
@@ -354,8 +270,8 @@ class TestOptiWindNetCollection:
         prob.run_model()
 
         # # DEBUG!!!!! viz for verification
-        # gplot(optiwindnet_coll_mini.graph)
-        # plt.savefig("dummy.png")  # DEBUG!!!!!
+        #  ax = gplot(optiwindnet_coll_mini.graph)
+        #  ax.figure.savefig("collection_mini_line.png")  # DEBUG!!!!!
 
         if False:  # for hand-debugging
             J0 = prob.compute_totals(

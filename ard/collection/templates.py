@@ -66,14 +66,11 @@ class CollectionTemplate(om.ExplicitComponent):
         self.add_input("y_substations", np.zeros((self.N_substations,)), units="m")
 
         # set up outputs for the collection system
-        self.add_discrete_output(
-            "length_cables",
-            # TODO: This is wrong. The number of cable segments may be greater.
-            np.zeros((self.N_turbines,)),  # units="m",
-        )
-        self.add_discrete_output("load_cables", np.zeros((self.N_turbines,)))
+        self.add_discrete_output("terse_links", np.full((self.N_turbines,), -1))
+        self.add_output("length_cables", np.zeros((self.N_turbines,)), units="m")
+        self.add_output("load_cables", np.zeros((self.N_turbines,)))
         self.add_output("total_length_cables", 0.0, units="m")
-        self.add_discrete_output("max_load_cables", 0.0)
+        self.add_output("max_load_cables", 0.0)
 
     def compute(
         self,
