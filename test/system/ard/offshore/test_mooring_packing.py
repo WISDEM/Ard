@@ -46,7 +46,7 @@ class TestMooringPacking:
                 "solver_name": "appsi_highs",
                 "solver_options": dict(
                     time_limit=60,
-                    mip_rel_gap=0.005,  # TODO ???
+                    mip_gap=0.005,  # TODO ???
                 ),
             },
         }
