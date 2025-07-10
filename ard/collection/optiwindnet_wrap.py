@@ -108,7 +108,7 @@ class OptiwindnetCollection(templates.CollectionTemplate):
 
         # get a graph representing the updated location
         L = _own_L_from_inputs(inputs)
-        T = L.graph['T']
+        T = L.graph["T"]
 
         # create planar embedding and set of available links
         P, A = make_planar_embedding(L)
@@ -133,13 +133,13 @@ class OptiwindnetCollection(templates.CollectionTemplate):
         length_cables = np.zeros((T,))
         load_cables = np.zeros((T,))
 
-        d2roots = A.graph['d2roots']
+        d2roots = A.graph["d2roots"]
         # convert the graph to array representing the tree (edges i->terse[i])
         for u, v, edgeD in S.edges(data=True):
             u, v = (u, v) if u < v else (v, u)
-            i, target = (u, v) if edgeD['reverse'] else (v, u)
+            i, target = (u, v) if edgeD["reverse"] else (v, u)
             terse_links[i] = target
-            load = edgeD['load']
+            load = edgeD["load"]
             load_cables[i] = load
             if u < 0:
                 # u is a substation
@@ -150,27 +150,29 @@ class OptiwindnetCollection(templates.CollectionTemplate):
                     # feeder <u, v> is segmented (detoured route)
                     v_neighbors = G[v]
                     for fwd_hop in v_neighbors:
-                        if fwd_hop >= T and v_neighbors[fwd_hop]['load'] == load:
+                        if fwd_hop >= T and v_neighbors[fwd_hop]["load"] == load:
                             break
-                    length_cables[i] = v_neighbors[fwd_hop]['length']
+                    length_cables[i] = v_neighbors[fwd_hop]["length"]
                     rev_hop = v
                     while fwd_hop >= T:
                         s, t = G[fwd_hop]
                         temp = s if t == rev_hop else t
                         fwd_hop, cur_hop, rev_hop = temp, fwd_hop, cur_hop
-                        length_cables[i] += G[cur_hop][fwd_hop]['length']
+                        length_cables[i] += G[cur_hop][fwd_hop]["length"]
             else:
                 # link (u, v) is not a feeder, so A has length data
-                length_cables[i] = A[u][v]['length']
-                
+                length_cables[i] = A[u][v]["length"]
+
         # pack and ship
         self.graph = G
         discrete_outputs["terse_links"] = terse_links
         outputs["length_cables"] = length_cables
         outputs["load_cables"] = load_cables
-        outputs["max_load_cables"] = S.graph['max_load']
+        outputs["max_load_cables"] = S.graph["max_load"]
         # TODO: remove this assert after enough testing
-        assert abs(length_cables.sum() - G.size(weight='length')) < 1e-7, f'difference: {length_cables.sum() - G.size(weight='length')}'
+        assert (
+            abs(length_cables.sum() - G.size(weight="length")) < 1e-7
+        ), f"difference: {length_cables.sum() - G.size(weight='length')}"
         outputs["total_length_cables"] = length_cables.sum()
 
     def compute_partials(self, inputs, J, discrete_inputs=None):
