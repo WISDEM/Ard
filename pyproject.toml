@@ -42,7 +42,7 @@ dependencies = [
   "openmdao",
   "shapely",
   "jax",
-  "optiwindnet[test]==0.0.3",
+  "optiwindnet>=0.0.4",
   "statsmodels@git+https://github.com/statsmodels/statsmodels.git@main",
   "highspy",
 ]
