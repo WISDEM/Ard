@@ -33,19 +33,23 @@ class CollectionTemplate(om.ExplicitComponent):
 
     Outputs
     -------
+    length_cables : np.ndarray
+        a 1D numpy array that holds the lengths of each of the cables necessary
+        to collect energy generated, with length `N_turbines`
     total_length_cables : float
-        the total length of cables to collect energy generated
+        the total length of cables used in the collection system network
+    load_cables : np.ndarray
+        a 1D numpy array that holds the turbine count upstream of the cable segment
+        (i.e. number of turbines whose power is collected through the cable), with
+        length `N_turbines`
+    max_load_cables : int
+        the maximum cable capacity required by the collection system
 
     Discrete Outputs
     -------
-    length_cables : np.ndarray
-        a (variable-length) 1D numpy array that holds the lengths of each of the cables necessary
-        to collect energy generated
-    load_cables : np.ndarray
-        a (variable-length) 1D numpy array that holds the load integer (i.e. total number of
-        turbines) collected up to each cable
-    max_load_cables : int
-        the maximum cable capacity required by the system
+    terse_links : np.ndarray
+        a 1D numpy int array encoding the electrical connections of the collection
+        system (tree topology), with length `N_turbines`
     """
 
     def initialize(self):

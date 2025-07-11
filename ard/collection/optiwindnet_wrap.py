@@ -8,7 +8,7 @@ from optiwindnet.MILP import solver_factory, ModelOptions
 from . import templates
 
 
-def _own_L_from_inputs(inputs: dict) -> dict:
+def _own_L_from_inputs(inputs: dict) -> nx.Graph:
     T = len(inputs["x_turbines"])
     R = len(inputs["x_substations"])
     name_case = "farm"
