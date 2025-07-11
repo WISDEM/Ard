@@ -1,3 +1,4 @@
+import networkx as nx
 import numpy as np
 
 from optiwindnet.mesh import make_planar_embedding
