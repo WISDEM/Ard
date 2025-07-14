@@ -1,4 +1,5 @@
 from pathlib import Path
+import pytest
 
 import openmdao.api as om
 
@@ -11,6 +12,7 @@ import ard.layout.gridfarm as gridfarm
 import ard.collection
 import ard.cost.orbit_wrap as ocost
 
+@pytest.mark.usefixtures("subtests")
 class TestORBIT:
 
     def setup_method(self):
@@ -97,28 +99,43 @@ class TestORBIT:
         ocost.ORBIT_setup_latents(self.prob, self.modeling_options)
         # wcost.FinanceSE_setup_latents(self.prob, self.modeling_options)
 
-    def test_baseline_farm(self):
+    def test_baseline_farm(self, subtests):
 
-        self.prob.set_val("x_substations", [0.1], units="km")
-        self.prob.set_val("y_substations", [0.1], units="km")
+        values_ref = {
+            0.0: {
+                "bos_capex": 954.936955639988,
+                "total_capex": 1460.936955639988,
+            },
+            2.5: {
+                "bos_capex": 959.6976715808297,
+                "total_capex": 1465.6976715808296,
+            },
+            5.0: {
+                "bos_capex": 976.4715590100313,
+                "total_capex": 1482.4715590100311,
+            },
+        }
 
-        self.prob.set_val("gridfarm.spacing_primary", 7.0)
-        self.prob.set_val("gridfarm.spacing_secondary", 7.0)
-        self.prob.set_val("gridfarm.angle_orientation", 0.0)
-        self.prob.set_val("gridfarm.angle_skew", 0.0)
+        for angle_skew in values_ref.keys():
 
-        self.prob.run_model()
+            self.prob.set_val("x_substations", [0.1], units="km")
+            self.prob.set_val("y_substations", [0.1], units="km")
 
-        bos_capex = float(self.prob.get_val('orbit.bos_capex', units='MUSD'))
-        total_capex = float(self.prob.get_val('orbit.total_capex', units='MUSD'))
+            self.prob.set_val("gridfarm.spacing_primary", 7.0)
+            self.prob.set_val("gridfarm.spacing_secondary", 7.0)
+            self.prob.set_val("gridfarm.angle_orientation", 0.0)
+            self.prob.set_val("gridfarm.angle_skew", angle_skew)
 
-        # print(f"orbit.bos_capex: bos_capex:16.12f}")
-        # print(f"orbit.total_capex: total_capex:16.12f}")
-        # assert False
+            self.prob.run_model()
 
-        bos_capex_ref = 954.936955639988
-        total_capex_ref = 1460.936955639988
+            bos_capex = float(self.prob.get_val('orbit.bos_capex', units='MUSD'))
+            total_capex = float(self.prob.get_val('orbit.total_capex', units='MUSD'))
 
-        np.testing.assert_allclose(bos_capex, bos_capex_ref, rtol=1e-6)
-        np.testing.assert_allclose(total_capex, total_capex_ref, rtol=1e-6)
+            bos_capex_ref = values_ref[angle_skew]["bos_capex"]
+            total_capex_ref = values_ref[angle_skew]["total_capex"]
+
+            with subtests.test(f"orbit_skew{angle_skew:.1f}_bos"):
+                assert np.isclose(bos_capex, bos_capex_ref, rtol=1e-6)
+            with subtests.test(f"orbit_skew{angle_skew:.1f}_total"):
+                assert np.isclose(total_capex, total_capex_ref, rtol=1e-6)
 
