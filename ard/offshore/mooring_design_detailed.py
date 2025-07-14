@@ -116,7 +116,7 @@ class DetailedMooringDesign(om.ExplicitComponent):
             / "geometry_anchor.yaml"
         )
         self.temporary_variables.id_mooring_system = [
-            f"m{v}:03d" for v in list(range(len(self.temporary_variables.phi_mooring)))
+            f"m{v:03d}" for v in list(range(len(self.temporary_variables.phi_mooring)))
         ]  # just borrow turbine IDs for now: 3-digit, zero padded integer prefixed by m
 
         # END VARIABLES TO BE INCORPORATED PROPERLY
