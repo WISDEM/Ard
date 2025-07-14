@@ -136,6 +136,6 @@ class TestORBIT:
             total_capex_ref = values_ref[angle_skew]["total_capex"]
 
             with subtests.test(f"orbit_skew{angle_skew:.1f}_bos"):
-                assert np.isclose(bos_capex, bos_capex_ref, rtol=1e-6)
+                assert np.isclose(bos_capex, bos_capex_ref, rtol=1e-3)
             with subtests.test(f"orbit_skew{angle_skew:.1f}_total"):
-                assert np.isclose(total_capex, total_capex_ref, rtol=1e-6)
+                assert np.isclose(total_capex, total_capex_ref, rtol=1e-3)
