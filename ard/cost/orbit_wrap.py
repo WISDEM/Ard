@@ -9,6 +9,8 @@ from ORBIT import ProjectManager
 from ORBIT.core.library import default_library
 from ORBIT.core.library import initialize_library
 
+from ard.cost.wisdem_wrap import ORBIT_setup_latents
+
 
 def generate_orbit_location_from_graph(
     graph_pyomo,

@@ -201,7 +201,7 @@ if modeling_options["offshore"]:
         "orbit",
         ard.cost.orbit_wrap.ORBITDetail(
             modeling_options=modeling_options,
-            floating=True,
+            floating=modeling_options["floating"],
         ),
         # ard.cost.wisdem_wrap.ORBIT(floating=True),
         promotes=["x_substations", "y_substations"],
