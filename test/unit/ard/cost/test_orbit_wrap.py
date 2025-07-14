@@ -98,8 +98,8 @@ class TestORBIT:
 
     def test_baseline_farm(self, subtests):
 
-        x_turbines = np.linspace(-7.0*400.0, 7.0*400.0, 7)
-        y_turbines = np.linspace(7.0*400.0, -7.0*400.0, 7)
+        x_turbines = np.linspace(-7.0 * 400.0, 7.0 * 400.0, 7)
+        y_turbines = np.linspace(7.0 * 400.0, -7.0 * 400.0, 7)
 
         self.prob.set_val("x_turbines", x_turbines, units="m")
         self.prob.set_val("y_turbines", y_turbines, units="m")
