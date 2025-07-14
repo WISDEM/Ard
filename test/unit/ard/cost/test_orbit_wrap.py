@@ -12,6 +12,7 @@ import ard.layout.gridfarm as gridfarm
 import ard.collection
 import ard.cost.orbit_wrap as ocost
 
+
 @pytest.mark.usefixtures("subtests")
 class TestORBIT:
 
@@ -128,8 +129,8 @@ class TestORBIT:
 
             self.prob.run_model()
 
-            bos_capex = float(self.prob.get_val('orbit.bos_capex', units='MUSD'))
-            total_capex = float(self.prob.get_val('orbit.total_capex', units='MUSD'))
+            bos_capex = float(self.prob.get_val("orbit.bos_capex", units="MUSD"))
+            total_capex = float(self.prob.get_val("orbit.total_capex", units="MUSD"))
 
             bos_capex_ref = values_ref[angle_skew]["bos_capex"]
             total_capex_ref = values_ref[angle_skew]["total_capex"]
@@ -138,4 +139,3 @@ class TestORBIT:
                 assert np.isclose(bos_capex, bos_capex_ref, rtol=1e-6)
             with subtests.test(f"orbit_skew{angle_skew:.1f}_total"):
                 assert np.isclose(total_capex, total_capex_ref, rtol=1e-6)
-
