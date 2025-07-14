@@ -203,7 +203,6 @@ if modeling_options["offshore"]:
             modeling_options=modeling_options,
             floating=modeling_options["floating"],
         ),
-        # ard.cost.wisdem_wrap.ORBIT(floating=True),
         promotes=["x_substations", "y_substations"],
     )
     model.connect("layout2aep.x_turbines", "orbit.x_turbines")
@@ -260,7 +259,6 @@ prob.setup()
 
 # setup the latent variables for LandBOSSE/ORBIT and FinanceSE
 ard.cost.wisdem_wrap.ORBIT_setup_latents(prob, modeling_options)
-# ard.cost.wisdem_wrap.LandBOSSE_setup_latents(prob, modeling_options)
 ard.cost.wisdem_wrap.FinanceSE_setup_latents(prob, modeling_options)
 
 # set up the working/design variables
@@ -330,7 +328,6 @@ if optimize:
 
     # setup the latent variables for LandBOSSE/ORBIT and FinanceSE
     ard.cost.wisdem_wrap.ORBIT_setup_latents(prob, modeling_options)
-    # ard.cost.wisdem_wrap.LandBOSSE_setup_latents(prob, modeling_options)
     ard.cost.wisdem_wrap.FinanceSE_setup_latents(prob, modeling_options)
 
     # set up the working/design variables initial conditions
