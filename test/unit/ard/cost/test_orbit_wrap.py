@@ -117,16 +117,15 @@ class TestORBIT:
             },
         }
 
+        self.prob.set_val("x_substations", [0.1], units="km")
+        self.prob.set_val("y_substations", [0.1], units="km")
+
+        self.prob.set_val("gridfarm.spacing_primary", 7.0)
+        self.prob.set_val("gridfarm.spacing_secondary", 7.0)
+        self.prob.set_val("gridfarm.angle_orientation", 0.0)
+
         for angle_skew in values_ref.keys():
-
-            self.prob.set_val("x_substations", [0.1], units="km")
-            self.prob.set_val("y_substations", [0.1], units="km")
-
-            self.prob.set_val("gridfarm.spacing_primary", 7.0)
-            self.prob.set_val("gridfarm.spacing_secondary", 7.0)
-            self.prob.set_val("gridfarm.angle_orientation", 0.0)
             self.prob.set_val("gridfarm.angle_skew", angle_skew)
-
             self.prob.run_model()
 
             bos_capex = float(self.prob.get_val("orbit.bos_capex", units="MUSD"))
