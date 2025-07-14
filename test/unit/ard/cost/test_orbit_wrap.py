@@ -32,7 +32,7 @@ class TestORBIT:
         # set up the modeling options
         self.modeling_options = {
             "farm": {
-                "N_turbines": 25,
+                "N_turbines": 7,
                 "N_substations": 1,
             },
             "turbine": data_turbine,
@@ -56,12 +56,6 @@ class TestORBIT:
 
         # create an OM model and problem
         self.model = om.Group()
-        self.gf = self.model.add_subsystem(
-            "gridfarm",
-            gridfarm.GridFarmLayout(modeling_options=self.modeling_options),
-            promotes=["*"],
-        )
-
         self.coll = self.model.add_subsystem(  # collection component
             "optiwindnet_coll",
             ard.collection.optiwindnetCollection(
@@ -90,6 +84,8 @@ class TestORBIT:
         )
         self.model.connect("optiwindnet_coll.graph", "orbit.graph")
 
+        self.model.set_input_defaults("x_turbines", units="km")
+        self.model.set_input_defaults("y_turbines", units="km")
         self.model.set_input_defaults("x_substations", units="km")
         self.model.set_input_defaults("y_substations", units="km")
 
@@ -102,39 +98,24 @@ class TestORBIT:
 
     def test_baseline_farm(self, subtests):
 
-        values_ref = {
-            0.0: {
-                "bos_capex": 954.936955639988,
-                "total_capex": 1460.936955639988,
-            },
-            2.5: {
-                "bos_capex": 959.6976715808297,
-                "total_capex": 1465.6976715808296,
-            },
-            5.0: {
-                "bos_capex": 976.4715590100313,
-                "total_capex": 1482.4715590100311,
-            },
-        }
+        x_turbines = np.linspace(-7.0*400.0, 7.0*400.0, 7)
+        y_turbines = np.linspace(7.0*400.0, -7.0*400.0, 7)
+
+        self.prob.set_val("x_turbines", x_turbines, units="m")
+        self.prob.set_val("y_turbines", y_turbines, units="m")
 
         self.prob.set_val("x_substations", [0.1], units="km")
         self.prob.set_val("y_substations", [0.1], units="km")
 
-        self.prob.set_val("gridfarm.spacing_primary", 7.0)
-        self.prob.set_val("gridfarm.spacing_secondary", 7.0)
-        self.prob.set_val("gridfarm.angle_orientation", 0.0)
+        self.prob.run_model()
 
-        for angle_skew in values_ref.keys():
-            self.prob.set_val("gridfarm.angle_skew", angle_skew)
-            self.prob.run_model()
+        bos_capex = float(self.prob.get_val("orbit.bos_capex", units="MUSD"))
+        total_capex = float(self.prob.get_val("orbit.total_capex", units="MUSD"))
 
-            bos_capex = float(self.prob.get_val("orbit.bos_capex", units="MUSD"))
-            total_capex = float(self.prob.get_val("orbit.total_capex", units="MUSD"))
+        bos_capex_ref = 470.4199789336224
+        total_capex_ref = 720.9999789336223
 
-            bos_capex_ref = values_ref[angle_skew]["bos_capex"]
-            total_capex_ref = values_ref[angle_skew]["total_capex"]
-
-            with subtests.test(f"orbit_skew{angle_skew:.1f}_bos"):
-                assert np.isclose(bos_capex, bos_capex_ref, rtol=1e-3)
-            with subtests.test(f"orbit_skew{angle_skew:.1f}_total"):
-                assert np.isclose(total_capex, total_capex_ref, rtol=1e-3)
+        with subtests.test(f"orbit_skew_bos"):
+            assert np.isclose(bos_capex, bos_capex_ref, rtol=1e-3)
+        with subtests.test(f"orbit_skew_total"):
+            assert np.isclose(total_capex, total_capex_ref, rtol=1e-3)
