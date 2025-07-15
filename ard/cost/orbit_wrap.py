@@ -692,7 +692,7 @@ class ORBITWisdemDetail(orbit_wisdem.OrbitWisdem):
                 path_library_default, self._path_library, dirs_exist_ok=True
             )
         else:
-            FileNotFoundError(
+            raise FileNotFoundError(
                 f"Can not find default ORBIT library at {path_library_default}."
             )
 
