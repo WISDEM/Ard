@@ -48,6 +48,11 @@ class TestMooringPacking:
                     time_limit=60,
                     mip_gap=0.005,  # TODO ???
                 ),
+                "model_options": dict(
+                    topology="branched",
+                    feeder_route="segmented",
+                    feeder_limit="unlimited",
+                ),
             },
         }
 
