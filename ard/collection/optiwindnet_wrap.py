@@ -9,12 +9,12 @@ from optiwindnet.MILP import solver_factory, ModelOptions
 from . import templates
 
 
-def _own_L_from_inputs(inputs: dict) -> nx.Graph:
+def _own_L_from_inputs(inputs: dict, discrete_inputs: dict) -> nx.Graph:
     T = len(inputs["x_turbines"])
     R = len(inputs["x_substations"])
     name_case = "farm"
-    if "x_borders" in inputs:
-        B = len(inputs["x_borders"])
+    if discrete_inputs["x_border"] is not None:
+        B = len(discrete_inputs["x_border"])
     else:
         B = 0
     VertexC = np.empty((R + T + B, 2), dtype=float)
@@ -30,8 +30,8 @@ def _own_L_from_inputs(inputs: dict) -> nx.Graph:
         VertexC=VertexC,
     )
     if B > 0:
-        VertexC[T:-R, 0] = inputs["x_borders"]
-        VertexC[T:-R, 1] = inputs["y_borders"]
+        VertexC[T:-R, 0] = discrete_inputs["x_border"]
+        VertexC[T:-R, 1] = discrete_inputs["y_border"]
         site["B"] = B
         site["border"] = np.arange(T, T + B)
     return L_from_site(**site)
@@ -120,7 +120,7 @@ class OptiwindnetCollection(templates.CollectionTemplate):
         solver_name = self.modeling_options["collection"]["solver_name"]
 
         # get a graph representing the updated location
-        L = _own_L_from_inputs(inputs)
+        L = _own_L_from_inputs(inputs, discrete_inputs)
         T = L.graph["T"]
 
         # create planar embedding and set of available links
@@ -162,16 +162,15 @@ class OptiwindnetCollection(templates.CollectionTemplate):
                 else:
                     # feeder <u, v> is segmented (detoured route)
                     v_neighbors = G[v]
-                    for fwd_hop in v_neighbors:
-                        if fwd_hop >= T and v_neighbors[fwd_hop]["load"] == load:
+                    for cur_hop in v_neighbors:
+                        if cur_hop >= T and v_neighbors[cur_hop]["load"] == load:
                             break
-                    length_cables[i] = v_neighbors[fwd_hop]["length"]
-                    rev_hop = v
-                    while fwd_hop >= T:
-                        s, t = G[fwd_hop]
-                        temp = s if t == rev_hop else t
-                        fwd_hop, cur_hop, rev_hop = temp, fwd_hop, cur_hop
-                        length_cables[i] += G[cur_hop][fwd_hop]["length"]
+                    length_cables[i] = v_neighbors[cur_hop]["length"]
+                    prev_hop = v
+                    while cur_hop >= T:
+                        s, t = G[cur_hop]
+                        cur_hop, prev_hop = (s if t == prev_hop else t), cur_hop
+                        length_cables[i] += G[cur_hop][prev_hop]["length"]
             else:
                 # link (u, v) is not a feeder, so A has length data
                 length_cables[i] = A[u][v]["length"]

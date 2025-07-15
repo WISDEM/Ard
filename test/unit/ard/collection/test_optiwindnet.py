@@ -133,6 +133,71 @@ class TestOptiWindNetCollection:
             ]:
                 assert var_to_check in discrete_output_list
 
+    def test_example_location(self):
+        
+        # deep copy modeling options and adjust
+        modeling_options = copy.deepcopy(self.modeling_options)
+        modeling_options["farm"]["N_turbines"] = 12
+        modeling_options["farm"]["N_substations"] = 1
+        modeling_options["collection"]["max_turbines_per_string"] = 4
+
+        # create the OpenMDAO model
+        model = om.Group()
+        optiwindnet_coll_example = model.add_subsystem(
+            "optiwindnet_coll",
+            ard_own.OptiwindnetCollection(
+                modeling_options=modeling_options,
+            ),
+        )
+        prob = om.Problem(model)
+        prob.setup()
+
+        prob.set_val(
+            "optiwindnet_coll.x_turbines",
+            np.array(
+                [1940, 1920, 1475, 1839, 1277, 442, 737, 1060, 522, 87, 184, 71],
+                dtype=np.float64,
+            ),
+        )
+        prob.set_val(
+            "optiwindnet_coll.y_turbines",
+            np.array(
+                [279, 703, 696, 1250, 1296, 1359, 435, 26, 176, 35, 417, 878],
+                dtype=np.float64,
+            ),
+        )
+        prob.set_val(
+            "optiwindnet_coll.x_substations", np.array([696], dtype=np.float64)
+        )
+        prob.set_val(
+            "optiwindnet_coll.y_substations", np.array([1063], dtype=np.float64)
+        )
+        prob.set_val(
+            "optiwindnet_coll.x_border",
+            np.array(
+                [1951, 1951, 386, 650, 624, 4, 4, 1152, 917, 957], dtype=np.float64
+            ),
+        )
+        prob.set_val(
+            "optiwindnet_coll.y_border",
+            np.array(
+                [200, 1383, 1383, 708, 678, 1036, 3, 3, 819, 854], dtype=np.float64
+            ),
+        )
+
+        # run optiwindnet
+        prob.run_model()
+
+        assert (
+            abs(
+                prob.get_val("optiwindnet_coll.total_length_cables")
+                - 6564.7653295074515
+            )
+            < 1e-7
+        )
+        cpJ = prob.check_partials(out_stream=None)
+        assert_check_partials(cpJ, atol=1.0e-5, rtol=1.0e-3)
+
     def test_compute_pyrite(self):
 
         # set in the variables
