@@ -68,8 +68,8 @@ class CollectionTemplate(om.ExplicitComponent):
         self.add_input("y_turbines", np.zeros((self.N_turbines,)), units="m")
         self.add_input("x_substations", np.zeros((self.N_substations,)), units="m")
         self.add_input("y_substations", np.zeros((self.N_substations,)), units="m")
-        self.add_discrete_input("x_border", None) 
-        self.add_discrete_input("y_border", None) 
+        self.add_discrete_input("x_border", None)
+        self.add_discrete_input("y_border", None)
 
         # set up outputs for the collection system
         self.add_output("total_length_cables", 0.0, units="m")

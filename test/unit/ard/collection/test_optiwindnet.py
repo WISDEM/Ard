@@ -134,7 +134,7 @@ class TestOptiWindNetCollection:
                 assert var_to_check in discrete_output_list
 
     def test_example_location(self):
-        
+
         # deep copy modeling options and adjust
         modeling_options = copy.deepcopy(self.modeling_options)
         modeling_options["farm"]["N_turbines"] = 12
