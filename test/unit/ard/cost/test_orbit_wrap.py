@@ -6,8 +6,6 @@ import openmdao.api as om
 import ard
 import numpy as np
 import ard.utils.io
-
-# import ard.utils.test_utils
 import ard.layout.gridfarm as gridfarm
 import ard.collection
 import ard.cost.orbit_wrap as ocost
