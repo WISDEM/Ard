@@ -240,6 +240,7 @@ class optiwindnetCollection(templates.CollectionTemplate):
         discrete_outputs["load_cables"] = np.array(loads, dtype=np.float64)
         outputs["total_length_cables"] = np.sum(discrete_outputs["length_cables"])
         discrete_outputs["max_load_cables"] = np.max(discrete_outputs["load_cables"])
+        discrete_outputs["graph"] = H
 
     def compute_partials(self, inputs, J, discrete_inputs=None):
 

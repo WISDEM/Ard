@@ -73,6 +73,7 @@ class CollectionTemplate(om.ExplicitComponent):
         self.add_discrete_output("load_cables", np.zeros((self.N_turbines,)))
         self.add_output("total_length_cables", 0.0, units="m")
         self.add_discrete_output("max_load_cables", 0.0)
+        self.add_discrete_output("graph", None)
 
     def compute(
         self,
