@@ -39,6 +39,10 @@ jobs:
         import subprocess
         for example_dir in pathlib.Path("examples").iterdir():
           if example_dir.is_dir():
-            print(f"RUNNING {example_dir}")
-            for pyfile in example_dir.glob("*.py"):
-              subprocess.run(["python", str(pyfile)], check=True)
+          print(f"RUNNING {example_dir}")
+          for pyfile in example_dir.glob("*.py"):
+            subprocess.run(
+            ["python", str(pyfile.name)],
+            check=True,
+            cwd=str(example_dir)
+            )
