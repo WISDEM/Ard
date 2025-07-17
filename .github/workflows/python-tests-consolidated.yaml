@@ -11,6 +11,7 @@ on:
 jobs:
 
   test-unit:
+    name: Run unit tests
     strategy:
       matrix:
         python-version: [3.12] # ["3.10", "3.11", "3.12", "3.13"]
@@ -34,6 +35,7 @@ jobs:
         pytest --cov=ard --cov-fail-under=80 test/unit
 
   test-system:
+    name: Run system tests
     needs: test-unit
     strategy:
       matrix:
@@ -58,13 +60,15 @@ jobs:
         pytest --cov=ard --cov-fail-under=50 test/system
         # pytest --cov=ard --cov-fail-under=80 test/system
 
-  test-example:
+  test-examples:
+    name: Run all examples
     needs: [test-unit, test-system]
-    strategy:
-      matrix:
-        python-version: [3.12] # ["3.10", "3.11", "3.12", "3.13"]
-        os: [macos-latest, ubuntu-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
+    # strategy:
+    #   fail-fast: false
+    #   matrix:
+    #     script:
+    #       # this will be replaced dynamically
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -72,6 +76,25 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
+    - name: Find example scripts
+      id: find_scripts
+      run: |
+        echo "scripts<<EOF" >> $GITHUB_OUTPUT
+        find examples -mindepth 2 -maxdepth 2 -name "*.py" | jq -R -s -c 'split("\n")[:-1]' >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+    outputs:
+      scripts: ${{ steps.find_scripts.outputs.scripts }}
+
+  run-examples:
+    needs: test-examples
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [3.12] # ["3.10", "3.11", "3.12", "3.13"]
+        os: [macos-latest, ubuntu-latest, windows-latest]
+        script: ${{fromJson(needs.test-examples.outputs.scripts)}}
+    runs-on: ${{ matrix.os }}
+    steps:
     - name: Install dependencies
       run: |
           python -m pip install --upgrade pip
@@ -87,8 +110,8 @@ jobs:
         if example_dir.is_dir():
             print(f"RUNNING {example_dir}")
             for pyfile in example_dir.glob("*.py"):
-            subprocess.run(
-            ["python", str(pyfile.name)],
-            check=True,
-            cwd=str(example_dir)
-            )
+              subprocess.run(
+              ["python", str(pyfile.name)],
+              check=True,
+              cwd=str(example_dir)
+              )
