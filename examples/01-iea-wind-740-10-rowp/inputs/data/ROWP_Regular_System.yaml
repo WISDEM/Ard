@@ -1,9 +1,0 @@
-name: IEA Wind 740-10-MW Reference Offshore Wind Plant with regular layout (system)
-site: !include Site.yaml
-wind_farm: !include ROWP_Regular.yaml
-attributes:
-  net_AEP: 3385.51
-  analyses:
-    wake_model:
-      name: Jensen
-      

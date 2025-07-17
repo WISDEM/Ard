@@ -71,6 +71,7 @@ def set_up_ard_model(input_dict: Union[str, dict], root_data_path: str = None):
 
     if isinstance(input_dict["system"], str):
         if input_dict["system"] in available_default_systems:
+            print(f"DEBUG!!!!! ASSET_DIR: {ASSET_DIR}")
             system = load_yaml(ASSET_DIR / f"ard_system_{input_dict["system"]}.yaml")
 
             input_dict["system"] = replace_key_value(
