@@ -13,6 +13,9 @@ build-backend = "setuptools.build_meta"
 where = ["."]
 include = ["ard", "ard.*"]
 
+[tool.setuptools.package-data]
+"ard.api.default_systems" = ["*.yaml"]
+
 [project]
 name = "Ard"
 version = "1.0.0-alpha0"
