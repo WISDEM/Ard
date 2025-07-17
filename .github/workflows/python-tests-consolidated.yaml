@@ -1,4 +1,4 @@
-name: CI/CD stack
+name: Consolidated CI/CD testing
 
 on:
   push:
@@ -60,15 +60,10 @@ jobs:
         pytest --cov=ard --cov-fail-under=50 test/system
         # pytest --cov=ard --cov-fail-under=80 test/system
 
-  test-examples:
-    name: Run all examples
+  find-examples:
+    name: Find all examples
     needs: [test-unit, test-system]
     runs-on: ubuntu-latest
-    # strategy:
-    #   fail-fast: false
-    #   matrix:
-    #     script:
-    #       # this will be replaced dynamically
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -76,7 +71,7 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Find example scripts
+    - name: Find example python scripts
       id: find_scripts
       run: |
         echo "scripts<<EOF" >> $GITHUB_OUTPUT
@@ -85,33 +80,37 @@ jobs:
     outputs:
       scripts: ${{ steps.find_scripts.outputs.scripts }}
 
-  # run-examples:
-  #   needs: test-examples
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       python-version: [3.12] # ["3.10", "3.11", "3.12", "3.13"]
-  #       os: [macos-latest, ubuntu-latest, windows-latest]
-  #       script: ${{fromJson(needs.test-examples.outputs.scripts)}}
-  #   runs-on: ${{ matrix.os }}
-  #   steps:
-  #   - name: Install dependencies
-  #     run: |
-  #         python -m pip install --upgrade pip
-  #   - name: Install Ard
-  #     run: |
-  #       pip install .[dev]
-  #   - name: Run examples
-  #     shell: python
-  #     run: |
-  #       import pathlib
-  #       import subprocess
-  #       for example_dir in pathlib.Path("examples").iterdir():
-  #       if example_dir.is_dir():
-  #           print(f"RUNNING {example_dir}")
-  #           for pyfile in example_dir.glob("*.py"):
-  #             subprocess.run(
-  #             ["python", str(pyfile.name)],
-  #             check=True,
-  #             cwd=str(example_dir)
-  #             )
+  test-examples:
+    needs: find-examples
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [3.12] # ["3.10", "3.11", "3.12", "3.13"]
+        os: [macos-latest, ubuntu-latest, windows-latest]
+        script: ${{fromJson(needs.find-examples.outputs.scripts)}}
+    runs-on: ${{ matrix.os }}
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+    - name: Install Ard
+      run: |
+        pip install .[dev]
+    - name: Run examples
+      shell: python
+      run: |
+        import pathlib
+        import subprocess
+        path_script = pathlib.Path("${{ matrix.script }}").absolute()
+        print(f"RUNNING {path_script}")
+        subprocess.run(
+          ["python", str(path_script.name)],
+          check=True,
+          cwd=str(path_script.parent)
+        )
