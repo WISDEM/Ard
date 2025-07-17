@@ -36,15 +36,8 @@ jobs:
       run: |
         export RETURN_TO=$PWD
         for DIR in examples/* ; do
-          echo $DIR
+          echo "RUNNING $DIR"
           cd $DIR
           python *.py
           cd $RETURN_TO
         done
-
-    # - name: Upload coverage report
-    #   uses: codecov/codecov-action@v2
-    #   with:
-    #     file: ./coverage.xml
-    #     flags: unittests
-    #     name: codecov-umbrella
