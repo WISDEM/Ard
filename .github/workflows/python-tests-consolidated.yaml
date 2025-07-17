@@ -81,6 +81,7 @@ jobs:
       scripts: ${{ steps.find_scripts.outputs.scripts }}
 
   test-examples:
+    name: Run all examples
     needs: find-examples
     strategy:
       fail-fast: false
