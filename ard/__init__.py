@@ -6,5 +6,7 @@ from . import utils
 
 from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parent
+BASE_DIR = Path(__file__).absolute().parent
 ASSET_DIR = BASE_DIR / "api" / "default_systems"
+print(f"DEBUG!!!!! BASE_DIR: {BASE_DIR}")
+print(f"DEBUG!!!!! ASSET_DIR: {ASSET_DIR}")
