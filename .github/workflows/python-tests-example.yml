@@ -33,11 +33,12 @@ jobs:
         pip install .[dev]
 
     - name: Run examples
+      shell: python
       run: |
-        export RETURN_TO=$PWD
-        for DIR in examples/* ; do
-          echo "RUNNING $DIR"
-          cd $DIR
-          python *.py
-          cd $RETURN_TO
-        done
+        import pathlib
+        import subprocess
+        for example_dir in pathlib.Path("examples").iterdir():
+          if example_dir.is_dir():
+            print(f"RUNNING {example_dir}")
+            for pyfile in example_dir.glob("*.py"):
+              subprocess.run(["python", str(pyfile)], check=True)
