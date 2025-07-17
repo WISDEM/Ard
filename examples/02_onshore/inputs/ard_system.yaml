@@ -18,14 +18,14 @@ modeling_options:
   turbine: !include turbine_spec_IEA-3p4-130-RWT.yaml
   collection:
     max_turbines_per_string: 8
-    model_options:
-      topology: "branched"
-      feeder_route: "segmented"
-      feeder_limit: "unlimited"
     solver_name: "highs"
     solver_options:
       time_limit: 60
       mip_gap: 0.02
+    model_options:
+      topology: "branched"
+      feeder_route: "segmented"
+      feeder_limit: "unlimited"
   offshore: false
   floating: false
 
