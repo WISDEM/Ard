@@ -24,8 +24,9 @@ def run_example():
     # run the model
     prob.run_model()
 
-    # visualize model
-    # om.n2(prob, "new")
+    if False:
+        # visualize model
+        om.n2(prob)
 
     # collapse the test result data
     test_data = {
