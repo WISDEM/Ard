@@ -34,7 +34,7 @@ jobs:
 
     - name: Run examples
       run: |
-        export RETURN_TO=$CWD
+        export RETURN_TO=$PWD
         for DIR in examples/* ; do
           echo $DIR
           cd $DIR
