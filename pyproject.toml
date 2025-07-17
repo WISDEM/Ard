@@ -22,6 +22,7 @@ version = "1.0.0-alpha0"
 authors = [
   {name = "Cory Frontin", email = "cory.frontin@nrel.gov"},
   {name = "Rafael Mudafort", email = "rafael.mudafort@nrel.gov"},
+  {name = "Jared Thomas", email = "jared.thomas@nrel.gov"},
 ]
 description = "A package for multidisciplinary and/or multifidelity wind farm design"
 readme= "README.md"
