@@ -55,15 +55,13 @@ jobs:
       run: |
         import pathlib
         import subprocess
-        for example_dir in pathlib.Path("examples").iterdir():
-        if example_dir.is_dir():
-            print(f"RUNNING {example_dir}")
-            for pyfile in example_dir.glob("*.py"):
-              subprocess.run(
-              ["python", str(pyfile.name)],
-              check=True,
-              cwd=str(example_dir)
-              )
+        path_script = pathlib.Path(${{ matrix.script }}).absolute()
+        print(f"RUNNING {path_script}")
+        subprocess.run(
+          ["python", str(path_script.name)],
+          check=True,
+          cwd=str(path_script.parent)
+        )
 
 #   test-example:
 #     strategy:
