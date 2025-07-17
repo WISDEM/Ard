@@ -85,33 +85,33 @@ jobs:
     outputs:
       scripts: ${{ steps.find_scripts.outputs.scripts }}
 
-  run-examples:
-    needs: test-examples
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: [3.12] # ["3.10", "3.11", "3.12", "3.13"]
-        os: [macos-latest, ubuntu-latest, windows-latest]
-        script: ${{fromJson(needs.test-examples.outputs.scripts)}}
-    runs-on: ${{ matrix.os }}
-    steps:
-    - name: Install dependencies
-      run: |
-          python -m pip install --upgrade pip
-    - name: Install Ard
-      run: |
-        pip install .[dev]
-    - name: Run examples
-      shell: python
-      run: |
-        import pathlib
-        import subprocess
-        for example_dir in pathlib.Path("examples").iterdir():
-        if example_dir.is_dir():
-            print(f"RUNNING {example_dir}")
-            for pyfile in example_dir.glob("*.py"):
-              subprocess.run(
-              ["python", str(pyfile.name)],
-              check=True,
-              cwd=str(example_dir)
-              )
+  # run-examples:
+  #   needs: test-examples
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       python-version: [3.12] # ["3.10", "3.11", "3.12", "3.13"]
+  #       os: [macos-latest, ubuntu-latest, windows-latest]
+  #       script: ${{fromJson(needs.test-examples.outputs.scripts)}}
+  #   runs-on: ${{ matrix.os }}
+  #   steps:
+  #   - name: Install dependencies
+  #     run: |
+  #         python -m pip install --upgrade pip
+  #   - name: Install Ard
+  #     run: |
+  #       pip install .[dev]
+  #   - name: Run examples
+  #     shell: python
+  #     run: |
+  #       import pathlib
+  #       import subprocess
+  #       for example_dir in pathlib.Path("examples").iterdir():
+  #       if example_dir.is_dir():
+  #           print(f"RUNNING {example_dir}")
+  #           for pyfile in example_dir.glob("*.py"):
+  #             subprocess.run(
+  #             ["python", str(pyfile.name)],
+  #             check=True,
+  #             cwd=str(example_dir)
+  #             )

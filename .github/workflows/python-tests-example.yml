@@ -55,7 +55,7 @@ jobs:
       run: |
         import pathlib
         import subprocess
-        path_script = pathlib.Path(${{ matrix.script }}).absolute()
+        path_script = pathlib.Path("${{ matrix.script }}").absolute()
         print(f"RUNNING {path_script}")
         subprocess.run(
           ["python", str(path_script.name)],
