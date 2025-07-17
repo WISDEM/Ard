@@ -48,7 +48,6 @@ dependencies = [
   "jax",
   "optiwindnet>=0.0.4",
   "statsmodels",
-  # "statsmodels@git+https://github.com/statsmodels/statsmodels.git@main",
   "highspy",
   "pyyaml",
 ]
