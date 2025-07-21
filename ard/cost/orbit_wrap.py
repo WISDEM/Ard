@@ -13,15 +13,48 @@ from ard.cost.wisdem_wrap import ORBIT_setup_latents
 
 
 def generate_orbit_location_from_graph(
-    graph_pyomo,
+    graph,  # TODO: replace with a terse_links representation
     X_turbines,
     Y_turbines,
     X_substations,
     Y_substations,
 ):
+    """
+    go from a optiwindnet graph to an ORBIT input CSV
+
+    convert a optiwindnet graph representation of a collection system and get to
+    a best-possible approximation of the same collection system for
+    compatibility with ORBIT. ORBIT doesn't allow branching and optiwindnet
+    does by default, so we get allow some cable duplication if necessary to get
+    a conservative approximation of the BOS costs if the graph isn't compatible
+    with ORBIT
+
+    Parameters
+    ----------
+    graph : networkx.Graph
+        the graph representation of the collection system design
+    X_turbines : np.array
+        the cartesian X locations, in kilometers, of the turbines
+    Y_turbines : np.array
+        the cartesian Y locations, in kilometers, of the turbines
+    X_substations : np.array
+        the cartesian X locations, in kilometers, of the substations
+    Y_substations : np.array
+        the cartesian Y locations, in kilometers, of the substations
+
+    Returns
+    -------
+    pandas.DataFrame
+        a dataframe formatted for ORBIT to specify a farm layout
+
+    Raises
+    ------
+    RecursionError
+        if the recursive setup seems to be stuck in a loop
+    """
 
     # get all edges, sorted by the first node then the second node
-    edges_to_process = [edge for edge in graph_pyomo.edges]
+    edges_to_process = [edge for edge in graph.edges]
     edges_to_process.sort(key=lambda x: (x[0], x[1]))
     # get the edges with a negative index node (a substation)
     edges_inclsub = [edge for edge in edges_to_process if edge[0] < 0 or edge[1] < 0]

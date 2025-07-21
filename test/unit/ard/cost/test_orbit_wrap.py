@@ -32,6 +32,10 @@ class TestORBIT:
             "farm": {
                 "N_turbines": 7,
                 "N_substations": 1,
+                "x_turbines": np.linspace(-7.0 * 400.0, 7.0 * 400.0, 7),
+                "y_turbines": np.linspace(7.0 * 400.0, -7.0 * 400.0, 7),
+                "x_substations": np.array([0.1]),
+                "y_substations": np.array([0.1]),
             },
             "turbine": data_turbine,
             "offshore": True,
@@ -44,10 +48,15 @@ class TestORBIT:
             "site_depth": 50.0,
             "collection": {
                 "max_turbines_per_string": 8,
-                "solver_name": "appsi_highs",
+                "model_options": dict(
+                    topology="branched",
+                    feeder_route="segmented",
+                    feeder_limit="unlimited",
+                ),
+                "solver_name": "highs",
                 "solver_options": dict(
-                    time_limit=60,
-                    mip_rel_gap=0.005,  # TODO ???
+                    time_limit=10,
+                    mip_gap=0.005,  # TODO ???
                 ),
             },
         }
@@ -56,7 +65,7 @@ class TestORBIT:
         self.model = om.Group()
         self.coll = self.model.add_subsystem(  # collection component
             "optiwindnet_coll",
-            ard.collection.optiwindnetCollection(
+            ard.collection.OptiwindnetCollection(
                 modeling_options=self.modeling_options,
             ),
             promotes=[
@@ -82,10 +91,10 @@ class TestORBIT:
         )
         self.model.connect("optiwindnet_coll.graph", "orbit.graph")
 
-        self.model.set_input_defaults("x_turbines", units="km")
-        self.model.set_input_defaults("y_turbines", units="km")
-        self.model.set_input_defaults("x_substations", units="km")
-        self.model.set_input_defaults("y_substations", units="km")
+        self.model.set_input_defaults("x_turbines", self.modeling_options["farm"]["x_turbines"], units="km")
+        self.model.set_input_defaults("y_turbines", self.modeling_options["farm"]["y_turbines"], units="km")
+        self.model.set_input_defaults("x_substations", self.modeling_options["farm"]["x_substations"], units="km")
+        self.model.set_input_defaults("y_substations", self.modeling_options["farm"]["y_substations"], units="km")
 
         self.prob = om.Problem(self.model)
         self.prob.setup()
@@ -96,22 +105,19 @@ class TestORBIT:
 
     def test_baseline_farm(self, subtests):
 
-        x_turbines = np.linspace(-7.0 * 400.0, 7.0 * 400.0, 7)
-        y_turbines = np.linspace(7.0 * 400.0, -7.0 * 400.0, 7)
+        self.prob.set_val("x_turbines", self.modeling_options["farm"]["x_turbines"], units="m")
+        self.prob.set_val("y_turbines", self.modeling_options["farm"]["y_turbines"], units="m")
 
-        self.prob.set_val("x_turbines", x_turbines, units="m")
-        self.prob.set_val("y_turbines", y_turbines, units="m")
-
-        self.prob.set_val("x_substations", [0.1], units="km")
-        self.prob.set_val("y_substations", [0.1], units="km")
+        self.prob.set_val("x_substations", self.modeling_options["farm"]["x_substations"], units="km")
+        self.prob.set_val("y_substations", self.modeling_options["farm"]["y_substations"], units="km")
 
         self.prob.run_model()
 
         bos_capex = float(self.prob.get_val("orbit.bos_capex", units="MUSD"))
         total_capex = float(self.prob.get_val("orbit.total_capex", units="MUSD"))
 
-        bos_capex_ref = 470.4199789336224
-        total_capex_ref = 720.9999789336223
+        bos_capex_ref = 469.4374151677202
+        total_capex_ref = 720.0174151677202
 
         with subtests.test(f"orbit_skew_bos"):
             assert np.isclose(bos_capex, bos_capex_ref, rtol=1e-3)
