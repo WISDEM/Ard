@@ -99,8 +99,8 @@ def generate_orbit_location_from_graph(
             data_orbit["latitude"].append(Y_turbines[turbine_tgt_index])
             data_orbit["string"].append(int(idx_string))
             data_orbit["order"].append(int(order))
-            data_orbit["cable_length"].append(0)
-            data_orbit["bury_speed"].append(0)
+            data_orbit["cable_length"].append(0)  # ORBIT computes automatically
+            data_orbit["bury_speed"].append(0)  # ORBIT computes automatically
 
             # pop this edge out of the edges list
             edges_to_process.remove(edge)
