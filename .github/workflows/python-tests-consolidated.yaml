@@ -41,6 +41,7 @@ jobs:
 
   test-unit:
     name: Run unit tests
+    needs: setup-install
     strategy:
       matrix:
         python-version: [3.12] # ["3.10", "3.11", "3.12", "3.13"]
