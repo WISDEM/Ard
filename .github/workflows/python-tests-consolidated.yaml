@@ -1,4 +1,4 @@
-name: Consolidated CI/CD testing
+name: CI/CD test suite
 
 on:
   push:
