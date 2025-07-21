@@ -157,6 +157,16 @@ def generate_orbit_location_from_graph(
 
 
 class ORBITDetail(orbit_wisdem.Orbit):
+    """
+    Wrapper for WISDEM's ORBIT offshore BOS calculators.
+
+    A thicker wrapper of `wisdem.orbit_api` that 1) replaces capabilities that
+    assume a grid farm layout that is default in WISDEM's ORBIT with a custom
+    array layout, and 2) traps warning messages that are recognized not to be
+    issues.
+
+    See: https://github.com/WISDEM/ORBIT
+    """
 
     def initialize(self):
         """Initialize for API connections."""
