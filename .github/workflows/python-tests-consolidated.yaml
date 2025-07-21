@@ -60,11 +60,11 @@ jobs:
       with:
         path: ${{ env.pythonLocation }}
         key: ${{ env.pythonLocation }}-${{ hashFiles('requirements.txt') }}
-    - if: steps.cache.outputs.cache-hit != 'true'
+    - # if: steps.cache.outputs.cache-hit != 'true'
       name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-    - if: steps.cache.outputs.cache-hit != 'true'
+    - # if: steps.cache.outputs.cache-hit != 'true'
       name: Install Ard
       run: |
         pip install .[dev]
@@ -93,11 +93,11 @@ jobs:
       with:
         path: ${{ env.pythonLocation }}
         key: ${{ env.pythonLocation }}-${{ hashFiles('requirements.txt') }}
-    - if: steps.cache.outputs.cache-hit != 'true'
+    - # if: steps.cache.outputs.cache-hit != 'true'
       name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-    - if: steps.cache.outputs.cache-hit != 'true'
+    - # if: steps.cache.outputs.cache-hit != 'true'
       name: Install Ard
       run: |
         pip install .[dev]
