@@ -188,7 +188,6 @@ class OptiwindnetCollection(templates.CollectionTemplate):
         ), f"difference: {length_cables.sum() - G.size(weight='length')}"
         outputs["total_length_cables"] = length_cables.sum()
 
-
     def compute_partials(self, inputs, J, discrete_inputs=None):
 
         # re-load the key variables back as locals
