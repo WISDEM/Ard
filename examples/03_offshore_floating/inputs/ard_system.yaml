@@ -24,7 +24,11 @@ modeling_options: &modeling_options
     solver_name: "highs"
     solver_options:
       time_limit: 60
-      mip_gap: 0.005
+      mip_gap: 0.02
+    model_options:
+      topology: "branched"
+      feeder_route: "segmented"
+      feeder_limit: "unlimited"
   offshore: true
   floating: true
 
