@@ -16,6 +16,13 @@ jobs:
       matrix:
         python-version: [3.12] # ["3.10", "3.11", "3.12", "3.13"]
         os: [macos-latest, ubuntu-latest, windows-latest]
+        include:
+        - os: ubuntu-latest
+          path: ~/.cache/pip
+        - os: macos-latest
+          path: ~/Library/Caches/pip
+        - os: windows-latest
+          path: ~\AppData\Local\pip\Cache
     runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout code
@@ -32,12 +39,12 @@ jobs:
         pip install .[dev]
     - name: Cache dependencies
       id: cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
-        path: ${{ env.pythonLocation }}
-        key: ${{ env.pythonLocation }}-${{ hashFiles('requirements.txt') }}
+        path: ${{ matrix.path }}
+        key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
         restore-keys:
-          ${{ env.pythonLocation }}-
+          ${{ runner.os }}-pip-
 
   test-unit:
     name: Run unit tests
@@ -46,6 +53,13 @@ jobs:
       matrix:
         python-version: [3.12] # ["3.10", "3.11", "3.12", "3.13"]
         os: [macos-latest, ubuntu-latest, windows-latest]
+        include:
+        - os: ubuntu-latest
+          path: ~/.cache/pip
+        - os: macos-latest
+          path: ~/Library/Caches/pip
+        - os: windows-latest
+          path: ~\AppData\Local\pip\Cache
     runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout code
@@ -54,18 +68,18 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Cache dependencies
+    - name: Get cache dependencies
       id: cache
       uses: actions/cache@v4
       with:
-        path: ${{ env.pythonLocation }}
-        key: ${{ env.pythonLocation }}-${{ hashFiles('requirements.txt') }}
-    - # if: steps.cache.outputs.cache-hit != 'true'
-      name: Install dependencies
+        path: ${{ matrix.path }}
+        key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+        restore-keys:
+          ${{ runner.os }}-pip-
+    - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-    - # if: steps.cache.outputs.cache-hit != 'true'
-      name: Install Ard
+    - name: Install Ard
       run: |
         pip install .[dev]
     - name: Run unit tests with coverage
@@ -93,12 +107,10 @@ jobs:
       with:
         path: ${{ env.pythonLocation }}
         key: ${{ env.pythonLocation }}-${{ hashFiles('requirements.txt') }}
-    - # if: steps.cache.outputs.cache-hit != 'true'
-      name: Install dependencies
+    - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-    - # if: steps.cache.outputs.cache-hit != 'true'
-      name: Install Ard
+    - name: Install Ard
       run: |
         pip install .[dev]
     - name: Run system tests with coverage
