@@ -10,17 +10,13 @@ on:
 
 jobs:
 
-  setup:
-    name: Setup Python and Install Dependencies
-    runs-on: ${{ matrix.os }}
+  test-unit:
+    name: Run unit tests
     strategy:
       matrix:
         python-version: [3.12] # ["3.10", "3.11", "3.12", "3.13"]
         os: [macos-latest, ubuntu-latest, windows-latest]
-    outputs:
-      python-version: ${{ matrix.python-version }}
-      os: ${{ matrix.os }}
-      cache-path: ${{ steps.cache.outputs.cache-path }}
+    runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -28,33 +24,12 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Cache pip
-      id: cache
-      uses: actions/cache@v4
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
+    - name: Install Ard
+      run: |
         pip install .[dev]
-
-  test-unit:
-    name: Run unit tests
-    needs: setup
-    runs-on: ${{ needs.setup.outputs.os }}
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    - name: Set up Python ${{ needs.setup.outputs.python-version }}
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ needs.setup.outputs.python-version }}
-    - name: Restore pip cache
-      uses: actions/cache@v4
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
     - name: Run unit tests with coverage
       run: |
         pytest --cov=ard --cov-fail-under=80 test/unit
@@ -62,22 +37,28 @@ jobs:
   test-system:
     name: Run system tests
     needs: test-unit
-    runs-on: ${{ needs.setup.outputs.os }}
+    strategy:
+      matrix:
+        python-version: [3.12] # ["3.10", "3.11", "3.12", "3.13"]
+        os: [macos-latest, ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-    - name: Set up Python ${{ needs.setup.outputs.python-version }}
+    - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
       with:
-        python-version: ${{ needs.setup.outputs.python-version }}
-    - name: Restore pip cache
-      uses: actions/cache@v4
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+    - name: Install Ard
+      run: |
+        pip install .[dev]
     - name: Run system tests with coverage
       run: |
         pytest --cov=ard --cov-fail-under=50 test/system
+        # pytest --cov=ard --cov-fail-under=80 test/system
 
   find-examples:
     name: Find all examples
@@ -86,10 +67,10 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-    - name: Set up Python 3.12
+    - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
       with:
-        python-version: 3.12
+        python-version: ${{ matrix.python-version }}
     - name: Find example python scripts
       id: find_scripts
       run: |
@@ -116,12 +97,10 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Restore pip cache
-      uses: actions/cache@v4
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
-    - name: Install Ard (if needed)
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+    - name: Install Ard
       run: |
         pip install .[dev]
     - name: Run examples
