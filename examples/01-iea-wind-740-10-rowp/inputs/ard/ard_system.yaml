@@ -1,0 +1,16 @@
+groups:
+  aerodynamics:
+    promotes: ["*"]
+    systems:
+      aep:
+        type: group
+        promotes: ["*"]
+        systems:
+          floris:
+            name: farm_aero.floris
+            object: FLORISAEP
+            type: component
+            promotes: ["*"]
+            kwargs:
+              case_title: "test"
+              modeling_options: "example_value"

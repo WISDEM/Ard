@@ -1,0 +1,77 @@
+type: group
+connections:
+  - ["AEP_farm", "financese.plant_aep_in"]
+  - ["orbit.total_capex_kW", "financese.bos_per_kW"]  # For offshore systems
+systems:
+  layout2aep:
+    type: group
+    promotes: ["*"]
+    approx_totals:
+      method: "fd"
+      step: 1.0E-3
+      form: "central"
+      step_calc: "rel_avg"
+    systems:
+      layout:
+        type: component
+        module: ard.layout.gridfarm
+        object: GridFarmLayout
+        promotes: ["*"]
+        kwargs:
+          modeling_options:
+      aepFLORIS:
+        type: component
+        module: ard.farm_aero.floris
+        object: FLORISAEP
+        promotes: ["x_turbines", "y_turbines", "AEP_farm"]
+        kwargs:
+          modeling_options:
+          case_title: "default"
+  landuse:
+    type: component
+    module: ard.layout.gridfarm
+    object: GridFarmLanduse
+    promotes: ["*"]
+    kwargs:
+      modeling_options:
+  orbit:
+    type: component
+    module: ard.cost.wisdem_wrap
+    object: ORBIT
+    promotes: [
+      ["plant_turbine_spacing", "spacing_effective_primary"],
+      ["plant_row_spacing", "spacing_effective_secondary"],
+      # "installation_capex",
+    ]
+    kwargs:
+      floating: false
+  tcc:
+    type: component
+    module: ard.cost.wisdem_wrap
+    object: TurbineCapitalCosts
+    promotes: [
+      "turbine_number",
+      "machine_rating",
+      "tcc_per_kW",
+      "offset_tcc_per_kW",
+    ]
+  opex:
+    type: component
+    module: ard.cost.wisdem_wrap
+    object: OperatingExpenses
+    promotes: [
+      "turbine_number",
+      "machine_rating", 
+      "opex_per_kW"
+    ]
+  financese:
+    type: component
+    module: ard.cost.wisdem_wrap
+    object: PlantFinance
+    promotes: [
+      "turbine_number",
+      "machine_rating",
+      "tcc_per_kW",
+      "offset_tcc_per_kW",
+      "opex_per_kW",
+    ]

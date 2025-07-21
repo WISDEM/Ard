@@ -69,29 +69,29 @@ class TestFarmAeroTemplate:
 class TestBatchFarmPowerTemplate:
 
     def setup_method(self):
+        self.wq = wq.WindQuery(
+            np.array([0.0, 180.0, 360.0]),
+            np.array([1.0, 10.0, 30.0]),
+            0.06,
+        )
+
         self.modeling_options = {
             "farm": {
                 "N_turbines": 4,
             },
+            "wind_rose": self.wq,
             "turbine": {
                 "geometry": {
                     "diameter_rotor": 130.0,
                 }
             },
         }
-        self.wq = wq.WindQuery(
-            np.array([0.0, 180.0, 360.0]),
-            np.array([1.0, 10.0, 30.0]),
-            0.06,
-        )
-        print(f"DEBUG!!!!! self.wq.N_conditions: {self.wq.N_conditions}")
 
         self.model = om.Group()
         self.bfp_temp = self.model.add_subsystem(
             "bfp_temp",
             templates.BatchFarmPowerTemplate(
                 modeling_options=self.modeling_options,
-                wind_query=self.wq,
             ),
             promotes=["*"],
         )
@@ -141,10 +141,17 @@ class TestBatchFarmPowerTemplate:
 class TestFarmAEPTemplate:
 
     def setup_method(self):
+        self.wr = floris.WindRose(
+            wind_directions=np.array([270, 280]),
+            wind_speeds=np.array([6.0, 7.0, 8.0]),
+            ti_table=0.06,
+        )
+
         self.modeling_options = {
             "farm": {
                 "N_turbines": 4,
             },
+            "wind_rose": self.wr,
             "turbine": {
                 "geometry": {
                     "diameter_rotor": 130.0,
@@ -152,18 +159,11 @@ class TestFarmAEPTemplate:
             },
         }
 
-        self.wr = floris.WindRose(
-            wind_directions=np.array([270, 280]),
-            wind_speeds=np.array([6.0, 7.0, 8.0]),
-            ti_table=0.06,
-        )
-
         self.model = om.Group()
         self.aep_temp = self.model.add_subsystem(
             "bfp_temp",
             templates.FarmAEPTemplate(
                 modeling_options=self.modeling_options,
-                wind_rose=self.wr,
             ),
             promotes=["*"],
         )

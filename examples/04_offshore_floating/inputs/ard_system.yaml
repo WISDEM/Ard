@@ -1,0 +1,173 @@
+modeling_options: &modeling_options
+  farm:
+    N_turbines: 25
+    N_substations: 1
+    spacing_primary: 7.0
+    spacing_secondary: 7.0
+    angle_orientation: 0.0
+    angle_skew: 0.0
+    x_substations: 0.1
+    y_substations: 0.1
+  wind_rose:
+    file: wrg_example.wrg
+    wd_step: 90.0
+    wind_speeds: [5.0, 10.0, 15.0, 20.0]
+    point: [0.0, 0.0]
+  turbine: !include turbine_spec_IEA-22-284-RWT.yaml
+  platform:
+    N_anchors: 3
+    min_mooring_line_length_m: 500.0
+    N_anchor_dimensions: 2
+  site_depth: 50.0
+  collection:
+    max_turbines_per_string: 8
+    solver_name: "highs"
+    solver_options:
+      time_limit: 60
+      mip_gap: 0.005
+  offshore: true
+  floating: true
+
+system:
+  type: group
+  systems:
+    layout2aep:
+      type: group
+      approx_totals:
+        method: "fd"
+        step: 1.0E-3
+        form: "central"
+        step_calc: "rel_avg"
+      promotes: ["*"]
+      systems:
+        layout:
+          type: component
+          module: ard.layout.gridfarm
+          object: GridFarmLayout
+          promotes: ["*"]
+          kwargs:
+            modeling_options: *modeling_options
+        aepFLORIS:
+          type: component
+          module: ard.farm_aero.floris
+          object: FLORISAEP
+          promotes: ["x_turbines", "y_turbines", "AEP_farm"]
+          kwargs:
+            modeling_options: *modeling_options
+            case_title: "default"
+            data_path: "inputs"
+    landuse:
+      type: component
+      module: ard.layout.gridfarm
+      object: GridFarmLanduse
+      promotes: ["*"]
+      kwargs:
+        modeling_options: *modeling_options
+    collection:
+      type: component
+      module: ard.collection
+      object: OptiwindnetCollection
+      promotes: ["x_turbines", "y_turbines"]
+      kwargs:
+        modeling_options: *modeling_options
+    mooring_design:
+      type: component
+      module: ard.offshore.mooring_design_constant_depth
+      object: ConstantDepthMooringDesign
+      promotes: ["x_turbines", "y_turbines", "x_anchors", "y_anchors", "phi_platform"]
+      kwargs:
+        modeling_options: *modeling_options
+        wind_query:
+    mooring_constraint:
+      type: component
+      module: ard.offshore.mooring_constraint
+      object: MooringConstraint
+      promotes: ["x_turbines", "y_turbines", "x_anchors", "y_anchors"]
+      kwargs:
+        modeling_options: *modeling_options
+    spacing_constraint:
+      type: component
+      module: ard.layout.spacing
+      object: TurbineSpacing
+      promotes: ["x_turbines", "y_turbines"]
+      kwargs:
+        modeling_options: *modeling_options
+    tcc:
+      type: component
+      module: ard.cost.wisdem_wrap
+      object: TurbineCapitalCosts
+      promotes: [
+        "turbine_number",
+        "machine_rating",
+        "tcc_per_kW",
+        "offset_tcc_per_kW",
+      ]
+    orbit:
+      type: component
+      module: ard.cost.wisdem_wrap
+      object: ORBIT
+      promotes: [
+        ["plant_turbine_spacing", "spacing_effective_primary"],
+        ["plant_row_spacing", "spacing_effective_secondary"],
+        # "installation_capex",
+      ]
+      kwargs:
+        floating: true
+    opex:
+      type: component
+      module: ard.cost.wisdem_wrap
+      object: OperatingExpenses
+      promotes: [
+        "turbine_number",
+        "machine_rating",
+        "opex_per_kW"
+      ]
+    financese:
+      type: component
+      module: ard.cost.wisdem_wrap
+      object: PlantFinance
+      promotes: [
+        "turbine_number",
+        "machine_rating",
+        "tcc_per_kW",
+        "offset_tcc_per_kW",
+        "opex_per_kW",
+      ]
+  connections:
+    - ["AEP_farm", "financese.plant_aep_in"]
+    - ["orbit.total_capex_kW", "financese.bos_per_kW"]  # For offshore systems
+
+analysis_options:
+  driver:
+    name: ScipyOptimizeDriver
+    options:
+      optimizer: "SLSQP"
+  design_variables:
+    spacing_primary:
+      lower: 3.0
+      upper: 10.0
+    spacing_secondary:
+      lower: 3.0
+      upper: 10.0
+    angle_orientation:
+      lower: -180.0
+      upper: 180.0
+    angle_skew:
+      lower: -75.0
+      upper: 75.0
+    phi_platform:
+      lower: -30.0
+      upper: 30.0
+  constraints:
+    mooring_constraint.mooring_spacing:
+      units: "m"
+      lower: 50.0
+    spacing_constraint.turbine_spacing:
+      units: "m"
+      lower: 852.0
+  objective:
+    name: collection.total_length_cables
+    options:
+      scaler: 1.0
+  recorder:
+    filepath: "opt_results.sql"

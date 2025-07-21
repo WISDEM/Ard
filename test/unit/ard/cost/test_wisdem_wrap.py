@@ -8,7 +8,6 @@ import ard.utils.io
 import ard.utils.test_utils
 import ard.layout.gridfarm as gridfarm
 import ard.cost.wisdem_wrap as wcost
-import ard.glue.prototype as glue
 
 
 class TestLandBOSSE:
@@ -30,6 +29,10 @@ class TestLandBOSSE:
         self.modeling_options = {
             "farm": {
                 "N_turbines": 25,
+                "spacing_primary": 0.0,  # reset in test_setup
+                "spacing_secondary": 0.0,  # reset in test_setup
+                "angle_orientation": 0.0,  # reset in test_setup
+                "angle_skew": 0.0,  # reset in test_setup
             },
             "turbine": data_turbine,
         }
@@ -102,6 +105,10 @@ class TestORBIT:
         self.modeling_options = {
             "farm": {
                 "N_turbines": 25,
+                "spacing_primary": 0.0,  # reset in test
+                "spacing_secondary": 0.0,  # reset in test
+                "angle_orientation": 0.0,  # reset in test
+                "angle_skew": 0.0,  # reset in test
             },
             "site_depth": 50.0,
             "turbine": data_turbine,
@@ -134,7 +141,7 @@ class TestORBIT:
         wcost.ORBIT_setup_latents(self.prob, self.modeling_options)
         # wcost.FinanceSE_setup_latents(self.prob, self.modeling_options)
 
-    def test_baseline_farm(self):
+    def test_baseline_farm(self, subtests):
 
         self.prob.set_val("gridfarm.spacing_primary", 7.0)
         self.prob.set_val("gridfarm.spacing_secondary", 7.0)
@@ -150,12 +157,20 @@ class TestORBIT:
             "total_capex": self.prob.get_val("orbit.total_capex", units="MUSD"),
         }
         # validate data against pyrite file
-        ard.utils.test_utils.pyrite_validator(
+        pyrite_data = ard.utils.test_utils.pyrite_validator(
             test_data,
             fn_pyrite,
             rtol_val=5e-3,
+            load_only=True,
             # rewrite=True,  # uncomment to write new pyrite file
         )
+
+        # Validate each key-value pair using subtests
+        for key, value in test_data.items():
+            with subtests.test(key=key):
+                assert np.isclose(value, pyrite_data[key], rtol=5e-3), (
+                    f"Mismatch for {key}: " f"expected {pyrite_data[key]}, got {value}"
+                )
 
 
 class TestPlantFinance:

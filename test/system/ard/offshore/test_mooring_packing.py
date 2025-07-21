@@ -31,6 +31,15 @@ class TestMooringPacking:
             "farm": {
                 "N_turbines": 4,
                 "N_substations": 1,
+                "spacing_primary": 7.0,
+                "spacing_secondary": 7.0,
+                "angle_orientation": 0.0,
+                "angle_skew": 0.0,
+                "phi_platform": 0.0,
+                "x_turbines": np.zeros(4),
+                "y_turbines": np.zeros(4),
+                "x_substations": 500,
+                "y_substations": 500,
             },
             "turbine": data_turbine_spec,
             "offshore": True,
@@ -43,10 +52,15 @@ class TestMooringPacking:
             "site_depth": 50.0,
             "collection": {
                 "max_turbines_per_string": 8,
-                "solver_name": "appsi_highs",
+                "solver_name": "highs",
                 "solver_options": dict(
                     time_limit=60,
-                    mip_rel_gap=0.005,  # TODO ???
+                    mip_gap=0.005,  # TODO ???
+                ),
+                "model_options": dict(
+                    topology="branched",
+                    feeder_route="segmented",
+                    feeder_limit="unlimited",
                 ),
             },
         }
@@ -68,7 +82,7 @@ class TestMooringPacking:
 
         model.add_subsystem(
             "optiwindnet_coll",
-            ard.collection.optiwindnetCollection(
+            ard.collection.OptiwindnetCollection(
                 modeling_options=self.modeling_options,
             ),
             promotes=["x_turbines", "y_turbines"],
@@ -131,15 +145,6 @@ class TestMooringPacking:
 
         # setup the problem
         self.prob.setup()
-
-        # set up the variables
-        self.prob.set_val("spacing_primary", 7.0)
-        self.prob.set_val("spacing_secondary", 7.0)
-        self.prob.set_val("angle_orientation", 0.0)
-        self.prob.set_val("angle_skew", 0.0)
-        self.prob.set_val("phi_platform", 0.0)
-        self.prob.set_val("optiwindnet_coll.x_substations", [500.0])
-        self.prob.set_val("optiwindnet_coll.y_substations", [500.0])
 
         # run the model
         self.prob.run_model()

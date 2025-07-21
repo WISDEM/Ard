@@ -9,8 +9,11 @@ It is automatically generated every time the documentation is built.
     :toctree: _autosummary
     :recursive:
 
+    ard.api
+    ard.collection
     ard.cost
     ard.farm_aero
+    ard.geographic
     ard.layout
     ard.offshore
     ard.utils

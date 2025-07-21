@@ -13,6 +13,7 @@ import ard.farm_aero.templates as templates
 def create_FLORIS_turbine(
     input_turbine_spec: dict | PathLike,
     filename_turbine_FLORIS: PathLike = None,
+    data_path="",
 ) -> dict:
     """
     Create a FLORIS turbine from a generic Ard turbine specification.
@@ -35,8 +36,11 @@ def create_FLORIS_turbine(
         if the turbine specification input is not the correct type
     """
 
+    if data_path == None:
+        data_path = ""
+
     if isinstance(input_turbine_spec, PathLike):
-        with open(input_turbine_spec, "r") as file_turbine_spec:
+        with open(data_path + input_turbine_spec, "r") as file_turbine_spec:
             turbine_spec = ard.utils.io.load_turbine_spec(file_turbine_spec)
     elif type(input_turbine_spec) == dict:
         turbine_spec = input_turbine_spec
@@ -48,7 +52,9 @@ def create_FLORIS_turbine(
 
     # load speed/power/thrust file
     filename_power_thrust = turbine_spec["performance_data_ccblade"]["power_thrust_csv"]
-    pt_raw = np.genfromtxt(filename_power_thrust, delimiter=",").T.tolist()
+    pt_raw = np.genfromtxt(
+        Path(data_path, filename_power_thrust), delimiter=","
+    ).T.tolist()
 
     # create FLORIS config dict
     turbine_FLORIS = dict()
@@ -123,9 +129,14 @@ class FLORISFarmComponent:
 
         # set up FLORIS
         self.fmodel = floris.FlorisModel("defaults")
+        data_path = self.options["data_path"]
         self.fmodel.set(
             wind_shear=self.modeling_options.get("wind_shear", 0.585),
-            turbine_type=[create_FLORIS_turbine(self.modeling_options["turbine"])],
+            turbine_type=[
+                create_FLORIS_turbine(
+                    self.modeling_options["turbine"], data_path=data_path
+                )
+            ],
         )
         self.fmodel.assign_hub_height_to_ref_height()
 

@@ -96,7 +96,7 @@ class LandBOSSEArdComp(LandBOSSE_orig):
         )
 
     def compute(self, inputs, outputs, discrete_inputs=None, discrete_outputs=None):
-        """Computation for the OM compoent."""
+        """Computation for the OM component."""
         warnings.filterwarnings("ignore", category=FutureWarning)
         warnings.filterwarnings("ignore", category=DeprecationWarning)
         with warnings.catch_warnings():
@@ -354,7 +354,7 @@ def LandBOSSE_setup_latents(prob, modeling_options: dict) -> None:
             ],
         }
     else:
-        # this is the standard mapping for using LandBOSSE, since typically ORIBIT should
+        # this is the standard mapping for using LandBOSSE, since typically ORBIT should
         # be used for BOS costs for offshore systems.
         variable_mapping = {
             "num_turbines": modeling_options["farm"]["N_turbines"],
@@ -417,7 +417,9 @@ def ORBIT_setup_latents(prob, modeling_options: dict) -> None:
 
     # Define the mapping between OpenMDAO variable names and modeling_options keys
     variable_mapping = {
-        "turbine_rating": modeling_options["turbine"]["nameplate"]["power_rated"],
+        "turbine_rating": modeling_options["turbine"]["nameplate"][
+            "power_rated"
+        ],  # *1E-3,
         "site_depth": modeling_options["site_depth"],
         "number_of_turbines": modeling_options["farm"]["N_turbines"],
         "number_of_blades": modeling_options["turbine"]["geometry"]["num_blades"],
@@ -594,7 +596,7 @@ def set_values(prob, variable_map: dict) -> None:
     None
     """
 
-    # Get a map from the component variables to the promotion variables
+    # # Get a map from the component variables to the promotion variables
     promotion_map = {
         v[0].split(".")[-1]: v[-1]["prom_name"]
         for v in prob.model.list_vars(val=False, out_stream=None)
@@ -611,3 +613,26 @@ def set_values(prob, variable_map: dict) -> None:
                 print(
                     f"{core_name} not provided in turbine input, using WISDEM default"
                 )
+
+    # # Get a map from the component variables to the promotion variables
+    # promotion_map = {
+    #     v[0]: v[-1]["prom_name"]
+    #     for v in prob.model.list_vars(val=False, out_stream=None)
+    # }
+
+    # # Iterate over the mapping and set values in the OpenMDAO problem
+    # for full_name in promotion_map:
+
+    #     prom_name = promotion_map[full_name]
+    #     core_name = prom_name.split(".")[-1]
+    #     # if "turbine_number" in full_name:
+    #     #     import pdb; pdb.set_trace()
+    #     if core_name in variable_map:
+    #         print(core_name)
+    #         try:
+    #             prob.set_val(full_name, variable_map[core_name])
+    #         except:
+    #             print(f"{core_name} not provided in Ard input, using WISDEM default")
+
+
+# ['financese.machine_rating', 'opex.machine_rating', 'orbit.orbit.turbine_rating', 'tcc.machine_rating']

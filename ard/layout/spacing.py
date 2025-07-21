@@ -92,9 +92,9 @@ def calculate_turbine_spacing(
 
     Args:
         x_turbines (np.ndarray): a 1D numpy array indicating the x-dimension locations of the turbines,
-            with length `N_turbines
+            with length `N_turbines`.
         y_turbines (np.ndarray): a 1D numpy array indicating the y-dimension locations of the turbines,
-            with length `N_turbines
+            with length `N_turbines`.
 
     Returns:
         turbine distances (np.ndarray): a 1D numpy array indicating the distances between turbines

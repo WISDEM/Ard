@@ -6,3 +6,6 @@ FLORIS_power_comp/AEP_comp_out
 
 LCOE_stack/LCOE_demo_out
 
+*.html
+*.sql
+*.openmdao*

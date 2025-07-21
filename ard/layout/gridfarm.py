@@ -85,12 +85,20 @@ class GridFarmLayout(templates.LayoutTemplate):
     def setup(self):
         """Setup of OM component."""
         super().setup()
+        spacing_primary = self.options["modeling_options"]["farm"]["spacing_primary"]
+        spacing_secondary = self.options["modeling_options"]["farm"][
+            "spacing_secondary"
+        ]
+        angle_orientation = self.options["modeling_options"]["farm"][
+            "angle_orientation"
+        ]
+        angle_skew = self.options["modeling_options"]["farm"]["angle_skew"]
 
         # add four-parameter grid farm layout DVs
-        self.add_input("spacing_primary", 7.0)
-        self.add_input("spacing_secondary", 7.0)
-        self.add_input("angle_orientation", 0.0, units="deg")
-        self.add_input("angle_skew", 0.0, units="deg")
+        self.add_input("spacing_primary", spacing_primary)
+        self.add_input("spacing_secondary", spacing_secondary)
+        self.add_input("angle_orientation", angle_orientation, units="deg")
+        self.add_input("angle_skew", angle_skew, units="deg")
 
     def setup_partials(self):
         """Derivative setup for OM component."""
@@ -136,7 +144,7 @@ class GridFarmLayout(templates.LayoutTemplate):
         Bmtx = np.array(
             [
                 [1.0, 0.0],
-                [np.tan(float(angle_skew[0])), 1.0],
+                [np.tan(angle_skew[0]), 1.0],
             ]
         ).squeeze()
 
@@ -218,10 +226,24 @@ class GridFarmLanduse(templates.LanduseTemplate):
         super().setup()
 
         # add grid farm-specific inputs
-        self.add_input("spacing_primary", 7.0)
-        self.add_input("spacing_secondary", 7.0)
-        self.add_input("angle_orientation", 0.0, units="deg")
-        self.add_input("angle_skew", 0.0, units="deg")
+        self.add_input(
+            "spacing_primary",
+            self.options["modeling_options"]["farm"]["spacing_primary"],
+        )
+        self.add_input(
+            "spacing_secondary",
+            self.options["modeling_options"]["farm"]["spacing_secondary"],
+        )
+        self.add_input(
+            "angle_orientation",
+            self.options["modeling_options"]["farm"]["angle_orientation"],
+            units="deg",
+        )
+        self.add_input(
+            "angle_skew",
+            self.options["modeling_options"]["farm"]["angle_skew"],
+            units="deg",
+        )
 
         self.add_output(
             "area_aligned_parcel",

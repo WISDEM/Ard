@@ -13,6 +13,10 @@ class TestCollectionTemplate:
             "farm": {
                 "N_turbines": 4,
                 "N_substations": 2,
+                "x_turbines": np.zeros(4),
+                "y_turbines": np.zeros(4),
+                "x_substations": [0.0, 0.0],  # reset in test
+                "y_substations": [0.0, 0.0],  # reset in test
             },
         }
 
@@ -53,10 +57,10 @@ class TestCollectionTemplate:
             # make sure that the outputs in the component match what we planned
             output_list = [k for k, v in self.coll_temp.list_outputs()]
             for var_to_check in [
-                # "length_cables",
-                # "load_cables",
+                "length_cables",
+                "load_cables",
                 "total_length_cables",
-                # "max_load_cables",
+                "max_load_cables",
             ]:
                 assert var_to_check in output_list
 
@@ -65,10 +69,7 @@ class TestCollectionTemplate:
                 k for k, v in self.coll_temp._discrete_outputs.items()
             ]
             for var_to_check in [
-                "length_cables",
-                "load_cables",
-                # "total_length_cables",
-                "max_load_cables",
+                "terse_links",
             ]:
                 assert var_to_check in discrete_output_list
 

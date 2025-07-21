@@ -1,0 +1,67 @@
+system: "offshore_floating"
+
+modeling_options:
+  farm:
+    N_turbines: 25
+    N_substations: 1
+    spacing_primary: 7
+    spacing_secondary: 7
+    angle_orientation: 0.0
+    angle_skew: 0.0
+    x_substations: 100.0
+    y_substations: 100.0
+  wind_rose:
+    file: wrg_example.wrg
+    wd_step: 90.0
+    wind_speeds: [5.0, 10.0, 15.0, 20.0]
+    point: [0.0, 0.0]
+  turbine: !include turbine_spec_IEA-22-284-RWT.yaml
+  platform:
+    N_anchors: 3
+    min_mooring_line_length_m: 500.0
+    N_anchor_dimensions: 2
+  collection:
+    substation_x: 100.0
+    substation_y: 100.0
+    max_turbines_per_string: 8
+    solver_name: "highs"
+    solver_options:
+      time_limit: 60
+      mip_gap: 0.005
+    model_options:
+      topology: "branched"
+      feeder_route: "segmented"
+      feeder_limit: "unlimited"
+  offshore: true
+  floating: true
+  site_depth: 50.0
+
+analysis_options:
+  driver:
+    name: ScipyOptimizeDriver
+    options:
+      optimizer: "SLSQP"
+  design_variables:
+    spacing_primary:
+      lower: 3.0
+      upper: 10.0
+    spacing_secondary:
+      lower: 3.0
+      upper: 10.0
+    angle_orientation:
+      lower: -180.0
+      upper: 180.0
+    angle_skew:
+      lower: -75.0
+      upper: 180.0
+  constraints:
+    spacing_constraint.turbine_spacing:
+      units: "m"
+      lower: 552
+  objective:
+    name: collection.total_length_cables
+    options:
+      scaler: 1.0
+  recorder:
+    filepath: "cases.sql"
+

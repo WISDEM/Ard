@@ -9,8 +9,9 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 # https://setuptools.pypa.io/en/latest/userguide/package_discovery.html
-[tool.setuptools]
-packages = ["ard"]
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["ard", "ard.*"]
 
 [project]
 name = "Ard"
@@ -41,8 +42,10 @@ dependencies = [
   "openmdao",
   "shapely",
   "jax",
-  "optiwindnet[test]==0.0.2",
+  "optiwindnet>=0.0.4",
+  "statsmodels@git+https://github.com/statsmodels/statsmodels.git@main",
   "highspy",
+  "pyyaml",
 ]
 [project.optional-dependencies]
 dev = [
