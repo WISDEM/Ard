@@ -106,12 +106,18 @@ jobs:
     - name: Run examples
       shell: python
       run: |
+        import os
         import pathlib
         import subprocess
+
+        env = os.environ.copy()
+        env["MPLBACKEND"] = "Agg"  # Non-interactive backend
+
         path_script = pathlib.Path("${{ matrix.script }}").absolute()
         print(f"RUNNING {path_script}")
         subprocess.run(
           ["python", str(path_script.name)],
           check=True,
-          cwd=str(path_script.parent)
+          cwd=str(path_script.parent),
+          env=env,
         )
