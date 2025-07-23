@@ -20,8 +20,6 @@ import ard.layout.sunflower as sunflower
 import ard.farm_aero.floris as farmaero_floris
 import ard.collection.optiwindnet_wrap as inter
 
-from optiwindnet.plotting import gplot  # DEBUG!!!!! REMOVE ME
-
 
 @pytest.mark.usefixtures("subtests")
 class TestoptiwindnetLayout:

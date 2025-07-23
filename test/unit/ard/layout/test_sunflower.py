@@ -149,7 +149,6 @@ class TestSunflowerFarm:
                     self.prob.get_val("y_turbines", units="km"),
                 ]
             ).T
-            print(f"DEBUG!!!!! points.shape {points.shape}")
             dist_mtx = scipy.spatial.distance.squareform(
                 scipy.spatial.distance.pdist(points)
             )

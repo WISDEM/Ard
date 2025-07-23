@@ -155,10 +155,6 @@ class TestOptiWindNetCollection:
         # run optiwindnet
         self.prob.run_model()
 
-        # # DEBUG!!!!! viz for verification
-        # gplot(self.optiwindnet_coll.graph)
-        # plt.savefig("/Users/cfrontin/Downloads/dummy.png")  # DEBUG!!!!!
-
         # collect data to validate
         validation_data = {
             "terse_links": self.prob.get_val("optiwindnet_coll.terse_links"),
@@ -316,10 +312,6 @@ class TestOptiWindNetCollection5Turbines:
         # run optiwindnet
         prob.run_model()
 
-        # # DEBUG!!!!! viz for verification
-        #  ax = gplot(optiwindnet_coll_mini.graph)
-        #  ax.figure.savefig("collection_mini_pentagon.png")  # DEBUG!!!!!
-
         if False:  # for hand-debugging
             J0 = prob.compute_totals(
                 "optiwindnet_coll.length_cables", "optiwindnet_coll.x_turbines"
@@ -378,10 +370,6 @@ class TestOptiWindNetCollection5Turbines:
 
         # run optiwindnet
         prob.run_model()
-
-        # # DEBUG!!!!! viz for verification
-        #  ax = gplot(optiwindnet_coll_mini.graph)
-        #  ax.figure.savefig("collection_mini_line.png")  # DEBUG!!!!!
 
         if False:  # for hand-debugging
             J0 = prob.compute_totals(
