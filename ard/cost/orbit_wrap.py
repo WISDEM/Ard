@@ -353,9 +353,7 @@ class ORBITWisdemDetail(orbit_wisdem.OrbitWisdem):
         """Creates and runs the project, then gathers the results."""
 
         # setup the custom-location library
-        print(f"DEBUG!!!!! _path_library: {self._path_library}")
         if self._path_library:
-            print("DEBUG!!!!! IN CUSTOM INITIALIZE!")
             initialize_library(self._path_library)
 
         super().compute(
