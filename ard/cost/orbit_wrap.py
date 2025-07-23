@@ -359,5 +359,8 @@ class ORBITWisdemDetail(orbit_wisdem.OrbitWisdem):
             initialize_library(self._path_library)
 
         super().compute(
-            inputs, outputs, discrete_inputs, discrete_outputs,
+            inputs,
+            outputs,
+            discrete_inputs,
+            discrete_outputs,
         )
