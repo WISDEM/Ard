@@ -239,476 +239,36 @@ class ORBITWisdemDetail(orbit_wisdem.OrbitWisdem):
     def setup(self):
         """Define all the inputs."""
 
+        # call the superclass method
+        super().setup()
+
         # load modeling options
         self.modeling_options = self.options["modeling_options"]
         self.N_turbines = self.modeling_options["farm"]["N_turbines"]
         self.N_substations = self.modeling_options["farm"]["N_substations"]
 
-        # Inputs
-        # self.add_discrete_input(
-        #     'weather_file',
-        #     'block_island',
-        #     desc='Weather file to use for installation times.'
-        # )
+        # bring in collection system design
+        self.add_discrete_input("graph", None)
 
-        # Vessels
-        self.add_discrete_input(
-            "wtiv",
-            "example_wtiv",
-            desc=(
-                "Vessel configuration to use for installation of foundations"
-                " and turbines."
-            ),
-        )
-        self.add_discrete_input(
-            "feeder",
-            "future_feeder",
-            desc="Vessel configuration to use for (optional) feeder barges.",
-        )
-        self.add_discrete_input(
-            "num_feeders",
-            1,
-            desc=(
-                "Number of feeder barges to use for installation of"
-                " foundations and turbines."
-            ),
-        )
-        self.add_discrete_input(
-            "num_towing",
-            1,
-            desc=(
-                "Number of towing vessels to use for floating platforms that"
-                " are assembled at port (with or without the turbine)."
-            ),
-        )
-        self.add_discrete_input(
-            "num_station_keeping",
-            3,
-            desc=(
-                "Number of station keeping or AHTS vessels that attach to floating"
-                " platforms under tow-out."
-            ),
-        )
-        self.add_discrete_input(
-            "oss_install_vessel",
-            "example_heavy_lift_vessel",
-            desc="Vessel configuration to use for installation of offshore substations.",  # noqa: E501
-        )
-
-        # Site
-        self.add_input("site_depth", 40.0, units="m", desc="Site depth.")
-        self.add_input(
-            "site_distance",
-            40.0,
-            units="km",
-            desc="Distance from site to installation port.",
-        )
-        self.add_input(
-            "site_distance_to_landfall",
-            50.0,
-            units="km",
-            desc="Distance from site to landfall for export cable.",
-        )
-        self.add_input(
-            "interconnection_distance",
-            3.0,
-            units="km",
-            desc="Distance from landfall to interconnection.",
-        )
-        self.add_input(
-            "site_mean_windspeed",
-            9.0,
-            units="m/s",
-            desc="Mean windspeed of the site.",
-        )
-
-        # Plant
-        self.add_discrete_input(
-            "number_of_turbines",
-            60,
-            desc="Number of turbines.",
-        )
-        self.add_input(
-            "plant_turbine_spacing",
-            7,
-            desc="Turbine spacing in rotor diameters.",
-        )
-        self.add_input(
-            "plant_row_spacing",
-            7,
-            desc="Row spacing in rotor diameters. Not used in ring layouts.",
-        )
-        self.add_input(
-            "plant_substation_distance",
-            1,
-            units="km",
-            desc="Distance from first turbine in string to substation.",
-        )
+        # add the detailed turbine and substation locations
         self.add_input("x_turbines", np.zeros((self.N_turbines,)), units="km")
         self.add_input("y_turbines", np.zeros((self.N_turbines,)), units="km")
         self.add_input("x_substations", np.zeros((self.N_substations,)), units="km")
         self.add_input("y_substations", np.zeros((self.N_substations,)), units="km")
 
-        # Turbine
-        self.add_input(
-            "turbine_rating",
-            8.0,
-            units="MW",
-            desc="Rated capacity of a turbine.",
-        )
-        self.add_input(
-            "turbine_rated_windspeed",
-            11.0,
-            units="m/s",
-            desc="Rated windspeed of the turbine.",
-        )
-        self.add_input(
-            "turbine_capex",
-            1100,
-            units="USD/kW",
-            desc="Turbine CAPEX",
-        )
-        self.add_input(
-            "hub_height",
-            100.0,
-            units="m",
-            desc="Turbine hub height.",
-        )
-        self.add_input(
-            "turbine_rotor_diameter",
-            130,
-            units="m",
-            desc="Turbine rotor diameter.",
-        )
-        self.add_input(
-            "tower_mass",
-            400.0,
-            units="t",
-            desc="mass of the total tower.",
-        )
-        self.add_input(
-            "tower_length",
-            100.0,
-            units="m",
-            desc="Total length of the tower.",
-        )
-        self.add_input(
-            "tower_deck_space",
-            25.0,
-            units="m**2",
-            desc=(
-                "Deck space required to transport the tower. Defaults to 0 in"
-                " order to not be a constraint on installation."
-            ),
-        )
-        self.add_input(
-            "nacelle_mass",
-            500.0,
-            units="t",
-            desc="mass of the rotor nacelle assembly (RNA).",
-        )
-        self.add_input(
-            "nacelle_deck_space",
-            25.0,
-            units="m**2",
-            desc=(
-                "Deck space required to transport the rotor nacelle assembly"
-                " (RNA). Defaults to 0 in order to not be a constraint on"
-                " installation."
-            ),
-        )
-        self.add_discrete_input(
-            "number_of_blades",
-            3,
-            desc="Number of blades per turbine.",
-        )
-        self.add_input(
-            "blade_mass",
-            50.0,
-            units="t",
-            desc="mass of an individual blade.",
-        )
-        self.add_input(
-            "blade_deck_space",
-            100.0,
-            units="m**2",
-            desc=(
-                "Deck space required to transport a blade. Defaults to 0 in"
-                " order to not be a constraint on installation."
-            ),
-        )
-
-        # Mooring
-        self.add_discrete_input(
-            "num_mooring_lines",
-            3,
-            desc="Number of mooring lines per platform.",
-        )
-        self.add_input(
-            "mooring_line_mass",
-            1e4,
-            units="kg",
-            desc="Total mass of a mooring line",
-        )
-        self.add_input(
-            "mooring_line_diameter",
-            0.1,
-            units="m",
-            desc="Cross-sectional diameter of a mooring line",
-        )
-        self.add_input(
-            "mooring_line_length",
-            1e3,
-            units="m",
-            desc="Unstretched mooring line length",
-        )
-        self.add_input(
-            "anchor_mass",
-            1e4,
-            units="kg",
-            desc="Total mass of an anchor",
-        )
-        self.add_input(
-            "mooring_line_cost",
-            0.5e6,
-            units="USD",
-            desc="Mooring line unit cost.",
-        )
-        self.add_input(
-            "mooring_anchor_cost",
-            0.1e6,
-            units="USD",
-            desc="Mooring line unit cost.",
-        )
-        self.add_discrete_input(
-            "anchor_type",
-            "drag_embedment",
-            desc="Number of mooring lines per platform.",
-        )
-
-        # Port
-        self.add_input(
-            "port_cost_per_month",
-            2e6,
-            units="USD/mo",
-            desc="Monthly port costs.",
-        )
-        self.add_input(
-            "takt_time",
-            170.0,
-            units="h",
-            desc="Substructure assembly cycle time when doing assembly at the port.",  # noqa: E501
-        )
-        self.add_discrete_input(
-            "num_assembly_lines",
-            1,
-            desc="Number of assembly lines used when assembly occurs at the port.",  # noqa: E501
-        )
-        self.add_discrete_input(
-            "num_port_cranes",
-            1,
-            desc=(
-                "Number of cranes used at the port to load feeders / WTIVS"
-                " when assembly occurs on-site or assembly cranes when"
-                " assembling at port."
-            ),
-        )
-
-        # Floating Substructures
-        self.add_input(
-            "floating_substructure_cost",
-            10e6,
-            units="USD",
-            desc="Floating substructure unit cost.",
-        )
-
-        # Monopile
-        self.add_input(
-            "monopile_length",
-            100.0,
-            units="m",
-            desc="Length of monopile (including pile).",
-        )
-        self.add_input(
-            "monopile_diameter",
-            7.0,
-            units="m",
-            desc="Diameter of monopile.",
-        )
-        self.add_input(
-            "monopile_mass",
-            900.0,
-            units="t",
-            desc="mass of an individual monopile.",
-        )
-        self.add_input(
-            "monopile_cost",
-            4e6,
-            units="USD",
-            desc="Monopile unit cost.",
-        )
-
-        # Jacket
-        self.add_input(
-            "jacket_length",
-            65.0,
-            units="m",
-            desc="Length/height of jacket (including pile/buckets).",
-        )
-        self.add_input(
-            "jacket_mass",
-            900.0,
-            units="t",
-            desc="mass of an individual jacket.",
-        )
-        self.add_input(
-            "jacket_cost",
-            4e6,
-            units="USD",
-            desc="Jacket unit cost.",
-        )
-        self.add_input(
-            "jacket_r_foot",
-            10.0,
-            units="m",
-            desc="Radius of jacket legs at base from centeroid.",
-        )
-
-        # Generic fixed-bottom
-        self.add_input(
-            "transition_piece_mass",
-            250.0,
-            units="t",
-            desc="mass of an individual transition piece.",
-        )
-        self.add_input(
-            "transition_piece_deck_space",
-            25.0,
-            units="m**2",
-            desc=(
-                "Deck space required to transport a transition piece."
-                " Defaults to 0 in order to not be a constraint on"
-                " installation."
-            ),
-        )
-        self.add_input(
-            "transition_piece_cost",
-            1.5e6,
-            units="USD",
-            desc="Transition piece unit cost.",
-        )
-
-        # Project
-        self.add_input(
-            "construction_insurance",
-            44.0,
-            units="USD/kW",
-            desc="Cost for construction insurance",
-        )
-        self.add_input(
-            "construction_financing",
-            183.0,
-            units="USD/kW",
-            desc="Cost for construction financing",
-        )
-        self.add_input(
-            "contingency",
-            316.0,
-            units="USD/kW",
-            desc="Cost in case of contingency",
-        )
-        self.add_input(
-            "site_auction_price",
-            100e6,
-            units="USD",
-            desc="Cost to secure site lease",
-        )
-        self.add_input(
-            "site_assessment_cost",
-            50e6,
-            units="USD",
-            desc="Cost to execute site assessment",
-        )
-        self.add_input(
-            "construction_plan_cost",
-            1e6,
-            units="USD",
-            desc="Cost to do construction planning",
-        )
-        self.add_input(
-            "installation_plan_cost",
-            2.5e5,
-            units="USD",
-            desc="Cost to do construction planning",
-        )
-        self.add_input(
-            "boem_review_cost",
-            0.0,
-            units="USD",
-            desc=(
-                "Cost for additional review by U.S. Dept of Interior Bureau"
-                " of Ocean Energy Management (BOEM)"
-            ),
-        )
-        self.add_input(
-            "commissioning_cost_kW", 44.0, units="USD/kW", desc="Commissioning cost."
-        )
-        self.add_input(
-            "decommissioning_cost_kW",
-            58.0,
-            units="USD/kW",
-            desc="Decommissioning cost.",
-        )
-
-        # Collection System
-        self.add_discrete_input("graph", None)
-
-        # Outputs
-        # Totals
-        self.add_output(
-            "bos_capex",
-            0.0,
-            units="USD",
-            desc="Sum of system and installation capex",
-        )
-        self.add_output(
-            "soft_capex",
-            0.0,
-            units="USD",
-            desc="Project costs associated with commissioning, decommissioning and financing",
-        )
-        self.add_output(
-            "project_capex",
-            0.0,
-            units="USD",
-            desc="costs associated with the lease area, "
-            + "the development of the construction operations plan,"
-            + "and any environmental review and other upfront project costs.",
-        )
-        self.add_output(
-            "total_capex",
-            0.0,
-            units="USD",
-            desc="Total capex of bos + soft + project",
-        )
-        self.add_output(
-            "total_capex_kW",
-            0.0,
-            units="USD/kW",
-            desc="Total capex of bos + soft + project per rated project capacity in kW",
-        )
-        self.add_output(
-            "installation_time",
-            0.0,
-            units="h",
-            desc="Total balance of system installation time.",
-        )
-        self.add_output(
-            "installation_capex",
-            0.0,
-            units="USD",
-            desc="Total balance of system installation cost.",
-        )
+        # copy the default ORBIT library to a local directory under case_files
+        path_library_default = Path(default_library).absolute()
+        self._path_library = (
+            Path("case_files") / self.options["case_title"] / "ORBIT_library"
+        ).absolute()
+        if path_library_default.exists():
+            shutil.copytree(
+                path_library_default, self._path_library, dirs_exist_ok=True
+            )
+        else:
+            raise FileNotFoundError(
+                f"Can not find default ORBIT library at {path_library_default}."
+            )
 
     def compile_orbit_config_file(
         self,
@@ -724,20 +284,6 @@ class ORBITWisdemDetail(orbit_wisdem.OrbitWisdem):
             discrete_inputs,
             discrete_outputs,
         )  # run the superclass
-
-        # copy the default library to a local directory under case_files
-        path_library_default = Path(default_library)
-        self._path_library = (
-            Path("case_files") / self.options["case_title"] / "ORBIT_library"
-        )
-        if path_library_default.exists():
-            shutil.copytree(
-                path_library_default, self._path_library, dirs_exist_ok=True
-            )
-        else:
-            raise FileNotFoundError(
-                f"Can not find default ORBIT library at {path_library_default}."
-            )
 
         # remove the grid plant option, and replace with a custom plant
         config["plant"] = {
@@ -804,28 +350,14 @@ class ORBITWisdemDetail(orbit_wisdem.OrbitWisdem):
         return config  # and return
 
     def compute(self, inputs, outputs, discrete_inputs, discrete_outputs):
-        config = self.compile_orbit_config_file(
-            inputs, outputs, discrete_inputs, discrete_outputs
-        )
+        """Creates and runs the project, then gathers the results."""
 
         # setup the custom-location library
+        print(f"DEBUG!!!!! _path_library: {self._path_library}")
         if self._path_library:
+            print("DEBUG!!!!! IN CUSTOM INITIALIZE!")
             initialize_library(self._path_library)
 
-        project = ProjectManager(config)
-        project.run()
-
-        # The ORBIT version of total_capex includes turbine capex, so we do our own sum of
-        # the parts here that wisdem doesn't account for
-        capacity_kW = (
-            1e3 * inputs["turbine_rating"] * discrete_inputs["number_of_turbines"]
+        super().compute(
+            inputs, outputs, discrete_inputs, discrete_outputs,
         )
-        outputs["bos_capex"] = project.bos_capex
-        outputs["soft_capex"] = project.soft_capex
-        outputs["project_capex"] = project.project_capex
-        outputs["total_capex"] = (
-            project.bos_capex + project.soft_capex + project.project_capex
-        )
-        outputs["total_capex_kW"] = outputs["total_capex"] / capacity_kW
-        outputs["installation_time"] = project.installation_time
-        outputs["installation_capex"] = project.installation_capex
