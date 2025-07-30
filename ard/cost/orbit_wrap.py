@@ -1,11 +1,12 @@
 from pathlib import Path
 import shutil
+import warnings
 
 import numpy as np
 import pandas as pd
 
 import wisdem.orbit.orbit_api as orbit_wisdem
-from ORBIT import ProjectManager
+
 from ORBIT.core.library import default_library
 from ORBIT.core.library import initialize_library
 
@@ -18,6 +19,7 @@ def generate_orbit_location_from_graph(
     Y_turbines,
     X_substations,
     Y_substations,
+    allow_branching_approximation=False,
 ):
     """
     go from a optiwindnet graph to an ORBIT input CSV
@@ -59,6 +61,24 @@ def generate_orbit_location_from_graph(
     # get the edges with a negative index node (a substation)
     edges_inclsub = [edge for edge in edges_to_process if edge[0] < 0 or edge[1] < 0]
     edges_inclsub.sort(key=lambda x: (x[0], x[1]))
+
+    # check to see if any nodes appear more than twice
+    # (i.e. once destination and possibly one source)
+    node_countmap = dict.fromkeys(
+        list(set(node for edge in edges_to_process for node in edge)), 0
+    )
+    for edge in edges_to_process:
+        node_countmap[edge[0]] += 1
+        node_countmap[edge[1]] += 1
+    if np.any(np.array(list(node_countmap.values())) > 2):
+        if allow_branching_approximation:
+            warnings.warn(
+                "The provided collection system design graph includes branching, "
+                "which ORBIT does not support. Proceeding with an approximate "
+                "radial collection system for cost modeling."
+            )
+        else:
+            raise ValueError("The graph has branching. ORBIT does not support this.")
 
     # data for ORBIT
     data_orbit = {
@@ -174,6 +194,7 @@ class ORBITDetail(orbit_wisdem.Orbit):
 
         self.options.declare("case_title", default="working")
         self.options.declare("modeling_options")
+        self.options.declare("approximate_branches", default=False)
 
     def setup(self):
         """Define all input variables from all models."""
@@ -217,6 +238,7 @@ class ORBITDetail(orbit_wisdem.Orbit):
             ORBITWisdemDetail(
                 modeling_options=self.modeling_options,
                 case_title=self.options["case_title"],
+                approximate_branches=self.options["approximate_branches"],
                 floating=self.options["floating"],
                 jacket=self.options["jacket"],
                 jacket_legs=self.options["jacket_legs"],
@@ -235,6 +257,7 @@ class ORBITWisdemDetail(orbit_wisdem.OrbitWisdem):
 
         self.options.declare("case_title", default="working")
         self.options.declare("modeling_options")
+        self.options.declare("approximate_branches", default=False)
 
     def setup(self):
         """Define all the inputs."""
@@ -344,6 +367,7 @@ class ORBITWisdemDetail(orbit_wisdem.OrbitWisdem):
             inputs["y_turbines"],
             inputs["x_substations"],
             inputs["y_substations"],
+            allow_branching_approximation=self.options["approximate_branches"],
         ).to_csv(path_farm_location, index=False)
 
         self._orbit_config = config  # reinstall- probably not needed due to reference

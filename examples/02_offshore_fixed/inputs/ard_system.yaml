@@ -51,7 +51,7 @@ modeling_options: &modeling_options
       time_limit: 60
       mip_gap: 0.02
     model_options:
-      topology: "branched"
+      topology: "radial"  # "radial", "branched"
       feeder_route: "segmented"
       feeder_limit: "unlimited"
   offshore: true

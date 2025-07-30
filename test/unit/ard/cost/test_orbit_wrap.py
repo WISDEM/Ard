@@ -81,6 +81,7 @@ class TestORBIT:
             ocost.ORBITDetail(
                 modeling_options=self.modeling_options,
                 floating=self.modeling_options["floating"],
+                approximate_branches=True,
             ),
             promotes=[
                 "x_turbines",
