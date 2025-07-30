@@ -334,32 +334,11 @@ class ORBITWisdemDetail(orbit_wisdem.OrbitWisdem):
         config["array_system_design"]["distance"] = True  # don't use WGS84 lat/long
         config["array_system_design"]["location_data"] = basename_farm_location
         config["array_system_design"]["cables"] = [
-            "XLPE_185mm_66kV_dynamic",
-            "XLPE_500mm_132kV_dynamic",
-            "XLPE_630mm_66kV_dynamic",
-            "XLPE_1000mm_220kV_dynamic",
-            # "HVDC_2000mm_320kV",
-            # "HVDC_2000mm_320kV_dynamic",
-            # "HVDC_2000mm_400kV",
-            # "HVDC_2500mm_525kV",
-            # "XLPE_1000mm_220kV",
-            # "XLPE_1000mm_220kV_dynamic",
-            # "XLPE_1200mm_220kV",
-            # "XLPE_1200mm_275kV",
-            # "XLPE_1600mm_275kV",
-            # "XLPE_185mm_66kV",
-            # "XLPE_185mm_66kV_dynamic",
-            # "XLPE_1900mm_275kV",
-            # "XLPE_400mm_33kV",
-            # "XLPE_500mm_132kV",
-            # "XLPE_500mm_132kV_dynamic",
-            # "XLPE_500mm_220kV",
-            # "XLPE_630mm_220kV",
-            # "XLPE_630mm_33kV",
-            # "XLPE_630mm_66kV",
-            # "XLPE_630mm_66kV_dynamic",
-            # "XLPE_800mm_220kV",
-        ]  # we require bigger cables, I think
+            f"XLPE_185mm_66kV{'_dynamic' if self.options['floating'] else ''}",
+            f"XLPE_500mm_132kV{'_dynamic' if self.options['floating'] else ''}",
+            f"XLPE_630mm_66kV{'_dynamic' if self.options['floating'] else ''}",
+            f"XLPE_1000mm_220kV{'_dynamic' if self.options['floating'] else ''}",
+        ]  # we require bigger cables than the standard WISDEM wrap
 
         # create the csv file that holds the farm layout
         path_farm_location = (
