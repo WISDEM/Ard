@@ -112,12 +112,8 @@ class TestORBITNoApproxBranch:
         ocost.ORBIT_setup_latents(prob, modeling_options)
         # wcost.FinanceSE_setup_latents(prob, modeling_options)
 
-        prob.set_val(
-            "x_turbines", modeling_options["farm"]["x_turbines"], units="m"
-        )
-        prob.set_val(
-            "y_turbines", modeling_options["farm"]["y_turbines"], units="m"
-        )
+        prob.set_val("x_turbines", modeling_options["farm"]["x_turbines"], units="m")
+        prob.set_val("y_turbines", modeling_options["farm"]["y_turbines"], units="m")
 
         prob.set_val(
             "x_substations", modeling_options["farm"]["x_substations"], units="km"
@@ -228,12 +224,8 @@ class TestORBITNoApproxBranch:
         ocost.ORBIT_setup_latents(prob, modeling_options)
         # wcost.FinanceSE_setup_latents(prob, modeling_options)
 
-        prob.set_val(
-            "x_turbines", modeling_options["farm"]["x_turbines"], units="m"
-        )
-        prob.set_val(
-            "y_turbines", modeling_options["farm"]["y_turbines"], units="m"
-        )
+        prob.set_val("x_turbines", modeling_options["farm"]["x_turbines"], units="m")
+        prob.set_val("y_turbines", modeling_options["farm"]["y_turbines"], units="m")
 
         prob.set_val(
             "x_substations", modeling_options["farm"]["x_substations"], units="km"
@@ -254,6 +246,7 @@ class TestORBITNoApproxBranch:
             assert np.isclose(bos_capex, bos_capex_ref, rtol=1e-3)
         with subtests.test(f"orbit_skew_total"):
             assert np.isclose(total_capex, total_capex_ref, rtol=1e-3)
+
 
 @pytest.mark.usefixtures("subtests")
 class TestORBITApproxBranch:
