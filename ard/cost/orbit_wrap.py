@@ -26,9 +26,9 @@ def generate_orbit_location_from_graph(
 
     convert a optiwindnet graph representation of a collection system and get to
     a best-possible approximation of the same collection system for
-    compatibility with ORBIT. ORBIT doesn't allow branching and optiwindnet
-    does by default, so we get allow some cable duplication if necessary to get
-    a conservative approximation of the BOS costs if the graph isn't compatible
+    compatibility with ORBIT. ORBIT doesn't allow branching and optiwindnet does
+    by default, so we allow some cable duplication if necessary to get a
+    conservative approximation of the BOS costs if the graph isn't compatible
     with ORBIT
 
     Parameters
@@ -78,7 +78,13 @@ def generate_orbit_location_from_graph(
                 "radial collection system for cost modeling."
             )
         else:
-            raise ValueError("The graph has branching. ORBIT does not support this.")
+            raise ValueError(
+                "The graph has branching. ORBIT does not support this. "
+                "By modifying the approximate_branches option to True in the "
+                "ORBITDetail component, you can allow ORBIT to approximate the "
+                "BOS costs by a close radial-layout collection system "
+                "approximation."
+            )
 
     # data for ORBIT
     data_orbit = {
