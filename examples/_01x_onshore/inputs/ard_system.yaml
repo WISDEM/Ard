@@ -1,6 +1,8 @@
 windIO: &windIO !include windio.yaml
 
 modeling_options: &modeling_options
+  wisdem_config:
+    fname_wt_input: IEA-3p4-130-RWT.yaml
   farm:
     N_turbines: 25
     N_substations: 1
@@ -97,13 +99,14 @@ system:
     #     "tcc_per_kW",
     #     "offset_tcc_per_kW",
     #   ]
-    # landbosse:
-    #   type: component
-    #   module: ard.cost.wisdem_wrap
-    #   object: LandBOSSEWithSpacingApproximations
-    #   promotes: ["*"]
-    #   kwargs:
-    #     modeling_options: *modeling_options
+    landbosse:
+      type: component
+      module: ard.cost.wisdem_wrap
+      object: LandBOSSEWithSpacingApproximations
+      promotes: ["*"]
+      kwargs:
+        modeling_options: *modeling_options
+        data_path:
     # opex:
     #   type: component
     #   module: ard.cost.wisdem_wrap

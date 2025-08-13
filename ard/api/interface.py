@@ -237,11 +237,11 @@ def set_up_system_recursive(
             for var in prob.model.list_vars(val=False, out_stream=None)
         ):
             ORBIT_setup_latents(prob, modeling_options)
-        if any(
-            "landbosse" in var[0]
-            for var in prob.model.list_vars(val=False, out_stream=None)
-        ):
-            LandBOSSE_setup_latents(prob, modeling_options)
+        # if any(
+        #     "landbosse" in var[0]
+        #     for var in prob.model.list_vars(val=False, out_stream=None)
+        # ):
+        #     LandBOSSE_setup_latents(prob, modeling_options)
         if any(
             "financese" in var[0]
             for var in prob.model.list_vars(val=False, out_stream=None)

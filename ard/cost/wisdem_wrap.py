@@ -1,11 +1,11 @@
 import warnings
 import numpy as np
-
+from pathlib import Path
 import openmdao.api as om
 from wisdem.plant_financese.plant_finance import PlantFinance as PlantFinance_orig
 from wisdem.landbosse.landbosse_omdao.landbosse import LandBOSSE as LandBOSSE_orig
 from wisdem.orbit.orbit_api import Orbit as Orbit_orig
-
+from wisdem.glue_code.runWISDEM import run_wisdem
 from ard.cost.approximate_turbine_spacing import SpacingApproximations
 
 
@@ -22,6 +22,7 @@ class LandBOSSEWithSpacingApproximations(om.Group):
         self.options.declare(
             "modeling_options", types=dict, desc="Ard modeling options"
         )
+        self.options.declare("data_path", desc="where input files are kept")
 
     def setup(self):
         """Set up the group by adding and connecting components."""
@@ -35,18 +36,21 @@ class LandBOSSEWithSpacingApproximations(om.Group):
         # Add the LandBOSSE component
         self.add_subsystem(
             "landbosse",
-            LandBOSSEArdComp(),
+            LandBOSSEArdWrap(modeling_options=self.options["modeling_options"],
+                             data_path=self.options["data_path"],
+                        ),
             promotes_inputs=[
                 "*",
                 (
-                    "turbine_spacing_rotor_diameters",
+                    "plant_turbine_spacing",
                     "internal_turbine_spacing_rotor_diameters",
                 ),
                 (
-                    "row_spacing_rotor_diameters",
+                    "plant_row_spacing",
                     "internal_row_spacing_rotor_diameters",
                 ),
             ],
+
             promotes_outputs=["*"],  # Expose all outputs from LandBOSSE
         )
 
@@ -61,6 +65,63 @@ class LandBOSSEWithSpacingApproximations(om.Group):
             "internal_row_spacing_rotor_diameters",
         )
 
+class LandBOSSEArdWrap(om.Group):
+
+    def initialize(self):
+        self.options.declare("modeling_options", types=dict, desc="Ard modeling options")
+        self.options.declare("data_path", desc="where input files are kept")
+        
+
+    def setup(self):
+
+        self.wisdem_config = self.options["modeling_options"]["wisdem_config"]
+        fname_wt_input = Path(self.options["data_path"]).absolute() / self.wisdem_config["fname_wt_input"]
+        fname_modeling_options = Path(__file__).parent.absolute() / "wisdem_files" / "landbosse_modeling_options.yaml" #self.wisdem_config["fname_modeling_options"]
+        fname_analysis_options = Path(__file__).parent.absolute() / "wisdem_files" / "landbosse_analysis_options.yaml"
+        overridden_values = None
+        run_only = True
+
+        self.wt_opt, modeling_options, opt_options = run_wisdem(
+            fname_wt_input=fname_wt_input,
+            fname_modeling_options=fname_modeling_options,
+            fname_opt_options=fname_analysis_options,
+            overridden_values=overridden_values,
+            run_only=run_only,
+        )
+        # om.n2(self.wt_opt)
+        subprob_landbosse = om.SubmodelComp(
+            problem=self.wt_opt,
+            inputs=[
+                ("bos.plant_turbine_spacing", "plant_turbine_spacing"),
+                ("bos.plant_row_spacing", "plant_row_spacing")
+            ],
+            outputs=[
+                ("landbosse.bos_capex_kW", "bos_capex_kW"),
+                ("landbosse.total_capex", "total_capex"),
+            ],
+        )
+
+        self.add_subsystem(
+            "landbosse_sub_prob",
+            subprob_landbosse,
+            promotes=["*"]
+        )
+
+    # def setup_partials(self):
+    #     """Derivative setup for OM component."""
+
+    #     # finite difference WISDEM tools for gradients
+    #     self.declare_partials(
+    #         [
+    #             "turbine_spacing_rotor_diameters",
+    #             "row_spacing_rotor_diameters",
+    #         ],
+    #         [
+    #             "bos_capex_kW",
+    #             "total_capex",
+    #         ],
+    #         method="fd",
+    #     )
 
 class LandBOSSEArdComp(LandBOSSE_orig):
     """
