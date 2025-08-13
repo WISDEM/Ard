@@ -50,6 +50,7 @@ dependencies = [
   "statsmodels",
   "highspy",
   "pyyaml",
+  "windIO",
 ]
 [project.optional-dependencies]
 dev = [
