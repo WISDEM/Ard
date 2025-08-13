@@ -1,11 +1,12 @@
 from pathlib import Path
 from os import PathLike
-import numpy as np
-import windIO
-import yaml
 import copy
+import yaml
+
+import numpy as np
 
 import floris
+import floris.turbine_library.turbine_utilities
 
 import ard.utils.io
 import ard.farm_aero.templates as templates
@@ -13,72 +14,67 @@ import ard.farm_aero.templates as templates
 
 def create_FLORIS_turbine_from_windIO(
     windIOplant: dict,
-    data_path="",
 ) -> dict:
 
     # extract the turbine... assuming a single one for now
     windIOturbine = windIOplant["wind_farm"]["turbine"]
 
-#     name = windIOturbine["name"]
-#
-#     V_cutin = windIOturbine["control"]["supervisory"]["Vin"]
-#     V_cutinout = windIOturbine["control"]["supervisory"]["Vout"]
-#
-#     height_hub = windIOturbine["assembly"]["hub_height"]
-#     diameter_rotor = windIOturbine["assembly"]["rotor_diameter"]
-#     power_rated = windIOturbine["assembly"]["rated_power"]  # aerodynamic or generator???
-#     assert np.isclose(
-#         power_rated, windIOturbine["control"]["supervisory"]["rated_power"]
-#     )  # check internal consistency
-#
-#     ps_percent = windIOturbine["control"]["pitch"]["ps_percent"]
-#     tsr = windIOturbine["control"]["torque"]["tsr"]
-#
-#     density_air = windIOturbine["environment"]["air_density"]
-#     shear_atmospheric = windIOturbine["environment"]["shear_exp"]
-#
-#     turbine_FLORIS = dict()
-#     turbine_FLORIS["turbine_type"] = name
-#     turbine_FLORIS["hub_height"] = height_hub
-#     turbine_FLORIS["rotor_diameter"] = diameter_rotor
-#     turbine_FLORIS["TSR"] = tsr
-#     # turbine_FLORIS["multi_dimensional_cp_ct"] = True
-#     # turbine_FLORIS["power_thrust_data_file"] = filename_power_thrust
-#     turbine_FLORIS["power_thrust_table"] = {
-#         # "cosine_loss_exponent_yaw": turbine_spec["model_specifications"]["FLORIS"][
-#         #     "exponent_penalty_yaw"
-#         # ],
-#         # "cosine_loss_exponent_tilt": turbine_spec["model_specifications"]["FLORIS"][
-#         #     "exponent_penalty_tilt"
-#         # ],
-#         # "peak_shaving_fraction": turbine_spec["model_specifications"]["FLORIS"][
-#         #     "fraction_peak_shaving"
-#         # ],
-#         # "peak_shaving_TI_threshold": 0.0,
-#         # "ref_air_density": turbine_spec["performance_data_ccblade"][
-#         #     "density_ref_cp_ct"
-#         # ],
-#         # "ref_tilt": turbine_spec["performance_data_ccblade"]["tilt_ref_cp_ct"],
-#         # "wind_speed": pt_raw[0],
-#         # "power": (
-#         #     0.5
-#         #     * turbine_spec["performance_data_ccblade"]["density_ref_cp_ct"]
-#         #     * (np.pi / 4.0 * turbine_spec["geometry"]["diameter_rotor"] ** 2)
-#         #     * np.array(pt_raw[0]) ** 3
-#         #     * pt_raw[1]
-#         #     / 1e3
-#         # ).tolist(),
-#         # "thrust_coefficient": pt_raw[2],
-#     }
+    tdd = {}
+    wind_speeds_Ct_curve = windIOturbine["performance"]["Ct_curve"]["Ct_wind_speeds"]
+    values_Ct_curve = windIOturbine["performance"]["Ct_curve"]["Ct_values"]
+    if "Cp_curve" in windIOturbine["performance"]:
+        wind_speeds_Cp_curve = windIOturbine["performance"]["Cp_curve"]["Cp_wind_speeds"]
+        values_Cp_curve = windIOturbine["performance"]["Cp_curve"]["Cp_values"]
+        if not np.allclose(wind_speeds_Cp_curve, wind_speeds_Ct_curve):
+            raise ValueError("Ct and Cp curves are specified with different indep. variables.")
+        tdd["wind_speed"] = wind_speeds_Cp_curve
+        tdd["power_coefficient"] = values_Cp_curve
+        tdd["thrust_coefficient"] = values_Ct_curve
+    elif "power_curve" in windIOturbine["performance"]:
+        wind_speeds_power_curve = windIOturbine["performance"]["power_curve"]["power_wind_speeds"]
+        values_power_curve = windIOturbine["performance"]["power_curve"]["power_values"]
+        if not np.allclose(wind_speeds_power_curve, wind_speeds_Ct_curve):
+            raise ValueError("Ct and power curves are specified with different indep. variables.")
+        tdd["wind_speed"] = wind_speeds_power_curve
+        tdd["power"] = values_power_curve/1e3
+        tdd["thrust_coefficient"] = values_Ct_curve
+    elif all(val in windIOturbine["performance"] for val in [
+        "rated_power", "rated_wind_speed", "cutin_wind_speed", "cutout_wind_speed",
+    ]):
+        # extract key values
+        rated_power = windIOturbine["rated_power"]
+        rated_wind_speed = windIOturbine["rated_wind_speed"]
+        cutin_wind_speed = windIOturbine["cutin_wind_speed"]
+        cutout_wind_speed = windIOturbine["cutout_wind_speed"]
+
+        # compute based on reg. I, II, III, IV textbook behaviors
+        values_power_curve = wind_speeds_Ct_curve**3/rated_wind_speed**3*rated_power  # scales proportionally in reg. II
+        values_power_curve[wind_speeds_Ct_curve >= rated_wind_speed] = rated_power  # flat in reg. III
+        values_power_curve[wind_speeds_Ct_curve <= cutin_wind_speed] = 0.0  # zero in reg. I
+        values_power_curve[wind_speeds_Ct_curve >= cutout_wind_speed] = 0.0  # zero in reg. IV
+
+        # pack and ship
+        tdd["wind_speed"] = wind_speeds_Ct_curve
+        tdd["power"] = values_power_curve/1e3
+        tdd["thrust_coefficient"] = values_Ct_curve
+    else:
+        raise IndexError("The windIO file appears to be invalid. Try validating and re-running.")
+
+    turbine_FLORIS = floris.turbine_library.turbine_utilities.build_cosine_loss_turbine_dict(
+        turbine_data_dict=tdd,
+        turbine_name=windIOturbine["name"],
+        hub_height=windIOturbine["hub_height"],
+        rotor_diameter=windIOturbine["rotor_diameter"],
+        TSR=windIOturbine.get("TSR"),
+        generator_efficiency=windIOturbine.get("generator_efficiency", 1.0),
+    )
 
     # # If an export filename is given, write it out
     # if filename_turbine_FLORIS is not None:
     #     with open(filename_turbine_FLORIS, "w") as file_turbine_FLORIS:
     #         yaml.safe_dump(turbine_FLORIS, file_turbine_FLORIS)
-    #
-    # return copy.deepcopy(turbine_FLORIS)
 
-    raise NotImplementedError("NOT IMPLEMENTED YET!!!!!")
+    return copy.deepcopy(turbine_FLORIS)
 
 def create_FLORIS_turbine_fromArdSpec(
     input_turbine_spec: dict | PathLike,
