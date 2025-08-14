@@ -60,18 +60,18 @@ class CollectionTemplate(om.ExplicitComponent):
         """Setup of OM component."""
         # load modeling options
         self.modeling_options = self.options["modeling_options"]
-        self.N_turbines = self.modeling_options["farm"]["N_turbines"]
-        self.N_substations = self.modeling_options["farm"]["N_substations"]
-        if "x_turbines" in self.modeling_options["farm"]:
-            self.x_turbines = self.modeling_options["farm"]["x_turbines"]
+        self.N_turbines = self.modeling_options["layout"]["N_turbines"]
+        self.N_substations = self.modeling_options["layout"]["N_substations"]
+        if "x_turbines" in self.modeling_options["layout"]:
+            self.x_turbines = self.modeling_options["layout"]["x_turbines"]
         else:
             self.x_turbines = np.zeros(self.N_turbines)
-        if "y_turbines" in self.modeling_options["farm"]:
-            self.y_turbines = self.modeling_options["farm"]["y_turbines"]
+        if "y_turbines" in self.modeling_options["layout"]:
+            self.y_turbines = self.modeling_options["layout"]["y_turbines"]
         else:
             self.y_turbines = np.zeros(self.N_turbines)
-        self.x_substations = self.modeling_options["farm"]["x_substations"]
-        self.y_substations = self.modeling_options["farm"]["y_substations"]
+        self.x_substations = self.modeling_options["layout"]["x_substations"]
+        self.y_substations = self.modeling_options["layout"]["y_substations"]
 
         # set up inputs for farm layout
         self.add_input("x_turbines", self.x_turbines, units="m")

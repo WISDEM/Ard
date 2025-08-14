@@ -85,14 +85,10 @@ class GridFarmLayout(templates.LayoutTemplate):
     def setup(self):
         """Setup of OM component."""
         super().setup()
-        spacing_primary = self.options["modeling_options"]["farm"]["spacing_primary"]
-        spacing_secondary = self.options["modeling_options"]["farm"][
-            "spacing_secondary"
-        ]
-        angle_orientation = self.options["modeling_options"]["farm"][
-            "angle_orientation"
-        ]
-        angle_skew = self.options["modeling_options"]["farm"]["angle_skew"]
+        spacing_primary = self.modeling_options["layout"]["spacing_primary"]
+        spacing_secondary = self.modeling_options["layout"]["spacing_secondary"]
+        angle_orientation = self.modeling_options["layout"]["angle_orientation"]
+        angle_skew = self.modeling_options["layout"]["angle_skew"]
 
         # add four-parameter grid farm layout DVs
         self.add_input("spacing_primary", spacing_primary)
@@ -109,7 +105,9 @@ class GridFarmLayout(templates.LayoutTemplate):
     def compute(self, inputs, outputs):
         """Computation for the OM component."""
 
-        D_rotor = self.modeling_options["turbine"]["geometry"]["diameter_rotor"]
+        D_rotor = self.windIO["wind_farm"]["turbine"][
+            "rotor_diameter"
+        ]  # will break if multiple turbine types are used...
         lengthscale_spacing_streamwise = inputs["spacing_primary"] * D_rotor
         lengthscale_spacing_spanwise = inputs["spacing_secondary"] * D_rotor
 
@@ -228,20 +226,20 @@ class GridFarmLanduse(templates.LanduseTemplate):
         # add grid farm-specific inputs
         self.add_input(
             "spacing_primary",
-            self.options["modeling_options"]["farm"]["spacing_primary"],
+            self.modeling_options["layout"]["spacing_primary"],
         )
         self.add_input(
             "spacing_secondary",
-            self.options["modeling_options"]["farm"]["spacing_secondary"],
+            self.modeling_options["layout"]["spacing_secondary"],
         )
         self.add_input(
             "angle_orientation",
-            self.options["modeling_options"]["farm"]["angle_orientation"],
+            self.modeling_options["layout"]["angle_orientation"],
             units="deg",
         )
         self.add_input(
             "angle_skew",
-            self.options["modeling_options"]["farm"]["angle_skew"],
+            self.modeling_options["layout"]["angle_skew"],
             units="deg",
         )
 
@@ -267,7 +265,9 @@ class GridFarmLanduse(templates.LanduseTemplate):
     def compute(self, inputs, outputs):
         """Computation for the OM component."""
 
-        D_rotor = self.modeling_options["turbine"]["geometry"]["diameter_rotor"]
+        D_rotor = self.windIO["wind_farm"]["turbine"][
+            "rotor_diameter"
+        ]  # will break if multiple turbine types are used...
         lengthscale_spacing_streamwise = inputs["spacing_primary"] * D_rotor
         lengthscale_spacing_spanwise = inputs["spacing_secondary"] * D_rotor
         lengthscale_layback = inputs["distance_layback_diameters"] * D_rotor

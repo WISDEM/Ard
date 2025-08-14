@@ -1,8 +1,8 @@
+from pathlib import Path
+
 import numpy as np
 
 import openmdao.api as om
-
-from pathlib import Path
 
 import floris
 
@@ -169,7 +169,7 @@ class FarmAeroTemplate(om.ExplicitComponent):
     def initialize(self):
         """Initialization of OM component."""
         self.options.declare("modeling_options")
-        self.options.declare("windIO")
+        self.options.declare("windIO_plant")
         self.options.declare("data_path")
 
     def setup(self):
@@ -177,8 +177,8 @@ class FarmAeroTemplate(om.ExplicitComponent):
 
         # load modeling options
         self.modeling_options = self.options["modeling_options"]
-        self.windIO = self.options["windIO"]
-        self.N_turbines = self.modeling_options["farm"]["N_turbines"]
+        self.windIO = self.options["windIO_plant"]
+        self.N_turbines = self.modeling_options["layout"]["N_turbines"]
 
         # set up inputs and outputs for farm layout
         self.add_input("x_turbines", np.zeros((self.N_turbines,)), units="m")
@@ -259,7 +259,8 @@ class BatchFarmPowerTemplate(FarmAeroTemplate):
 
         # unpack wind query object
         self.wind_query = create_windresource_from_windIO(
-            self.windIO, "timeseries",
+            self.windIO,
+            "timeseries",
         )
         self.directions_wind = self.wind_query.get_directions()
         self.speeds_wind = self.wind_query.get_speeds()
@@ -372,29 +373,13 @@ class FarmAEPTemplate(FarmAeroTemplate):
         data_path = str(self.options["data_path"])
 
         self.wind_query = create_windresource_from_windIO(
-            self.windIO, "probability",
+            self.windIO,
+            "probability",
         )
 
         if data_path is None:
             data_path = ""
 
-        # if isinstance(wind_spec, dict):
-        #     # generate FLORIS wind data object from dictionary
-        #     wind_rose_wrg_file = Path(data_path + "/" + wind_spec["file"]).resolve()
-        #     wind_rose_wrg = floris.wind_data.WindRoseWRG(Path(wind_rose_wrg_file))
-        #     wind_rose_wrg.set_wd_step(wind_spec["wd_step"])
-        #     wind_rose_wrg.set_wind_speeds(np.array(wind_spec["wind_speeds"]))
-        #     self.wind_rose = wind_rose_wrg.get_wind_rose_at_point(*wind_spec["point"])
-        # elif isinstance(wind_spec, floris.wind_data.WindRose):
-        #     # unpack FLORIS wind data object
-        #     self.wind_rose = wind_spec
-        # else:
-        #     raise (
-        #         TypeError(
-        #             f"wind rose was given as type {type(wind_spec)}, but must \
-        #                     be one of [dict, floris.wind_data.WindRose]"
-        #         )
-        #     )
         self.directions_wind, self.speeds_wind, self.TIs_wind, self.pmf_wind, _, _ = (
             self.wind_query.unpack()
         )

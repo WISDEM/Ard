@@ -1,23 +1,19 @@
-windIO: &windIO !include windio.yaml
+windIO_plant: &windIO_plant !include windio.yaml
 
 modeling_options: &modeling_options
   wisdem_config:
     fname_wt_input: IEA-3p4-130-RWT.yaml
-  farm:
+  layout:
     N_turbines: 25
     N_substations: 1
+    type: "gridfarm"
     spacing_primary: 7.0
     spacing_secondary: 7.0
     angle_orientation: 0.0
     angle_skew: 0.0
-    # x_substations: 100
-    # y_substations: 100
-  # wind_rose:
-  #   file: wrg_example.wrg
-  #   wd_step: 90.0
-  #   wind_speeds: [5.0, 10.0, 15.0, 20.0]
-  #   point: [0.0, 0.0]
-  # turbine: !include turbine_spec_IEA-3p4-130-RWT.yaml
+  floris:
+    peak_shaving_fraction: 0.4
+    peak_shaving_TI_threshold: 0.0
   collection:
     max_turbines_per_string: 8
     solver_name: "highs"
@@ -33,9 +29,9 @@ modeling_options: &modeling_options
 
 system:
   type: group
-  connections:
-    - ["AEP_farm", "financese.plant_aep_in"]
-    - ["total_capex_kW", "financese.bos_per_kW"]
+  # connections:
+  #   - ["AEP_farm", "financese.plant_aep_in"]
+  #   - ["total_capex_kW", "financese.bos_per_kW"]
   systems:
     layout2aep:
       type: group
@@ -53,6 +49,7 @@ system:
           promotes: ["*"]
           kwargs:
             modeling_options: *modeling_options
+            windIO_plant: *windIO_plant
         aepFLORIS:
           type: component
           module: ard.farm_aero.floris
@@ -60,7 +57,7 @@ system:
           promotes: ["x_turbines", "y_turbines", "AEP_farm"]
           kwargs:
             modeling_options: *modeling_options
-            windIO: *windIO
+            windIO_plant: *windIO_plant
             data_path:
             case_title: "default"
       approx_totals:
@@ -68,13 +65,14 @@ system:
         step: 1.0E-3
         form: "central"
         step_calc: "rel_avg"
-    # landuse:
-    #   type: component
-    #   module: ard.layout.gridfarm
-    #   object: GridFarmLanduse
-    #   promotes: ["*"]
-    #   kwargs:
-    #     modeling_options: *modeling_options
+    landuse:
+      type: component
+      module: ard.layout.gridfarm
+      object: GridFarmLanduse
+      promotes: ["*"]
+      kwargs:
+        modeling_options: *modeling_options
+        windIO_plant: *windIO_plant
     # optiwindnet_coll:
     #   type: component
     #   module: ard.collection.optiwindnet_wrap
@@ -127,6 +125,7 @@ system:
     #     "offset_tcc_per_kW",
     #     "opex_per_kW",
     #   ]
+
 analysis_options:
   driver:
     name: ScipyOptimizeDriver
@@ -145,12 +144,12 @@ analysis_options:
     angle_skew:
       lower: -75.0
       upper: 180.0
-  constraints:
-    spacing_constraint.turbine_spacing:
-      units: "m"
-      lower: 552
+  # constraints:
+  #   spacing_constraint.turbine_spacing:
+  #     units: "m"
+  #     lower: 552
   objective:
-    name: layout2aep.AEP_farm
+    name: AEP_farm  # layout2aep.AEP_farm
     options:
       scaler: -1.0
     # name: financese.lcoe
