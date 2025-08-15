@@ -13,7 +13,7 @@ class TestFarmAeroTemplate:
 
     def setup_method(self):
         self.modeling_options = {
-            "farm": {
+            "layout": {
                 "N_turbines": 4,
             },
             "turbine": {
@@ -39,8 +39,8 @@ class TestFarmAeroTemplate:
 
         assert "modeling_options" in [k for k, _ in self.fa_temp.options.items()]
 
-        assert "farm" in self.fa_temp.options["modeling_options"].keys()
-        assert "N_turbines" in self.fa_temp.options["modeling_options"]["farm"].keys()
+        assert "layout" in self.fa_temp.options["modeling_options"].keys()
+        assert "N_turbines" in self.fa_temp.options["modeling_options"]["layout"].keys()
 
         # context manager to spike the warning since we aren't running the model yet
         with pytest.warns(Warning) as warning:
@@ -76,7 +76,7 @@ class TestBatchFarmPowerTemplate:
         )
 
         self.modeling_options = {
-            "farm": {
+            "layout": {
                 "N_turbines": 4,
             },
             "wind_rose": self.wq,
@@ -102,8 +102,8 @@ class TestBatchFarmPowerTemplate:
         "make sure the modeling_options has what we need for farmaero"
         assert "modeling_options" in [k for k, _ in self.bfp_temp.options.items()]
 
-        assert "farm" in self.bfp_temp.options["modeling_options"].keys()
-        assert "N_turbines" in self.bfp_temp.options["modeling_options"]["farm"].keys()
+        assert "layout" in self.bfp_temp.options["modeling_options"].keys()
+        assert "N_turbines" in self.bfp_temp.options["modeling_options"]["layout"].keys()
 
         # context manager to spike the warning since we aren't running the model yet
         with pytest.warns(Warning) as warning:
@@ -148,7 +148,7 @@ class TestFarmAEPTemplate:
         )
 
         self.modeling_options = {
-            "farm": {
+            "layout": {
                 "N_turbines": 4,
             },
             "wind_rose": self.wr,
@@ -174,8 +174,8 @@ class TestFarmAEPTemplate:
         # make sure the modeling_options has what we need for farmaero
         assert "modeling_options" in [k for k, _ in self.aep_temp.options.items()]
 
-        assert "farm" in self.aep_temp.options["modeling_options"].keys()
-        assert "N_turbines" in self.aep_temp.options["modeling_options"]["farm"].keys()
+        assert "layout" in self.aep_temp.options["modeling_options"].keys()
+        assert "N_turbines" in self.aep_temp.options["modeling_options"]["layout"].keys()
 
         # context manager to spike the warning since we aren't running the model yet
         with pytest.warns(Warning) as warning:

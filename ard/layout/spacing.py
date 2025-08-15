@@ -39,7 +39,7 @@ class TurbineSpacing(om.ExplicitComponent):
 
         # load modeling options
         self.modeling_options = self.options["modeling_options"]
-        self.N_turbines = int(self.modeling_options["farm"]["N_turbines"])
+        self.N_turbines = int(self.modeling_options["layout"]["N_turbines"])
         self.N_distances = int((self.N_turbines - 1) * self.N_turbines / 2)
 
         # set up inputs and outputs for mooring system

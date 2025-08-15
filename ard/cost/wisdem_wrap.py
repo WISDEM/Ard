@@ -352,7 +352,7 @@ def LandBOSSE_setup_latents(prob, modeling_options: dict) -> None:
     if any(key in modeling_options["turbine"]["costs"] for key in offshore_fixed_keys):
 
         variable_mapping = {
-            "num_turbines": modeling_options["farm"]["N_turbines"],
+            "num_turbines": modeling_options["layout"]["N_turbines"],
             "turbine_rating_MW": modeling_options["turbine"]["nameplate"]["power_rated"]
             * 1.0e3,
             "hub_height_meters": modeling_options["turbine"]["geometry"]["height_hub"],
@@ -378,7 +378,7 @@ def LandBOSSE_setup_latents(prob, modeling_options: dict) -> None:
         key in modeling_options["turbine"]["costs"] for key in offshore_floating_keys
     ):
         variable_mapping = {
-            "num_turbines": modeling_options["farm"]["N_turbines"],
+            "num_turbines": modeling_options["layout"]["N_turbines"],
             "turbine_rating_MW": modeling_options["turbine"]["nameplate"]["power_rated"]
             * 1.0e3,
             "hub_height_meters": modeling_options["turbine"]["geometry"]["height_hub"],
@@ -418,7 +418,7 @@ def LandBOSSE_setup_latents(prob, modeling_options: dict) -> None:
         # this is the standard mapping for using LandBOSSE, since typically ORBIT should
         # be used for BOS costs for offshore systems.
         variable_mapping = {
-            "num_turbines": modeling_options["farm"]["N_turbines"],
+            "num_turbines": modeling_options["layout"]["N_turbines"],
             "turbine_rating_MW": modeling_options["turbine"]["nameplate"]["power_rated"]
             * 1.0e3,
             "hub_height_meters": modeling_options["turbine"]["geometry"]["height_hub"],
@@ -482,7 +482,7 @@ def ORBIT_setup_latents(prob, modeling_options: dict) -> None:
             "power_rated"
         ],  # *1E-3,
         "site_depth": modeling_options["site_depth"],
-        "number_of_turbines": modeling_options["farm"]["N_turbines"],
+        "number_of_turbines": modeling_options["layout"]["N_turbines"],
         "number_of_blades": modeling_options["turbine"]["geometry"]["num_blades"],
         "hub_height": modeling_options["turbine"]["geometry"]["height_hub"],
         "turbine_rotor_diameter": modeling_options["turbine"]["geometry"][
@@ -627,7 +627,7 @@ def FinanceSE_setup_latents(prob, modeling_options):
 
     # Define the mapping between OpenMDAO variable names and modeling_options keys
     variable_mapping = {
-        "turbine_number": int(modeling_options["farm"]["N_turbines"]),
+        "turbine_number": int(modeling_options["layout"]["N_turbines"]),
         "machine_rating": modeling_options["turbine"]["nameplate"]["power_rated"]
         * 1.0e3,
         "tcc_per_kW": modeling_options["turbine"]["costs"]["tcc_per_kW"],

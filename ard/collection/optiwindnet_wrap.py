@@ -12,7 +12,7 @@ from . import templates
 def _own_L_from_inputs(inputs: dict, discrete_inputs: dict) -> nx.Graph:
     T = len(inputs["x_turbines"])
     R = len(inputs["x_substations"])
-    name_case = "farm"
+    name_case = "layout"
     if discrete_inputs["x_border"] is not None:
         B = len(discrete_inputs["x_border"])
     else:

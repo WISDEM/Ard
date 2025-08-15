@@ -41,7 +41,7 @@ class TestLCOE_OFL_stack:
 
         # set up the modeling options
         self.modeling_options = {
-            "farm": {
+            "layout": {
                 "N_turbines": 25,
                 "spacing_primary": 7.0,
                 "spacing_secondary": 7.0,

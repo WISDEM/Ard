@@ -12,7 +12,7 @@ class TestPlotLayout:
 
     def setup_method(self):
         self.modeling_options = {
-            "farm": {
+            "layout": {
                 "N_turbines": 25,
             },
         }
@@ -33,12 +33,12 @@ class TestPlotLayout:
         with subtests.test("modeling_options"):
             assert "modeling_options" in [k for k, _ in self.aep_temp.options.items()]
 
-        with subtests.test("farm"):
-            assert "farm" in self.aep_temp.options["modeling_options"].keys()
+        with subtests.test("layout"):
+            assert "layout" in self.aep_temp.options["modeling_options"].keys()
 
         with subtests.test("N_turbines"):
             assert (
-                "N_turbines" in self.aep_temp.options["modeling_options"]["farm"].keys()
+                "N_turbines" in self.aep_temp.options["modeling_options"]["layout"].keys()
             )
 
         # context manager to spike the warning since we aren't running the model yet

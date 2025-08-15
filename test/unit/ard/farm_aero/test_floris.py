@@ -46,7 +46,7 @@ class TestFLORISBatchPower:
 
         # set up the modeling options
         modeling_options = {
-            "farm": {
+            "layout": {
                 "N_turbines": len(farm_spec["xD_farm"]),
             },
             "wind_rose": wind_query,
@@ -73,8 +73,8 @@ class TestFLORISBatchPower:
         assert "case_title" in [k for k, _ in self.FLORIS.options.items()]
         assert "modeling_options" in [k for k, _ in self.FLORIS.options.items()]
 
-        assert "farm" in self.FLORIS.options["modeling_options"].keys()
-        assert "N_turbines" in self.FLORIS.options["modeling_options"]["farm"].keys()
+        assert "layout" in self.FLORIS.options["modeling_options"].keys()
+        assert "N_turbines" in self.FLORIS.options["modeling_options"]["layout"].keys()
 
         # make sure that the inputs in the component match what we planned
         input_list = [k for k, v in self.FLORIS.list_inputs(val=False)]
@@ -156,7 +156,7 @@ class TestFLORISAEP:
 
         # set up the modeling options
         modeling_options = {
-            "farm": {
+            "layout": {
                 "N_turbines": len(farm_spec["xD_farm"]),
             },
             "wind_rose": wind_rose,
@@ -182,8 +182,8 @@ class TestFLORISAEP:
         assert "case_title" in [k for k, _ in self.FLORIS.options.items()]
         assert "modeling_options" in [k for k, _ in self.FLORIS.options.items()]
 
-        assert "farm" in self.FLORIS.options["modeling_options"].keys()
-        assert "N_turbines" in self.FLORIS.options["modeling_options"]["farm"].keys()
+        assert "layout" in self.FLORIS.options["modeling_options"].keys()
+        assert "N_turbines" in self.FLORIS.options["modeling_options"]["layout"].keys()
 
         # make sure that the inputs in the component match what we planned
         input_list = [k for k, v in self.FLORIS.list_inputs(val=False)]

@@ -27,7 +27,7 @@ class TestLandBOSSE:
 
         # set up the modeling options
         self.modeling_options = {
-            "farm": {
+            "layout": {
                 "N_turbines": 25,
                 "spacing_primary": 0.0,  # reset in test_setup
                 "spacing_secondary": 0.0,  # reset in test_setup
@@ -103,7 +103,7 @@ class TestORBIT:
 
         # set up the modeling options
         self.modeling_options = {
-            "farm": {
+            "layout": {
                 "N_turbines": 25,
                 "spacing_primary": 0.0,  # reset in test
                 "spacing_secondary": 0.0,  # reset in test

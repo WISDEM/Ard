@@ -10,7 +10,7 @@ class TestCollectionTemplate:
 
     def setup_method(self):
         self.modeling_options = {
-            "farm": {
+            "layout": {
                 "N_turbines": 4,
                 "N_substations": 2,
                 "x_turbines": np.zeros(4),
@@ -36,10 +36,10 @@ class TestCollectionTemplate:
 
         assert "modeling_options" in [k for k, _ in self.coll_temp.options.items()]
 
-        assert "farm" in self.coll_temp.options["modeling_options"].keys()
-        assert "N_turbines" in self.coll_temp.options["modeling_options"]["farm"].keys()
+        assert "layout" in self.coll_temp.options["modeling_options"].keys()
+        assert "N_turbines" in self.coll_temp.options["modeling_options"]["layout"].keys()
         assert (
-            "N_substations" in self.coll_temp.options["modeling_options"]["farm"].keys()
+            "N_substations" in self.coll_temp.options["modeling_options"]["layout"].keys()
         )
 
         # context manager to spike the warning since we aren't running the model yet

@@ -15,7 +15,7 @@ class TestFullFarmLanduse:
         self.N_turbines = 25
         self.D_rotor = 130.0
         self.modeling_options = {
-            "farm": {
+            "layout": {
                 "N_turbines": self.N_turbines,
             },
             "turbine": {

@@ -45,7 +45,7 @@ class TestTurbineSpacingComponent:
         yt_in = np.array([10, 10])
 
         modeling_options = {
-            "farm": {"N_turbines": 2},
+            "layout": {"N_turbines": 2},
             "platform": {
                 "N_anchors": 4,
                 "N_anchor_dimensions": 2,

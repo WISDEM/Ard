@@ -14,7 +14,7 @@ class TestMooringConstraint3Turbines3Anchors2D:
         xa_in = np.array([[5, 10, 15], [25, 30, 35], [45, 50, 55]])
         ya_in = np.array([[5, 15, 5], [5, 15, 5], [5, 15, 5]])
         modeling_options = {
-            "farm": {"N_turbines": 3},
+            "layout": {"N_turbines": 3},
             "platform": {"N_anchors": 3, "N_anchor_dimensions": 2},
         }
 
@@ -49,7 +49,7 @@ class TestMooringConstraint3Turbines3Anchors3D:
         ya_in = np.array([[5, 15, 5], [5, 15, 5], [5, 15, 5]])
         za_in = np.array([[-5, -5, -5], [-5, -5, -5], [-5, -5, -5]])
         modeling_options = {
-            "farm": {"N_turbines": 3},
+            "layout": {"N_turbines": 3},
             "platform": {"N_anchors": 3, "N_anchor_dimensions": 3},
         }
 
@@ -84,7 +84,7 @@ class TestMooringConstraint2Turbines1Anchors2D:
         xa_in1 = np.array([[-3, 3], [17, 23]])
         ya_in1 = np.array([[0, 0], [0, 0]])
         modeling_options1 = {
-            "farm": {"N_turbines": 2},
+            "layout": {"N_turbines": 2},
             "platform": {"N_anchors": 2, "N_anchor_dimensions": 2},
         }
 
@@ -155,7 +155,7 @@ class TestMooringConstraint2Turbines1Anchors3D:
         ya_in1 = np.array([[0, 0], [0, 0]])
         za_in1 = np.array([[-10, -50], [-25, -10]])
         modeling_options1 = {
-            "farm": {"N_turbines": 2},
+            "layout": {"N_turbines": 2},
             "platform": {"N_anchors": 2, "N_anchor_dimensions": 3},
         }
 

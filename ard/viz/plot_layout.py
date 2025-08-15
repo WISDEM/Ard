@@ -12,7 +12,7 @@ class OutputLayout(om.ExplicitComponent):
     def setup(self):
         # load modeling options
         modeling_options = self.modeling_options = self.options["modeling_options"]
-        self.N_turbines = modeling_options["farm"]["N_turbines"]
+        self.N_turbines = modeling_options["layout"]["N_turbines"]
 
         # add inputs
         self.add_input(

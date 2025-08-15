@@ -21,7 +21,7 @@ class SpacingApproximations(om.ExplicitComponent):
     Options
     -------
     modeling_options : dict
-        Dictionary of modeling options including at least ["farm"]["N_turbines"] and ["turbine"]["geometry"]["diameter_rotor"]
+        Dictionary of modeling options including at least ["layout"]["N_turbines"] and ["turbine"]["geometry"]["diameter_rotor"]
     """
 
     def initialize(self):
@@ -50,7 +50,7 @@ class SpacingApproximations(om.ExplicitComponent):
 
     def setup_partials(self):
         """Declare partial derivatives."""
-        N_turbines = self.options["modeling_options"]["farm"]["N_turbines"]
+        N_turbines = self.options["modeling_options"]["layout"]["N_turbines"]
         rotor_diameter_m = self.options["modeling_options"]["turbine"]["geometry"][
             "diameter_rotor"
         ]
@@ -71,7 +71,7 @@ class SpacingApproximations(om.ExplicitComponent):
     def compute(self, inputs, outputs):
         """Compute the turbine spacing."""
         total_length_cables = inputs["total_length_cables"]
-        N_turbines = self.options["modeling_options"]["farm"]["N_turbines"]
+        N_turbines = self.options["modeling_options"]["layout"]["N_turbines"]
         rotor_diameter_m = self.options["modeling_options"]["turbine"]["geometry"][
             "diameter_rotor"
         ]

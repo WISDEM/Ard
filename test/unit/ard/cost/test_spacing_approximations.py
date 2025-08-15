@@ -12,7 +12,7 @@ class TestSpacingApproximations:
 
         # set modeling options
         modeling_options = {
-            "farm": {
+            "layout": {
                 "N_turbines": 10,
             },
             "turbine": {

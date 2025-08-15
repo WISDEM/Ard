@@ -29,7 +29,7 @@ class TestORBITNoApproxBranch:
 
         # set up the modeling options
         modeling_options = {
-            "farm": {
+            "layout": {
                 "N_turbines": 7,
                 "N_substations": 1,
                 "x_turbines": np.linspace(-7.0 * 400.0, 7.0 * 400.0, 7),
@@ -93,16 +93,16 @@ class TestORBITNoApproxBranch:
         model.connect("optiwindnet_coll.graph", "orbit.graph")
 
         model.set_input_defaults(
-            "x_turbines", modeling_options["farm"]["x_turbines"], units="km"
+            "x_turbines", modeling_options["layout"]["x_turbines"], units="km"
         )
         model.set_input_defaults(
-            "y_turbines", modeling_options["farm"]["y_turbines"], units="km"
+            "y_turbines", modeling_options["layout"]["y_turbines"], units="km"
         )
         model.set_input_defaults(
-            "x_substations", modeling_options["farm"]["x_substations"], units="km"
+            "x_substations", modeling_options["layout"]["x_substations"], units="km"
         )
         model.set_input_defaults(
-            "y_substations", modeling_options["farm"]["y_substations"], units="km"
+            "y_substations", modeling_options["layout"]["y_substations"], units="km"
         )
 
         prob = om.Problem(model)
@@ -112,14 +112,14 @@ class TestORBITNoApproxBranch:
         ocost.ORBIT_setup_latents(prob, modeling_options)
         # wcost.FinanceSE_setup_latents(prob, modeling_options)
 
-        prob.set_val("x_turbines", modeling_options["farm"]["x_turbines"], units="m")
-        prob.set_val("y_turbines", modeling_options["farm"]["y_turbines"], units="m")
+        prob.set_val("x_turbines", modeling_options["layout"]["x_turbines"], units="m")
+        prob.set_val("y_turbines", modeling_options["layout"]["y_turbines"], units="m")
 
         prob.set_val(
-            "x_substations", modeling_options["farm"]["x_substations"], units="km"
+            "x_substations", modeling_options["layout"]["x_substations"], units="km"
         )
         prob.set_val(
-            "y_substations", modeling_options["farm"]["y_substations"], units="km"
+            "y_substations", modeling_options["layout"]["y_substations"], units="km"
         )
 
         # this configuration should not work
@@ -141,7 +141,7 @@ class TestORBITNoApproxBranch:
 
         # set up the modeling options
         modeling_options = {
-            "farm": {
+            "layout": {
                 "N_turbines": 7,
                 "N_substations": 1,
                 "x_turbines": np.linspace(-7.0 * 400.0, 7.0 * 400.0, 7),
@@ -205,16 +205,16 @@ class TestORBITNoApproxBranch:
         model.connect("optiwindnet_coll.graph", "orbit.graph")
 
         model.set_input_defaults(
-            "x_turbines", modeling_options["farm"]["x_turbines"], units="km"
+            "x_turbines", modeling_options["layout"]["x_turbines"], units="km"
         )
         model.set_input_defaults(
-            "y_turbines", modeling_options["farm"]["y_turbines"], units="km"
+            "y_turbines", modeling_options["layout"]["y_turbines"], units="km"
         )
         model.set_input_defaults(
-            "x_substations", modeling_options["farm"]["x_substations"], units="km"
+            "x_substations", modeling_options["layout"]["x_substations"], units="km"
         )
         model.set_input_defaults(
-            "y_substations", modeling_options["farm"]["y_substations"], units="km"
+            "y_substations", modeling_options["layout"]["y_substations"], units="km"
         )
 
         prob = om.Problem(model)
@@ -224,14 +224,14 @@ class TestORBITNoApproxBranch:
         ocost.ORBIT_setup_latents(prob, modeling_options)
         # wcost.FinanceSE_setup_latents(prob, modeling_options)
 
-        prob.set_val("x_turbines", modeling_options["farm"]["x_turbines"], units="m")
-        prob.set_val("y_turbines", modeling_options["farm"]["y_turbines"], units="m")
+        prob.set_val("x_turbines", modeling_options["layout"]["x_turbines"], units="m")
+        prob.set_val("y_turbines", modeling_options["layout"]["y_turbines"], units="m")
 
         prob.set_val(
-            "x_substations", modeling_options["farm"]["x_substations"], units="km"
+            "x_substations", modeling_options["layout"]["x_substations"], units="km"
         )
         prob.set_val(
-            "y_substations", modeling_options["farm"]["y_substations"], units="km"
+            "y_substations", modeling_options["layout"]["y_substations"], units="km"
         )
 
         prob.run_model()
@@ -266,7 +266,7 @@ class TestORBITApproxBranch:
 
         # set up the modeling options
         self.modeling_options = {
-            "farm": {
+            "layout": {
                 "N_turbines": 7,
                 "N_substations": 1,
                 "x_turbines": np.linspace(-7.0 * 400.0, 7.0 * 400.0, 7),
@@ -330,16 +330,16 @@ class TestORBITApproxBranch:
         self.model.connect("optiwindnet_coll.graph", "orbit.graph")
 
         self.model.set_input_defaults(
-            "x_turbines", self.modeling_options["farm"]["x_turbines"], units="km"
+            "x_turbines", self.modeling_options["layout"]["x_turbines"], units="km"
         )
         self.model.set_input_defaults(
-            "y_turbines", self.modeling_options["farm"]["y_turbines"], units="km"
+            "y_turbines", self.modeling_options["layout"]["y_turbines"], units="km"
         )
         self.model.set_input_defaults(
-            "x_substations", self.modeling_options["farm"]["x_substations"], units="km"
+            "x_substations", self.modeling_options["layout"]["x_substations"], units="km"
         )
         self.model.set_input_defaults(
-            "y_substations", self.modeling_options["farm"]["y_substations"], units="km"
+            "y_substations", self.modeling_options["layout"]["y_substations"], units="km"
         )
 
         self.prob = om.Problem(self.model)
@@ -352,17 +352,17 @@ class TestORBITApproxBranch:
     def test_baseline_farm(self, subtests):
 
         self.prob.set_val(
-            "x_turbines", self.modeling_options["farm"]["x_turbines"], units="m"
+            "x_turbines", self.modeling_options["layout"]["x_turbines"], units="m"
         )
         self.prob.set_val(
-            "y_turbines", self.modeling_options["farm"]["y_turbines"], units="m"
+            "y_turbines", self.modeling_options["layout"]["y_turbines"], units="m"
         )
 
         self.prob.set_val(
-            "x_substations", self.modeling_options["farm"]["x_substations"], units="km"
+            "x_substations", self.modeling_options["layout"]["x_substations"], units="km"
         )
         self.prob.set_val(
-            "y_substations", self.modeling_options["farm"]["y_substations"], units="km"
+            "y_substations", self.modeling_options["layout"]["y_substations"], units="km"
         )
 
         self.prob.run_model()

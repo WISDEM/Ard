@@ -33,7 +33,7 @@ def make_modeling_options(x_turbines, y_turbines, x_substations, y_substations):
     N_turbines = len(x_turbines)
     N_substations = len(x_substations)
     modeling_options = {
-        "farm": {
+        "layout": {
             "N_turbines": N_turbines,
             "N_substations": N_substations,
             "x_substations": x_substations,
@@ -105,17 +105,17 @@ class TestOptiWindNetCollection:
             assert "modeling_options" in [
                 k for k, _ in self.optiwindnet_coll.options.items()
             ]
-        with subtests.test("farm"):
-            assert "farm" in self.optiwindnet_coll.options["modeling_options"].keys()
+        with subtests.test("layout"):
+            assert "layout" in self.optiwindnet_coll.options["modeling_options"].keys()
         with subtests.test("N_turbines"):
             assert (
                 "N_turbines"
-                in self.optiwindnet_coll.options["modeling_options"]["farm"].keys()
+                in self.optiwindnet_coll.options["modeling_options"]["layout"].keys()
             )
         with subtests.test("N_substations"):
             assert (
                 "N_substations"
-                in self.optiwindnet_coll.options["modeling_options"]["farm"].keys()
+                in self.optiwindnet_coll.options["modeling_options"]["layout"].keys()
             )
 
         # context manager to spike the warning since we aren't running the model yet
@@ -292,10 +292,10 @@ class TestOptiWindNetCollection5Turbines:
 
         # deep copy modeling options and adjust
         modeling_options = copy.deepcopy(self.modeling_options)
-        modeling_options["farm"]["N_turbines"] = 5
-        modeling_options["farm"]["N_substations"] = 1
-        modeling_options["farm"]["x_substations"] = [0.0]
-        modeling_options["farm"]["y_substations"] = [0.0]
+        modeling_options["layout"]["N_turbines"] = 5
+        modeling_options["layout"]["N_substations"] = 1
+        modeling_options["layout"]["x_substations"] = [0.0]
+        modeling_options["layout"]["y_substations"] = [0.0]
 
         # create the OpenMDAO model
         model = om.Group()
@@ -341,10 +341,10 @@ class TestOptiWindNetCollection5Turbines:
 
         # deep copy modeling options and adjust
         modeling_options = copy.deepcopy(self.modeling_options)
-        modeling_options["farm"]["N_turbines"] = 5
-        modeling_options["farm"]["N_substations"] = 1
-        modeling_options["farm"]["x_substations"] = [5.0]  # overridden by set_val
-        modeling_options["farm"]["y_substations"] = [5.0]  # overridden by set_val
+        modeling_options["layout"]["N_turbines"] = 5
+        modeling_options["layout"]["N_substations"] = 1
+        modeling_options["layout"]["x_substations"] = [5.0]  # overridden by set_val
+        modeling_options["layout"]["y_substations"] = [5.0]  # overridden by set_val
 
         # create the OpenMDAO model
         model = om.Group()

@@ -207,8 +207,8 @@ class ORBITDetail(orbit_wisdem.Orbit):
 
         # load modeling options
         self.modeling_options = self.options["modeling_options"]
-        self.N_turbines = self.modeling_options["farm"]["N_turbines"]
-        self.N_substations = self.modeling_options["farm"]["N_substations"]
+        self.N_turbines = self.modeling_options["layout"]["N_turbines"]
+        self.N_substations = self.modeling_options["layout"]["N_substations"]
 
         self.set_input_defaults("wtiv", "example_wtiv")
         self.set_input_defaults("feeder", "example_feeder")
@@ -273,8 +273,8 @@ class ORBITWisdemDetail(orbit_wisdem.OrbitWisdem):
 
         # load modeling options
         self.modeling_options = self.options["modeling_options"]
-        self.N_turbines = self.modeling_options["farm"]["N_turbines"]
-        self.N_substations = self.modeling_options["farm"]["N_substations"]
+        self.N_turbines = self.modeling_options["layout"]["N_turbines"]
+        self.N_substations = self.modeling_options["layout"]["N_substations"]
 
         # bring in collection system design
         self.add_discrete_input("graph", None)

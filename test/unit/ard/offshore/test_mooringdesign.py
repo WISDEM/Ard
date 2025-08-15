@@ -78,7 +78,7 @@ class TestMooringDesignSimple3Turbines3Anchors2D:
         phi = np.array([0.0, 0.0])
 
         modeling_options = {
-            "farm": {"N_turbines": 2},
+            "layout": {"N_turbines": 2},
             "platform": {
                 "N_anchors": 4,
                 "N_anchor_dimensions": 2,

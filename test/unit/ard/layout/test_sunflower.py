@@ -16,7 +16,7 @@ class TestSunflowerFarm:
 
         self.D_rotor = 130.0
         self.modeling_options = {
-            "farm": {
+            "layout": {
                 "N_turbines": 25,
             },
             "turbine": {
@@ -39,8 +39,8 @@ class TestSunflowerFarm:
         # make sure the modeling_options has what we need for the layout
         assert "modeling_options" in [k for k, _ in self.sunflower.options.items()]
 
-        assert "farm" in self.sunflower.options["modeling_options"].keys()
-        assert "N_turbines" in self.sunflower.options["modeling_options"]["farm"].keys()
+        assert "layout" in self.sunflower.options["modeling_options"].keys()
+        assert "N_turbines" in self.sunflower.options["modeling_options"]["layout"].keys()
 
         assert "turbine" in self.sunflower.options["modeling_options"].keys()
         assert (

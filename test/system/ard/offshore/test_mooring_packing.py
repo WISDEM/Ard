@@ -28,7 +28,7 @@ class TestMooringPacking:
 
         # set up the modeling options
         self.modeling_options = {
-            "farm": {
+            "layout": {
                 "N_turbines": 4,
                 "N_substations": 1,
                 "spacing_primary": 7.0,

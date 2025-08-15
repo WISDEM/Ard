@@ -37,9 +37,9 @@ class FarmBoundaryDistancePolygon(om.ExplicitComponent):
 
         # load modeling options
         self.modeling_options = self.options["modeling_options"]
-        self.N_turbines = int(self.modeling_options["farm"]["N_turbines"])
-        self.boundary_vertices = self.modeling_options["farm"]["boundary"]["vertices"]
-        self.boundary_regions = self.modeling_options["farm"]["boundary"][
+        self.N_turbines = int(self.modeling_options["layout"]["N_turbines"])
+        self.boundary_vertices = self.modeling_options["layout"]["boundary"]["vertices"]
+        self.boundary_regions = self.modeling_options["layout"]["boundary"][
             "turbine_region_assignments"
         ]
 

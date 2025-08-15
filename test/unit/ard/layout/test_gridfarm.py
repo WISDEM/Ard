@@ -11,7 +11,7 @@ class TestGridFarm:
     def setup_method(self):
 
         self.modeling_options = {
-            "farm": {
+            "layout": {
                 "N_turbines": 25,
                 "spacing_primary": 0.0,  # reset in test_setup
                 "spacing_secondary": 0.0,  # reset in test_setup
@@ -38,8 +38,8 @@ class TestGridFarm:
         # make sure the modeling_options has what we need for the layout
         assert "modeling_options" in [k for k, _ in self.gf.options.items()]
 
-        assert "farm" in self.gf.options["modeling_options"].keys()
-        assert "N_turbines" in self.gf.options["modeling_options"]["farm"].keys()
+        assert "layout" in self.gf.options["modeling_options"].keys()
+        assert "N_turbines" in self.gf.options["modeling_options"]["layout"].keys()
 
         assert "turbine" in self.gf.options["modeling_options"].keys()
         assert "geometry" in self.gf.options["modeling_options"]["turbine"].keys()
@@ -198,7 +198,7 @@ class TestGridFarmLanduse:
         self.N_turbines = 25
         self.D_rotor = 130.0
         self.modeling_options = {
-            "farm": {
+            "layout": {
                 "N_turbines": self.N_turbines,
                 "spacing_primary": 0.0,  # reset in test_setup
                 "spacing_secondary": 0.0,  # reset in test_setup
@@ -230,8 +230,8 @@ class TestGridFarmLanduse:
         # make sure the modeling_options has what we need for the layout
         assert "modeling_options" in [k for k, _ in self.lu.options.items()]
 
-        assert "farm" in self.lu.options["modeling_options"].keys()
-        assert "N_turbines" in self.lu.options["modeling_options"]["farm"].keys()
+        assert "layout" in self.lu.options["modeling_options"].keys()
+        assert "N_turbines" in self.lu.options["modeling_options"]["layout"].keys()
 
         assert "turbine" in self.lu.options["modeling_options"].keys()
         assert "geometry" in self.lu.options["modeling_options"]["turbine"].keys()

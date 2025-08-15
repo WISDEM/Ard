@@ -1,7 +1,7 @@
 system: "onshore"
 
 modeling_options:
-  farm:
+  layout:
     N_turbines: 25
     N_substations: 1
     spacing_primary: 7.0

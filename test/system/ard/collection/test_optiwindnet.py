@@ -47,7 +47,7 @@ class TestoptiwindnetLayout:
 
         # set up the modeling options
         self.modeling_options = {
-            "farm": {
+            "layout": {
                 "N_turbines": 25,
                 "N_substations": 1,
                 "x_turbines": np.zeros(25),

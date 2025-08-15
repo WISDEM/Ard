@@ -52,7 +52,7 @@ class MooringConstraint(om.ExplicitComponent):
 
         # load modeling options
         self.modeling_options = self.options["modeling_options"]
-        self.N_turbines = int(self.modeling_options["farm"]["N_turbines"])
+        self.N_turbines = int(self.modeling_options["layout"]["N_turbines"])
         self.N_anchor_dimensions = int(
             self.modeling_options["platform"]["N_anchor_dimensions"]
         )

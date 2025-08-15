@@ -23,7 +23,7 @@ class TestLandBOSSEWithSpacingApproximations:
 
         # set up the modeling options
         modeling_options = {
-            "farm": {
+            "layout": {
                 "N_turbines": 25,
             },
             "turbine": data_turbine,
@@ -58,7 +58,7 @@ class TestLandBOSSEWithSpacingApproximations:
             "spacing_approximations.primary_turbine_spacing_diameters"
         )
         expected_spacing = 1000.0 / (
-            self.modeling_options["farm"]["N_turbines"]
+            self.modeling_options["layout"]["N_turbines"]
             * self.modeling_options["turbine"]["geometry"]["diameter_rotor"]
         )
         assert primary_turbine_spacing == pytest.approx(expected_spacing, abs=1e-12)
@@ -70,7 +70,7 @@ class TestLandBOSSEWithSpacingApproximations:
             "spacing_approximations.secondary_turbine_spacing_diameters"
         )
         expected_spacing = 1000.0 / (
-            self.modeling_options["farm"]["N_turbines"]
+            self.modeling_options["layout"]["N_turbines"]
             * self.modeling_options["turbine"]["geometry"]["diameter_rotor"]
         )
         assert secondary_turbine_spacing == pytest.approx(expected_spacing, abs=1e-12)
@@ -109,7 +109,7 @@ class TestLandBOSSEWithSpacingApproximations:
     #         ("total_capex", "total_length_cables")
     #     ]["J_fwd"]
     #     expected_partial = 1.0 / (
-    #         self.modeling_options["farm"]["N_turbines"]
+    #         self.modeling_options["layout"]["N_turbines"]
     #         * self.modeling_options["turbine"]["geometry"]["diameter_rotor"]
     #     )
     #     assert total_length_cables_partials == pytest.approx(expected_partial, abs=1E-12)

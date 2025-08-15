@@ -36,7 +36,7 @@ class TestFarmBoundaryDistancePolygon:
 
         # set modeling options
         modeling_options_single = {
-            "farm": {
+            "layout": {
                 "N_turbines": self.N_turbines,
                 "boundary": {
                     "type": "polygon",
@@ -86,7 +86,7 @@ class TestFarmBoundaryDistancePolygon:
 
         # set modeling options
         modeling_options_single = {
-            "farm": {
+            "layout": {
                 "N_turbines": self.N_turbines,
                 "boundary": {
                     "type": "polygon",
@@ -198,7 +198,7 @@ class TestFarmBoundaryDistancePolygon:
 
         # set modeling options
         modeling_options = {
-            "farm": {
+            "layout": {
                 "N_turbines": self.N_turbines,
                 "boundary": {
                     "type": "polygon",
@@ -263,7 +263,7 @@ class TestFarmBoundaryDistancePolygon:
 
         # set modeling options
         modeling_options = {
-            "farm": {
+            "layout": {
                 "N_turbines": self.N_turbines,
                 "boundary": {
                     "type": "polygon",

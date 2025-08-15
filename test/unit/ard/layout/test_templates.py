@@ -11,7 +11,7 @@ class TestLayoutTemplate:
     def setup_method(self):
 
         self.modeling_options = {
-            "farm": {
+            "layout": {
                 "N_turbines": 4,
             },
         }
@@ -27,8 +27,8 @@ class TestLayoutTemplate:
     def test_setup(self):
         # make sure the modeling options has the things we need for the layout
         assert "modeling_options" in [k for k, _ in self.lt.options.items()]
-        assert "farm" in self.lt.options["modeling_options"].keys()
-        assert "N_turbines" in self.lt.options["modeling_options"]["farm"].keys()
+        assert "layout" in self.lt.options["modeling_options"].keys()
+        assert "N_turbines" in self.lt.options["modeling_options"]["layout"].keys()
 
         # make sure that the outputs in the component match what we planned
         output_list = [k for k, v in self.lt.list_outputs()]
@@ -54,7 +54,7 @@ class TestLanduseTemplate:
         self.N_turbines = 25
         self.D_rotor = 130.0
         self.modeling_options = {
-            "farm": {
+            "layout": {
                 "N_turbines": self.N_turbines,
             },
         }
@@ -73,8 +73,8 @@ class TestLanduseTemplate:
         # make sure the modeling_options has what we need for the layout
         assert "modeling_options" in [k for k, _ in self.lu.options.items()]
 
-        assert "farm" in self.lu.options["modeling_options"].keys()
-        assert "N_turbines" in self.lu.options["modeling_options"]["farm"].keys()
+        assert "layout" in self.lu.options["modeling_options"].keys()
+        assert "N_turbines" in self.lu.options["modeling_options"]["layout"].keys()
 
         # context manager to spike the warning since we aren't running the model yet
         with pytest.warns(Warning) as warning:
