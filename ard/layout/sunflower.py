@@ -116,8 +116,8 @@ class SunflowerFarmLayout(templates.LayoutTemplate):
         """Computation for the OM component."""
 
         # get the desired mean nearest-neighbor distance
-        D_rotor = self.modeling_options["turbine"]["geometry"][
-            "diameter_rotor"
+        D_rotor = self.windIO["wind_farm"]["turbine"][
+            "rotor_diameter"
         ]  # get rotor diameter
         spacing_target = D_rotor * inputs["spacing_target"]
 

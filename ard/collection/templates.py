@@ -15,6 +15,9 @@ class CollectionTemplate(om.ExplicitComponent):
     -------
     modeling_options : dict
         a modeling options dictionary
+    windIO_plant : dict
+        the dictionary representation of a loaded and validated windIO
+        specification
 
     Inputs
     ------
@@ -60,18 +63,39 @@ class CollectionTemplate(om.ExplicitComponent):
         """Setup of OM component."""
         # load modeling options
         self.modeling_options = self.options["modeling_options"]
+        self.windIO_plant = self.modeling_options["windIO_plant"]
         self.N_turbines = self.modeling_options["layout"]["N_turbines"]
         self.N_substations = self.modeling_options["layout"]["N_substations"]
         if "x_turbines" in self.modeling_options["layout"]:
             self.x_turbines = self.modeling_options["layout"]["x_turbines"]
         else:
-            self.x_turbines = np.zeros(self.N_turbines)
+            self.x_turbines = (
+                self.windIO_plant.get("wind_farm", {})
+                .get("layouts", {})
+                .get("coordinates", {})
+                .get("x", np.zeros((self.N_turbines,)))
+            )
         if "y_turbines" in self.modeling_options["layout"]:
             self.y_turbines = self.modeling_options["layout"]["y_turbines"]
         else:
-            self.y_turbines = np.zeros(self.N_turbines)
-        self.x_substations = self.modeling_options["layout"]["x_substations"]
-        self.y_substations = self.modeling_options["layout"]["y_substations"]
+            self.y_turbines = (
+                self.windIO_plant.get("wind_farm", {})
+                .get("layouts", {})
+                .get("coordinates", {})
+                .get("y", np.zeros((self.N_turbines,)))
+            )
+        self.x_substations = np.array(
+            [
+                li["electrical_substation"]["coordinates"]["x"]
+                for li in self.windIO_plant["wind_farm"]["electrical_substations"]
+            ]
+        )
+        self.y_substations = np.array(
+            [
+                li["electrical_substation"]["coordinates"]["y"]
+                for li in self.windIO_plant["wind_farm"]["electrical_substations"]
+            ]
+        )
 
         # set up inputs for farm layout
         self.add_input("x_turbines", self.x_turbines, units="m")

@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import yaml
+
 import numpy as np
 
 import openmdao.api as om
@@ -17,40 +19,42 @@ class TestConstraints:
 
     def setup_method(self):
 
-        # specify the configuration/specification files to use
-        filename_turbine_spec = (
-            Path(ard.__file__).parents[1]
-            / "examples"
-            / "data"
-            / "turbine_spec_IEA-3p4-130-RWT.yaml"
-        ).absolute()  # toolset generalized turbine specification
-
-        # load the turbine specification
-        data_turbine = ard.utils.io.load_turbine_spec(filename_turbine_spec)
-
         self.N_turbines = 25
         region_assignments_single = np.zeros(self.N_turbines, dtype=int)
 
         # set up the modeling options
+        path_turbine = (
+            Path(ard.__file__).parents[1]
+            / "examples"
+            / "data"
+            / "windIO-plant_turbine_IEA-3.4MW-130m-RWT.yaml"
+        )
+        with open(path_turbine) as f_yaml:
+            data_turbine_yaml = yaml.safe_load(f_yaml)
         self.modeling_options = {
-            "layout": {
-                "N_turbines": self.N_turbines,
-                "boundary": {
-                    "type": "polygon",
-                    "vertices": [
-                        np.array(
-                            [
-                                [-2.0, -2.0],
-                                [2.0, -2.0],
-                                [2.0, 2.0],
-                                [-2.0, 2.0],
-                            ]
-                        )
-                    ],
-                    "turbine_region_assignments": region_assignments_single,
+            "windIO_plant": {
+                "name": "system test special",
+                "site": {
+                    "name": "system test site",
+                    "boundaries": {
+                        "polygons": [
+                            {
+                                "x": [-2.0, 2.0, 2.0, -2.0],
+                                "y": [-2.0, -2.0, 2.0, 2.0],
+                            },
+                        ],
+                    },
+                },
+                "wind_farm": {
+                    "turbine": data_turbine_yaml,
                 },
             },
-            "turbine": data_turbine,
+            "layout": {
+                "N_turbines": self.N_turbines,
+            },
+            "boundary": {
+                "turbine_region_assignments": region_assignments_single,
+            },
         }
 
         # create a model

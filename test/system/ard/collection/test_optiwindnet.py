@@ -26,37 +26,48 @@ class TestoptiwindnetLayout:
 
     def setup_method(self):
 
-        # create the wind query
-        wind_rose_wrg = floris.wind_data.WindRoseWRG(
-            Path(ard.__file__).parents[1] / "examples" / "data" / "wrg_example.wrg"
-        )
-        wind_rose_wrg.set_wd_step(90.0)
-        wind_rose_wrg.set_wind_speeds(
-            np.array([5.0, 10.0, 15.0, 20.0], dtype=np.float64)
-        )
-        wind_rose = wind_rose_wrg.get_wind_rose_at_point(0.0, 0.0)
-
-        # specify the configuration/specification files to use
-        filename_turbine_spec = (
+        filename_turbine = (
             Path(ard.__file__).parents[1]
             / "examples"
             / "data"
-            / "turbine_spec_IEA-3p4-130-RWT.yaml"
-        )  # toolset generalized turbine specification
-        data_turbine_spec = ard.utils.io.load_turbine_spec(filename_turbine_spec)
+            / "windIO-plant_turbine_IEA-3.4MW-130m-RWT.yaml"
+        )
+        filename_windresource = (
+            Path(ard.__file__).parents[1]
+            / "examples"
+            / "data"
+            / "windIO-plant_wind-resource_wrg-example.yaml"
+        )
 
         # set up the modeling options
         self.modeling_options = {
+            "windIO_plant": {
+                "site": {
+                    "energy_resource": {
+                        "wind_resource": ard.utils.io.load_yaml(filename_windresource),
+                    },
+                },
+                "wind_farm": {
+                    "turbine": ard.utils.io.load_yaml(filename_turbine),
+                    "electrical_substations": [
+                        {
+                            "electrical_substation": {
+                                "coordinates": {"x": [0.0], "y": [0.0]},
+                            },
+                        },
+                    ],
+                },
+            },
             "layout": {
                 "N_turbines": 25,
                 "N_substations": 1,
                 "x_turbines": np.zeros(25),
                 "y_turbines": np.zeros(25),
-                "x_substations": 0.0,  # reset in test
-                "y_substations": 0.0,  # reset in test
             },
-            "wind_rose": wind_rose,
-            "turbine": data_turbine_spec,
+            "floris": {
+                "peak_shaving_fraction": 0.4,
+                "peak_shaving_TI_threshold": 0.0,
+            },
             "offshore": False,
             "collection": {
                 "max_turbines_per_string": 8,

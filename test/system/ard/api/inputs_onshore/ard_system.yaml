@@ -1,6 +1,17 @@
 system: "onshore"
 
 modeling_options:
+  windIO_plant:
+    site:
+      energy_resource:
+        wind_resource: !include ../../../../../examples/data/windIO-plant_wind-resource_wrg-example.yaml
+    wind_farm:
+      turbine: !include ../../../../../examples/data/windIO-plant_turbine_IEA-3.4MW-130m-RWT.yaml
+      electrical_substations:
+        - electrical_substation:
+            coordinates:
+              x: [100.0]
+              y: [100.0]
   layout:
     N_turbines: 25
     N_substations: 1
@@ -8,14 +19,6 @@ modeling_options:
     spacing_secondary: 7
     angle_orientation: 0.0
     angle_skew: 0.0
-    x_substations: 100.0
-    y_substations: 100.0
-  wind_rose:
-    file: wrg_example.wrg
-    wd_step: 90.0
-    wind_speeds: [5.0, 10.0, 15.0, 20.0]
-    point: [0.0, 0.0]
-  turbine: !include turbine_spec_IEA-3p4-130-RWT.yaml
   collection:
     substation_x: 100.0
     substation_y: 100.0

@@ -10,25 +10,32 @@ class TestGridFarm:
 
     def setup_method(self):
 
+        self.N_turbines = 25
+        self.D_rotor = 130.0
+
         self.modeling_options = {
+            "windIO_plant": {
+                "wind_farm": {
+                    "turbine": {
+                        "rotor_diameter": self.D_rotor,
+                    },
+                },
+            },
             "layout": {
-                "N_turbines": 25,
+                "N_turbines": self.N_turbines,
                 "spacing_primary": 0.0,  # reset in test_setup
                 "spacing_secondary": 0.0,  # reset in test_setup
                 "angle_orientation": 0.0,  # reset in test_setup
                 "angle_skew": 0.0,  # reset in test_setup
-            },
-            "turbine": {
-                "geometry": {
-                    "diameter_rotor": 130.0,
-                }
             },
         }
 
         self.model = om.Group()
         self.gf = self.model.add_subsystem(
             "gridfarm",
-            gridfarm.GridFarmLayout(modeling_options=self.modeling_options),
+            gridfarm.GridFarmLayout(
+                modeling_options=self.modeling_options,
+            ),
             promotes=["*"],
         )
         self.prob = om.Problem(self.model)
@@ -41,11 +48,11 @@ class TestGridFarm:
         assert "layout" in self.gf.options["modeling_options"].keys()
         assert "N_turbines" in self.gf.options["modeling_options"]["layout"].keys()
 
-        assert "turbine" in self.gf.options["modeling_options"].keys()
-        assert "geometry" in self.gf.options["modeling_options"]["turbine"].keys()
+        assert "wind_farm" in self.modeling_options["windIO_plant"].keys()
+        assert "turbine" in self.modeling_options["windIO_plant"]["wind_farm"].keys()
         assert (
-            "diameter_rotor"
-            in self.gf.options["modeling_options"]["turbine"]["geometry"].keys()
+            "rotor_diameter"
+            in self.modeling_options["windIO_plant"]["wind_farm"]["turbine"].keys()
         )
 
         # context manager to spike the warning since we aren't running the model yet
@@ -197,7 +204,15 @@ class TestGridFarmLanduse:
 
         self.N_turbines = 25
         self.D_rotor = 130.0
+
         self.modeling_options = {
+            "windIO_plant": {
+                "wind_farm": {
+                    "turbine": {
+                        "rotor_diameter": self.D_rotor,
+                    },
+                },
+            },
             "layout": {
                 "N_turbines": self.N_turbines,
                 "spacing_primary": 0.0,  # reset in test_setup
@@ -205,22 +220,21 @@ class TestGridFarmLanduse:
                 "angle_orientation": 0.0,  # reset in test_setup
                 "angle_skew": 0.0,  # reset in test_setup
             },
-            "turbine": {
-                "geometry": {
-                    "diameter_rotor": self.D_rotor,
-                }
-            },
         }
 
         self.model = om.Group()
         self.gf = self.model.add_subsystem(
             "gridfarm",
-            gridfarm.GridFarmLayout(modeling_options=self.modeling_options),
+            gridfarm.GridFarmLayout(
+                modeling_options=self.modeling_options,
+            ),
             promotes=["*"],
         )
         self.lu = self.model.add_subsystem(
             "gflu",
-            gridfarm.GridFarmLanduse(modeling_options=self.modeling_options),
+            gridfarm.GridFarmLanduse(
+                modeling_options=self.modeling_options,
+            ),
             promotes=["*"],
         )
         self.prob = om.Problem(self.model)
@@ -233,11 +247,11 @@ class TestGridFarmLanduse:
         assert "layout" in self.lu.options["modeling_options"].keys()
         assert "N_turbines" in self.lu.options["modeling_options"]["layout"].keys()
 
-        assert "turbine" in self.lu.options["modeling_options"].keys()
-        assert "geometry" in self.lu.options["modeling_options"]["turbine"].keys()
+        assert "wind_farm" in self.modeling_options["windIO_plant"].keys()
+        assert "turbine" in self.modeling_options["windIO_plant"]["wind_farm"].keys()
         assert (
-            "diameter_rotor"
-            in self.lu.options["modeling_options"]["turbine"]["geometry"].keys()
+            "rotor_diameter"
+            in self.modeling_options["windIO_plant"]["wind_farm"]["turbine"].keys()
         )
 
         # context manager to spike the warning since we aren't running the model yet

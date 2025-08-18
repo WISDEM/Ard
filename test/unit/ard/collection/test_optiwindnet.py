@@ -20,28 +20,28 @@ import ard.collection.optiwindnet_wrap as ard_own
 
 def make_modeling_options(x_turbines, y_turbines, x_substations, y_substations):
 
-    # specify the configuration/specification files to use
-    filename_turbine_spec = (
-        Path(ard.__file__).parents[1]
-        / "examples"
-        / "data"
-        / "turbine_spec_IEA-3p4-130-RWT.yaml"
-    )  # toolset generalized turbine specification
-    data_turbine_spec = ard.utils.io.load_turbine_spec(filename_turbine_spec)
-
     # set up the modeling options
     N_turbines = len(x_turbines)
     N_substations = len(x_substations)
     modeling_options = {
+        "windIO_plant": {
+            "wind_farm": {
+                "electrical_substations": [
+                    {
+                        "electrical_substation": {
+                            "coordinates": {"x": xv, "y": yv},
+                        },
+                    }
+                    for xv, yv in zip(x_substations, y_substations)
+                ],
+            },
+        },
         "layout": {
             "N_turbines": N_turbines,
             "N_substations": N_substations,
-            "x_substations": x_substations,
-            "y_substations": y_substations,
             "x_turbines": x_turbines,
             "y_turbines": y_turbines,
         },
-        "turbine": data_turbine_spec,
         "collection": {
             "max_turbines_per_string": 8,
             "model_options": dict(
@@ -294,8 +294,14 @@ class TestOptiWindNetCollection5Turbines:
         modeling_options = copy.deepcopy(self.modeling_options)
         modeling_options["layout"]["N_turbines"] = 5
         modeling_options["layout"]["N_substations"] = 1
-        modeling_options["layout"]["x_substations"] = [0.0]
-        modeling_options["layout"]["y_substations"] = [0.0]
+        modeling_options["windIO_plant"]["wind_farm"]["electrical_substations"] = [
+            {
+                "electrical_substation": {
+                    "coordinates": {"x": xv, "y": yv},
+                },
+            }
+            for xv, yv in zip([0.0], [0.0])
+        ]
 
         # create the OpenMDAO model
         model = om.Group()
@@ -343,8 +349,14 @@ class TestOptiWindNetCollection5Turbines:
         modeling_options = copy.deepcopy(self.modeling_options)
         modeling_options["layout"]["N_turbines"] = 5
         modeling_options["layout"]["N_substations"] = 1
-        modeling_options["layout"]["x_substations"] = [5.0]  # overridden by set_val
-        modeling_options["layout"]["y_substations"] = [5.0]  # overridden by set_val
+        modeling_options["windIO_plant"]["wind_farm"]["electrical_substations"] = [
+            {
+                "electrical_substation": {
+                    "coordinates": {"x": xv, "y": yv},
+                },
+            }
+            for xv, yv in zip([5.0], [5.0])
+        ]
 
         # create the OpenMDAO model
         model = om.Group()

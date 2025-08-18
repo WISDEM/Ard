@@ -44,8 +44,12 @@ class TestTurbineSpacingComponent:
         xt_in = np.array([10, 30])
         yt_in = np.array([10, 10])
 
+        self.N_turbines = 2
+
         modeling_options = {
-            "layout": {"N_turbines": 2},
+            "layout": {
+                "N_turbines": self.N_turbines,
+            },
             "platform": {
                 "N_anchors": 4,
                 "N_anchor_dimensions": 2,
@@ -56,7 +60,9 @@ class TestTurbineSpacingComponent:
         prob = om.Problem(model=om.Group())
         prob.model.add_subsystem(
             "sc",
-            ard.layout.spacing.TurbineSpacing(modeling_options=modeling_options),
+            ard.layout.spacing.TurbineSpacing(
+                modeling_options=modeling_options,
+            ),
             promotes=["*"],
         )
 

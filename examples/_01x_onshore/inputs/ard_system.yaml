@@ -1,14 +1,11 @@
-windIO_plant: &windIO_plant !include windio.yaml
-
 modeling_options: &modeling_options
-  wisdem_config:
-    fname_wt_input: IEA-3p4-130-RWT.yaml
+  windIO_plant: &windIO_plant !include windio.yaml
   layout:
     N_turbines: 25
     N_substations: 1
     type: "gridfarm"
-    spacing_primary: 7.0
-    spacing_secondary: 7.0
+    spacing_primary: 18.0
+    spacing_secondary: 18.0
     angle_orientation: 0.0
     angle_skew: 0.0
   floris:
@@ -36,11 +33,6 @@ system:
     layout2aep:
       type: group
       promotes: ["*"]
-      approx_totals:
-        method: "fd"
-        step: 1.0E-3
-        form: "central"
-        step_calc: "rel_avg"
       systems:
         layout:
           type: component
@@ -49,7 +41,6 @@ system:
           promotes: ["*"]
           kwargs:
             modeling_options: *modeling_options
-            windIO_plant: *windIO_plant
         aepFLORIS:
           type: component
           module: ard.farm_aero.floris
@@ -57,7 +48,6 @@ system:
           promotes: ["x_turbines", "y_turbines", "AEP_farm"]
           kwargs:
             modeling_options: *modeling_options
-            windIO_plant: *windIO_plant
             data_path:
             case_title: "default"
       approx_totals:
@@ -65,6 +55,13 @@ system:
         step: 1.0E-3
         form: "central"
         step_calc: "rel_avg"
+    boundary:
+      type: component
+      module: ard.layout.boundary
+      object: FarmBoundaryDistancePolygon
+      promotes: ["*"]
+      kwargs:
+        modeling_options: *modeling_options
     landuse:
       type: component
       module: ard.layout.gridfarm
@@ -72,21 +69,20 @@ system:
       promotes: ["*"]
       kwargs:
         modeling_options: *modeling_options
-        windIO_plant: *windIO_plant
-    # optiwindnet_coll:
-    #   type: component
-    #   module: ard.collection.optiwindnet_wrap
-    #   object: OptiwindnetCollection
-    #   promotes: ["*"]
-    #   kwargs:
-    #     modeling_options: *modeling_options
-    # spacing_constraint:
-    #   type: component
-    #   module: ard.layout.spacing
-    #   object: TurbineSpacing
-    #   promotes: ["*"]
-    #   kwargs:
-    #     modeling_options: *modeling_options
+    optiwindnet_coll:
+      type: component
+      module: ard.collection.optiwindnet_wrap
+      object: OptiwindnetCollection
+      promotes: ["*"]
+      kwargs:
+        modeling_options: *modeling_options
+    spacing_constraint:
+      type: component
+      module: ard.layout.spacing
+      object: TurbineSpacing
+      promotes: ["*"]
+      kwargs:
+        modeling_options: *modeling_options
     # tcc:
     #   type: component
     #   module: ard.cost.wisdem_wrap
@@ -131,23 +127,27 @@ analysis_options:
     name: ScipyOptimizeDriver
     options:
       optimizer: "COBYLA"
+
   design_variables:
     spacing_primary:
       lower: 3.0
-      upper: 10.0
+      upper: 20.0
     spacing_secondary:
       lower: 3.0
-      upper: 10.0
+      upper: 20.0
     angle_orientation:
       lower: -180.0
       upper: 180.0
     angle_skew:
       lower: -75.0
       upper: 180.0
-  # constraints:
-  #   spacing_constraint.turbine_spacing:
-  #     units: "m"
-  #     lower: 552
+  constraints:
+    boundary_distances:
+      units: "km"
+      upper: 0.0
+    spacing_constraint.turbine_spacing:
+      units: "m"
+      lower: 552.0
   objective:
     name: AEP_farm  # layout2aep.AEP_farm
     options:

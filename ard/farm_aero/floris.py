@@ -103,9 +103,12 @@ def create_FLORIS_turbine_from_windIO(
 
     # append peak shaving reduction fraction and TI threshhold they exist
     psf_val = modeling_options.get("floris", {}).get("peak_shaving_fraction")
-    psf_thresh = modeling_options.get("floris", {}).get("peak_shaving_TI_threshold")
-    if all(var_psf is not None for var_psf in [psf_val, psf_thresh]):
+    psf_thresh = modeling_options.get("floris", {}).get(
+        "peak_shaving_TI_threshold", 0.0
+    )
+    if psf_val is not None:
         # if they exist, set them
+        print(f"DEBUG!!!!! INSTALLING PEAK-SHAVING!")
         turbine_FLORIS["power_thrust_table"]["peak_shaving_fraction"] = psf_val
         turbine_FLORIS["power_thrust_table"]["peak_shaving_TI_threshold"] = psf_thresh
 
@@ -280,9 +283,9 @@ class FLORISBatchPower(templates.BatchFarmPowerTemplate, FLORISFarmComponent):
 
         # generate the list of conditions for evaluation
         self.time_series = floris.TimeSeries(
-            wind_directions=np.degrees(np.array(self.wind_query.get_directions())),
-            wind_speeds=np.array(self.wind_query.get_speeds()),
-            turbulence_intensities=np.array(self.wind_query.get_TIs()),
+            wind_directions=np.degrees(np.array(self.wind_query.wind_directions)),
+            wind_speeds=np.array(self.wind_query.wind_speeds),
+            turbulence_intensities=np.array(self.wind_query.turbulence_intensities),
         )
 
         # set up and run the floris model
@@ -297,7 +300,10 @@ class FLORISBatchPower(templates.BatchFarmPowerTemplate, FLORISFarmComponent):
                 else None
             ),
         )
-        self.fmodel.set_operation_model("peak-shaving")
+        print(f"DEBUG!!!!! self.modeling_options: {self.modeling_options['floris']}")
+        if "peak_shaving_fraction" in self.modeling_options.get("floris", {}):
+            print(f"DEBUG!!!!! ENABLING PEAK-SHAVING!")
+            self.fmodel.set_operation_model("peak-shaving")
 
         self.fmodel.run()
 
@@ -389,7 +395,10 @@ class FLORISAEP(templates.FarmAEPTemplate):
                 else None
             ),
         )
-        self.fmodel.set_operation_model("peak-shaving")
+        print(f"DEBUG!!!!! self.modeling_options: {self.modeling_options['floris']}")
+        if "peak_shaving_fraction" in self.modeling_options.get("floris", {}):
+            print(f"DEBUG!!!!! ENABLING PEAK-SHAVING!")
+            self.fmodel.set_operation_model("peak-shaving")
 
         self.fmodel.run()
 

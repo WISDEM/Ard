@@ -10,13 +10,25 @@ class TestCollectionTemplate:
 
     def setup_method(self):
         self.modeling_options = {
+            "windIO_plant": {
+                "wind_farm": {
+                    "electrical_substations": [
+                        {
+                            "electrical_substation": {
+                                "coordinates": {
+                                    "x": [0.0, 0.0],
+                                    "y": [0.0, 0.0],
+                                },
+                            },
+                        },
+                    ],
+                },
+            },
             "layout": {
                 "N_turbines": 4,
                 "N_substations": 2,
                 "x_turbines": np.zeros(4),
                 "y_turbines": np.zeros(4),
-                "x_substations": [0.0, 0.0],  # reset in test
-                "y_substations": [0.0, 0.0],  # reset in test
             },
         }
 
@@ -36,10 +48,17 @@ class TestCollectionTemplate:
 
         assert "modeling_options" in [k for k, _ in self.coll_temp.options.items()]
 
-        assert "layout" in self.coll_temp.options["modeling_options"].keys()
-        assert "N_turbines" in self.coll_temp.options["modeling_options"]["layout"].keys()
+        assert "windIO_plant" in self.coll_temp.options["modeling_options"].keys()
         assert (
-            "N_substations" in self.coll_temp.options["modeling_options"]["layout"].keys()
+            "wind_farm"
+            in self.coll_temp.options["modeling_options"]["windIO_plant"].keys()
+        )
+        assert (
+            "N_turbines" in self.coll_temp.options["modeling_options"]["layout"].keys()
+        )
+        assert (
+            "N_substations"
+            in self.coll_temp.options["modeling_options"]["layout"].keys()
         )
 
         # context manager to spike the warning since we aren't running the model yet

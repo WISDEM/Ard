@@ -12,13 +12,9 @@ class TestSpacingApproximations:
 
         # set modeling options
         modeling_options = {
+            "windIO_plant": {"wind_farm": {"turbine": {"rotor_diameter": 10.0}}},
             "layout": {
                 "N_turbines": 10,
-            },
-            "turbine": {
-                "geometry": {
-                    "diameter_rotor": 10,
-                }
             },
         }
 

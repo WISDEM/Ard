@@ -10,24 +10,43 @@ from ard.cost.wisdem_wrap import LandBOSSEWithSpacingApproximations
 class TestLandBOSSEWithSpacingApproximations:
     def setup_method(self):
 
-        # specify the configuration/specification files to use
-        filename_turbine_spec = (
+        filename_turbine = (
             Path(ard.__file__).parents[1]
             / "examples"
             / "data"
-            / "turbine_spec_IEA-3p4-130-RWT.yaml"
-        ).absolute()  # toolset generalized turbine specification
-
-        # load the turbine specification
-        data_turbine = ard.utils.io.load_turbine_spec(filename_turbine_spec)
+            / "windIO-plant_turbine_IEA-3.4MW-130m-RWT.yaml"
+        )
+        # filename_windresource = (
+        #     Path(ard.__file__).parents[1]
+        #     / "examples"
+        #     / "data"
+        #     / "windIO-plant_wind-resource_wrg-example.yaml"
+        # )
 
         # set up the modeling options
         modeling_options = {
+            "windIO_plant": {
+                # "site": {
+                #     "energy_resource": {
+                #         "wind_resource": ard.utils.io.load_yaml(filename_windresource),
+                #     },
+                # },
+                "wind_farm": {
+                    "turbine": ard.utils.io.load_yaml(filename_turbine),
+                    # "electrical_substations": [
+                    #     {
+                    #         "electrical_substation": {
+                    #             "coordinates": {"x": [0.0], "y": [0.0]},
+                    #         },
+                    #     },
+                    # ],
+                },
+            },
             "layout": {
                 "N_turbines": 25,
             },
-            "turbine": data_turbine,
         }
+        windIO_plant = modeling_options["windIO_plant"]
 
         # Create the problem
         prob = om.Problem()
@@ -59,7 +78,9 @@ class TestLandBOSSEWithSpacingApproximations:
         )
         expected_spacing = 1000.0 / (
             self.modeling_options["layout"]["N_turbines"]
-            * self.modeling_options["turbine"]["geometry"]["diameter_rotor"]
+            * self.modeling_options["windIO_plant"]["wind_farm"]["turbine"][
+                "rotor_diameter"
+            ]
         )
         assert primary_turbine_spacing == pytest.approx(expected_spacing, abs=1e-12)
 
@@ -71,7 +92,9 @@ class TestLandBOSSEWithSpacingApproximations:
         )
         expected_spacing = 1000.0 / (
             self.modeling_options["layout"]["N_turbines"]
-            * self.modeling_options["turbine"]["geometry"]["diameter_rotor"]
+            * self.modeling_options["windIO_plant"]["wind_farm"]["turbine"][
+                "rotor_diameter"
+            ]
         )
         assert secondary_turbine_spacing == pytest.approx(expected_spacing, abs=1e-12)
 
@@ -110,6 +133,6 @@ class TestLandBOSSEWithSpacingApproximations:
     #     ]["J_fwd"]
     #     expected_partial = 1.0 / (
     #         self.modeling_options["layout"]["N_turbines"]
-    #         * self.modeling_options["turbine"]["geometry"]["diameter_rotor"]
+    #         * self.options["modeling_options"]["windIO_plant"]["wind_farm"]["turbine"]["rotor_diameter"]
     #     )
     #     assert total_length_cables_partials == pytest.approx(expected_partial, abs=1E-12)

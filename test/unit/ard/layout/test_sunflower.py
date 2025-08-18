@@ -5,6 +5,7 @@ import scipy.spatial
 import openmdao.api as om
 
 import pytest
+import windIO
 
 import ard.utils.test_utils as test_utils
 import ard.layout.sunflower as sunflower
@@ -14,22 +15,28 @@ class TestSunflowerFarm:
 
     def setup_method(self):
 
+        self.N_turbines = 25
         self.D_rotor = 130.0
+
         self.modeling_options = {
-            "layout": {
-                "N_turbines": 25,
+            "windIO_plant": {
+                "wind_farm": {
+                    "turbine": {
+                        "rotor_diameter": self.D_rotor,
+                    },
+                },
             },
-            "turbine": {
-                "geometry": {
-                    "diameter_rotor": self.D_rotor,
-                }
+            "layout": {
+                "N_turbines": self.N_turbines,
             },
         }
 
         self.model = om.Group()
         self.sunflower = self.model.add_subsystem(
             "sunflower",
-            sunflower.SunflowerFarmLayout(modeling_options=self.modeling_options),
+            sunflower.SunflowerFarmLayout(
+                modeling_options=self.modeling_options,
+            ),
             promotes=["*"],
         )
         self.prob = om.Problem(self.model)
@@ -40,15 +47,15 @@ class TestSunflowerFarm:
         assert "modeling_options" in [k for k, _ in self.sunflower.options.items()]
 
         assert "layout" in self.sunflower.options["modeling_options"].keys()
-        assert "N_turbines" in self.sunflower.options["modeling_options"]["layout"].keys()
-
-        assert "turbine" in self.sunflower.options["modeling_options"].keys()
         assert (
-            "geometry" in self.sunflower.options["modeling_options"]["turbine"].keys()
+            "N_turbines" in self.sunflower.options["modeling_options"]["layout"].keys()
         )
+
+        assert "wind_farm" in self.modeling_options["windIO_plant"].keys()
+        assert "turbine" in self.modeling_options["windIO_plant"]["wind_farm"].keys()
         assert (
-            "diameter_rotor"
-            in self.sunflower.options["modeling_options"]["turbine"]["geometry"].keys()
+            "rotor_diameter"
+            in self.modeling_options["windIO_plant"]["wind_farm"]["turbine"].keys()
         )
 
         # context manager to spike the warning since we aren't running the model yet

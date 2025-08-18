@@ -3,7 +3,6 @@ import jax.numpy as jnp
 import jax
 
 jax.config.update("jax_enable_x64", True)
-import ard.utils.mathematics
 import ard.utils.geometry
 import openmdao.api as om
 
@@ -16,7 +15,10 @@ class FarmBoundaryDistancePolygon(om.ExplicitComponent):
     Options
     -------
     modeling_options : dict
-        a modeling options dictionary (inherited from `FarmAeroTemplate`)
+        a modeling options dictionary
+    windIO_plant : dict
+        the dictionary representation of a loaded and validated windIO
+        specification
 
     Inputs
     ------
@@ -37,16 +39,40 @@ class FarmBoundaryDistancePolygon(om.ExplicitComponent):
 
         # load modeling options
         self.modeling_options = self.options["modeling_options"]
+        self.windIO = self.modeling_options["windIO_plant"]
         self.N_turbines = int(self.modeling_options["layout"]["N_turbines"])
-        self.boundary_vertices = self.modeling_options["layout"]["boundary"]["vertices"]
-        self.boundary_regions = self.modeling_options["layout"]["boundary"][
-            "turbine_region_assignments"
-        ]
 
+        # load boundary vertices from windIO file
+        if "boundaries" not in self.windIO["site"]:
+            raise KeyError(
+                "You have requested a boundary but no boundaries were found in the windIO file."
+            )
+        if "circle" in self.windIO["site"]["boundaries"]:
+            raise NotImplementedError(
+                "The circular boundaries from windIO have not been implemented here, yet."
+            )
+        if "polygons" not in self.windIO["site"]["boundaries"]:
+            raise KeyError(
+                "Currently only polygon boundaries from windIO have been implemented and none were found."
+            )
+        self.boundary_vertices = [
+            np.array(
+                [
+                    polygon["x"],
+                    polygon["y"],
+                ]
+            ).T
+            for polygon in self.windIO["site"]["boundaries"]["polygons"]
+        ]
+        self.boundary_regions = self.modeling_options.get("boundary", {}).get(
+            "turbine_region_assignments",  # get the region assignments from modeling_options, if there
+            np.zeros(self.N_turbines, dtype=int),  # default to zero for all turbines
+        )
+
+        # prep the jacobian
         self.distance_multi_point_to_multi_polygon_ray_casting_jac = jax.jacfwd(
             ard.utils.geometry.distance_multi_point_to_multi_polygon_ray_casting, [0, 1]
         )
-        # MANAGE ADDITIONAL LATENT VARIABLES HERE!!!!!
 
         # set up inputs and outputs for mooring system
         self.add_input(

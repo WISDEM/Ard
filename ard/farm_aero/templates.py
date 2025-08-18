@@ -24,13 +24,16 @@ def create_windresource_from_windIO(
 
     # figure out the case in play
     fields_wind_resource = wind_resource.keys()
-    case_probability_based = "probability" in fields_wind_resource
+    case_probability_based = all(
+        val in fields_wind_resource
+        for val in ["probability", "wind_direction", "wind_speed"]
+    )
     case_weibull_based = all(
         val in fields_wind_resource
         for val in ["weibull_a", "weibull_k", "weibull_probability"]
     )
     case_timeseries_based = all(
-        val in fields_wind_resource for val in ["time", "wind_speed", "wind_direction"]
+        val in fields_wind_resource for val in ["time", "wind_direction", "wind_speed"]
     )
 
     if case_weibull_based and not (case_probability_based or case_timeseries_based):
@@ -70,8 +73,8 @@ def create_windresource_from_windIO(
         )
         probabilities = np.array(wind_resource["probability"]["data"])
         turbulence_intensities = (
-            np.array(wind_resource["turbulence_instensity"]["data"])
-            if "turbulence_instensity" in wind_resource
+            np.array(wind_resource["turbulence_intensity"]["data"])
+            if "turbulence_intensity" in wind_resource
             else 0.06
         )
 
@@ -92,21 +95,30 @@ def create_windresource_from_windIO(
         return wind_resource_representation
 
     elif case_timeseries_based:
-        if resource_type is not None and resource_type != "time-series":
+        if resource_type is not None and resource_type != "timeseries":
             raise ValueError(
                 f"Attempted to load {resource_type}-type wind resource and "
                 "only time-series was found."
             )
 
-        wind_directions = np.array(wind_resource["wind_direction"]["data"])
-        wind_speeds = np.array(wind_resource["wind_speed"]["data"])
-        turbulence_intensities = (
-            (
-                np.array(wind_resource["turbulence_instensity"]["data"])
-                if "turbulence_instensity" in wind_resource
-                else None
-            ),
+        wind_directions = np.array(
+            wind_resource["wind_direction"].get("data", wind_resource["wind_direction"])
+            if type(wind_resource["wind_direction"]) is dict
+            else wind_resource["wind_direction"]
         )
+        wind_speeds = np.array(
+            wind_resource["wind_speed"].get("data", wind_resource["wind_speed"])
+            if type(wind_resource["wind_speed"]) is dict
+            else wind_resource["wind_speed"]
+        )
+        turbulence_intensities = 0.06
+        if "turbulence_intensity" in wind_resource:
+            if "data" in wind_resource["turbulence_intensity"]:
+                turbulence_intensities = np.array(
+                    wind_resource["turbulence_intensity"]["data"]
+                )
+            else:
+                turbulence_intensities = np.array(wind_resource["turbulence_intensity"])
 
         wind_resource_representation = floris.TimeSeries(
             wind_directions=wind_directions,
@@ -121,10 +133,6 @@ def create_windresource_from_windIO(
         )
         wind_resource_representation.time = (
             wind_resource["time"] if "time" in wind_resource else None
-        )
-
-        raise NotImplementedError(
-            "Time-series-based wind resource implementation is in progress..."
         )
 
         return wind_resource_representation
@@ -146,8 +154,9 @@ class FarmAeroTemplate(om.ExplicitComponent):
     -------
     modeling_options : dict
         a modeling options dictionary
-    windIO : dict
-        a windIO file dictionary
+    windIO_plant : dict
+        the dictionary representation of a loaded and validated windIO
+        specification
 
     Inputs
     ------
@@ -169,7 +178,6 @@ class FarmAeroTemplate(om.ExplicitComponent):
     def initialize(self):
         """Initialization of OM component."""
         self.options.declare("modeling_options")
-        self.options.declare("windIO_plant")
         self.options.declare("data_path")
 
     def setup(self):
@@ -177,7 +185,7 @@ class FarmAeroTemplate(om.ExplicitComponent):
 
         # load modeling options
         self.modeling_options = self.options["modeling_options"]
-        self.windIO = self.options["windIO_plant"]
+        self.windIO = self.modeling_options["windIO_plant"]
         self.N_turbines = self.modeling_options["layout"]["N_turbines"]
 
         # set up inputs and outputs for farm layout
@@ -218,8 +226,9 @@ class BatchFarmPowerTemplate(FarmAeroTemplate):
     -------
     modeling_options : dict
         a modeling options dictionary (inherited from `FarmAeroTemplate`)
-    windIO : dict
-        a windIO file dictionary
+    windIO_plant : dict
+        the dictionary representation of a loaded and validated windIO
+        specification
 
     Inputs
     ------
@@ -262,12 +271,10 @@ class BatchFarmPowerTemplate(FarmAeroTemplate):
             self.windIO,
             "timeseries",
         )
-        self.directions_wind = self.wind_query.get_directions()
-        self.speeds_wind = self.wind_query.get_speeds()
-        if self.wind_query.get_TIs() is None:
-            self.wind_query.set_TI_using_IEC_method()
-        self.TIs_wind = self.wind_query.get_TIs()
-        self.N_wind_conditions = self.wind_query.N_conditions
+        self.directions_wind = self.wind_query.wind_directions.tolist()
+        self.speeds_wind = self.wind_query.wind_speeds.tolist()
+        self.TIs_wind = self.wind_query.turbulence_intensities.tolist()
+        self.N_wind_conditions = len(self.directions_wind)
 
         # add the outputs we want for a batched power analysis:
         #   - farm and turbine powers
@@ -327,8 +334,9 @@ class FarmAEPTemplate(FarmAeroTemplate):
     -------
     modeling_options : dict
         a modeling options dictionary (inherited from FarmAeroTemplate)
-    windIO : dict
-        a windIO file dictionary (inherited from FarmAEPTemplate)
+    windIO_plant : dict
+        the dictionary representation of a loaded and validated windIO
+        specification (inherited from FarmAEPTemplate)
     data_path: str
         absolute path to data directory
 
