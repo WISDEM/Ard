@@ -8,11 +8,9 @@ import numpy as np
 class TestSetUpArdModelOnshore:
     def setup_method(self):
 
-        input_dict_path = str(
-            Path(__file__).parent.absolute() / "inputs_onshore" / "ard_system.yaml"
-        )
+        input_dict_path = Path(__file__).parent.absolute() / "inputs_onshore" / "ard_system.yaml"
 
-        self.prob = set_up_ard_model(input_dict=input_dict_path)
+        self.prob = set_up_ard_model(input_dict=str(input_dict_path), root_data_path=input_dict_path.parent)
 
         self.prob.run_model()
 

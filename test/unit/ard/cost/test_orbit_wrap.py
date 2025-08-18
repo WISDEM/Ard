@@ -19,7 +19,7 @@ class TestORBITNoApproxBranch:
         # specify the configuration/specification files to use
         filename_turbine_spec = (
             Path(ard.__file__).parents[1]
-            / "examples"
+            / "test"
             / "data"
             / "turbine_spec_IEA-22-284-RWT.yaml"
         ).absolute()  # toolset generalized turbine specification
@@ -131,7 +131,7 @@ class TestORBITNoApproxBranch:
         # specify the configuration/specification files to use
         filename_turbine_spec = (
             Path(ard.__file__).parents[1]
-            / "examples"
+            / "test"
             / "data"
             / "turbine_spec_IEA-22-284-RWT.yaml"
         ).absolute()  # toolset generalized turbine specification
@@ -256,7 +256,7 @@ class TestORBITApproxBranch:
         # specify the configuration/specification files to use
         filename_turbine_spec = (
             Path(ard.__file__).parents[1]
-            / "examples"
+            / "test"
             / "data"
             / "turbine_spec_IEA-22-284-RWT.yaml"
         ).absolute()  # toolset generalized turbine specification

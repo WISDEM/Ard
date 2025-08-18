@@ -23,7 +23,7 @@ class TestLCOE_OFB_stack:
 
         # create the wind query
         wind_rose_wrg = floris.wind_data.WindRoseWRG(
-            Path(ard.__file__).parents[1] / "examples" / "data" / "wrg_example.wrg"
+            Path(ard.__file__).parents[1] / "test" / "data" / "wrg_example.wrg"
         )
         wind_rose_wrg.set_wd_step(90.0)
         wind_rose_wrg.set_wind_speeds(np.array([5.0, 10.0, 15.0, 20.0]))
@@ -33,7 +33,7 @@ class TestLCOE_OFB_stack:
         # specify the configuration/specification files to use
         filename_turbine_spec = (
             Path(ard.__file__).parents[1]
-            / "examples"
+            / "test"
             / "data"
             / "turbine_spec_IEA-22-284-RWT.yaml"
         )  # toolset generalized turbine specification

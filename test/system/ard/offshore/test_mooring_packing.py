@@ -20,7 +20,7 @@ class TestMooringPacking:
         # specify the configuration/specification files to use
         filename_turbine_spec = (
             Path(ard.__file__).parents[1]
-            / "examples"
+            / "test"
             / "data"
             / "turbine_spec_IEA-22-284-RWT.yaml"
         )  # toolset generalized turbine specification

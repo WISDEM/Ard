@@ -46,7 +46,6 @@ class TestLandBOSSEWithSpacingApproximations:
                 "N_turbines": 25,
             },
         }
-        windIO_plant = modeling_options["windIO_plant"]
 
         # Create the problem
         prob = om.Problem()
@@ -54,7 +53,7 @@ class TestLandBOSSEWithSpacingApproximations:
         # Add the LandBOSSEWithSpacingApproximations group
         prob.model.add_subsystem(
             "landbosse_group",
-            LandBOSSEWithSpacingApproximations(modeling_options=modeling_options),
+            LandBOSSEWithSpacingApproximations(modeling_options=modeling_options, data_path=filename_turbine.parent),
             promotes=["*"],
         )
 
