@@ -143,9 +143,7 @@ class TestoptiwindnetLayout:
             "terse_links": self.prob.get_val("collection.terse_links"),
             "length_cables": self.prob.get_val("collection.length_cables"),
             "load_cables": self.prob.get_val("collection.load_cables"),
-            "total_length_cables": self.prob.get_val(
-                "collection.total_length_cables"
-            ),
+            "total_length_cables": self.prob.get_val("collection.total_length_cables"),
             "max_load_cables": self.prob.get_val("collection.max_load_cables"),
         }
 

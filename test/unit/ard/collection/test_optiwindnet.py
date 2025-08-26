@@ -102,9 +102,7 @@ class TestOptiWindNetCollection:
         """
 
         with subtests.test("modeling_options"):
-            assert "modeling_options" in [
-                k for k, _ in self.collection.options.items()
-            ]
+            assert "modeling_options" in [k for k, _ in self.collection.options.items()]
         with subtests.test("layout"):
             assert "layout" in self.collection.options["modeling_options"].keys()
         with subtests.test("N_turbines"):
@@ -160,9 +158,7 @@ class TestOptiWindNetCollection:
             "terse_links": self.prob.get_val("collection.terse_links"),
             "length_cables": self.prob.get_val("collection.length_cables"),
             "load_cables": self.prob.get_val("collection.load_cables"),
-            "total_length_cables": self.prob.get_val(
-                "collection.total_length_cables"
-            ),
+            "total_length_cables": self.prob.get_val("collection.total_length_cables"),
             "max_load_cables": self.prob.get_val("collection.max_load_cables"),
         }
 
@@ -248,10 +244,7 @@ class TestOptiWindNetCollection12Turbines:
         prob.run_model()
 
         assert (
-            abs(
-                prob.get_val("collection.total_length_cables")
-                - 6564.7653295074515
-            )
+            abs(prob.get_val("collection.total_length_cables") - 6564.7653295074515)
             < 1e-7
         )
         cpJ = prob.check_partials(out_stream=None)

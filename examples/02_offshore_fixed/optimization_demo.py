@@ -111,7 +111,10 @@ def run_example():
         plt.grid()
         plt.show()
 
-    plot_layout(prob, input_dict=input_dict, show_image=True, include_cable_routing=True)
+    plot_layout(
+        prob, input_dict=input_dict, show_image=True, include_cable_routing=True
+    )
+
 
 if __name__ == "__main__":
 
