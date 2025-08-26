@@ -40,7 +40,7 @@ class TestLandBOSSEWithSpacingApproximations:
                 "N_turbines": 25,
             },
             "costs": {
-                "rated_power": 3.4,  # MW
+                "rated_power": 3400000.0,  # W
                 "num_blades": 3,
                 "rated_thrust_N": 645645.83964671,
                 "gust_velocity_m_per_s": 52.5,

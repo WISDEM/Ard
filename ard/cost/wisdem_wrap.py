@@ -328,7 +328,7 @@ def LandBOSSE_setup_latents(modeling_options: dict) -> None:
         return {
             "num_turbines": {"val": modeling_options["layout"]["N_turbines"], "units": None},
             "turbine_rating_MW": {
-                "val": modeling_options["windIO_plant"]["wind_farm"]["turbine"]["performance"]["rated_power"],
+                "val": modeling_options["windIO_plant"]["wind_farm"]["turbine"]["performance"]["rated_power"]/1.0e6,
                 "units": "MW",
             },
             "hub_height_meters": {
@@ -434,7 +434,7 @@ def ORBIT_setup_latents(modeling_options: dict) -> None:
     variable_mapping = {
         "turbine_rating": {
             "val": modeling_options["windIO_plant"]["wind_farm"]["turbine"]["performance"]["rated_power"],
-            "units": "MW",
+            "units": "W",
         },
         "site_depth": {"val": modeling_options["site_depth"], "units": "m"},
         "number_of_turbines": {
@@ -610,12 +610,12 @@ def FinanceSE_setup_latents(modeling_options):
     variable_mapping = {
         "turbine_number": {
             "val": int(modeling_options["layout"]["N_turbines"]),
-            "units": None, 
+            "units": None,
         }
             ,
         "machine_rating": {
-            "val": modeling_options["windIO_plant"]["wind_farm"]["turbine"]["performance"]["rated_power"]* 1.0e3,
-            "units": "MW",
+            "val": modeling_options["windIO_plant"]["wind_farm"]["turbine"]["performance"]["rated_power"],
+            "units": "W",
         },
         "tcc_per_kW": {
             "val": modeling_options["costs"]["tcc_per_kW"],

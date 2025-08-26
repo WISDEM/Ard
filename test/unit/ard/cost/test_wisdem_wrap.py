@@ -42,7 +42,7 @@ class TestLandBOSSE:
                 "angle_skew": 0.0,  # reset in test_setup
             },
             "costs": {
-                "rated_power": 3.4,  # MW
+                "rated_power": 3400000.0,  # W
                 "num_blades": 3,
                 "rated_thrust_N": 645645.83964671,
                 "gust_velocity_m_per_s": 52.5,
@@ -131,7 +131,7 @@ class TestORBIT:
                 "angle_skew": 0.0,  # reset in test
             },
             "costs": {
-                "rated_power": 22.0,  # MW
+                "rated_power": 22000000.0,  # W
                 "num_blades": 3,
                 "tower_length": 149.386,
                 "tower_mass": 1574044.87111,

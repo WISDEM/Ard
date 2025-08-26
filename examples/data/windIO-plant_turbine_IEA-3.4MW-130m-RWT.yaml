@@ -1,6 +1,6 @@
 name: "IEA-3.4MW-130m-RWT"
 performance:
-    rated_power: 3.4
+    rated_power: 3400000.0
     Cp_curve:
         Cp_wind_speeds:
             - 0.000000000000000000e-02

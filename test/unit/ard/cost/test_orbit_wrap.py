@@ -77,7 +77,7 @@ class TestORBITNoApproxBranch:
                 ),
             },
             "costs": {
-                "rated_power": 22.0,  # MW
+                "rated_power": 22000000.0,  # W
                 "num_blades": 3,
                 "tower_length": 149.386,
                 "tower_mass": 1574044.87111,
@@ -260,7 +260,7 @@ class TestORBITNoApproxBranch:
                 ),
             },
             "costs": {
-                "rated_power": 22.0,  # MW
+                "rated_power": 22000000.0,  # W
                 "num_blades": 3,
                 "tower_length": 149.386,
                 "tower_mass": 1574044.87111,
@@ -457,7 +457,7 @@ class TestORBITApproxBranch:
                 ),
             },
             "costs": {
-                "rated_power": 22.0,  # MW
+                "rated_power": 22000000.0,  # W
                 "num_blades": 3,
                 "tower_length": 149.386,
                 "tower_mass": 1574044.87111,

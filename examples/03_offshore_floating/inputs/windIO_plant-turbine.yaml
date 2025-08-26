@@ -1,6 +1,6 @@
 name: "IEA-22MW-284m-RWT"
 performance:
-    rated_power: 22.0
+    rated_power: 22000000.0
     Cp_curve:
         Cp_wind_speeds:
             -  0.0000
