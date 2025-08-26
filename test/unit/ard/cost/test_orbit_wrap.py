@@ -121,7 +121,7 @@ class TestORBITNoApproxBranch:
         # create an OM model and problem
         model = om.Group()
         coll = model.add_subsystem(  # collection component
-            "optiwindnet_coll",
+            "collection",
             ard.collection.OptiwindnetCollection(
                 modeling_options=modeling_options,
             ),
@@ -145,7 +145,7 @@ class TestORBITNoApproxBranch:
                 "y_substations",
             ],
         )
-        model.connect("optiwindnet_coll.graph", "orbit.graph")
+        model.connect("collection.graph", "orbit.graph")
 
         model.set_input_defaults(
             "x_turbines", modeling_options["layout"]["x_turbines"], units="km"
@@ -304,7 +304,7 @@ class TestORBITNoApproxBranch:
         # create an OM model and problem
         model = om.Group()
         coll = model.add_subsystem(  # collection component
-            "optiwindnet_coll",
+            "collection",
             ard.collection.OptiwindnetCollection(
                 modeling_options=modeling_options,
             ),
@@ -329,7 +329,7 @@ class TestORBITNoApproxBranch:
                 "y_substations",
             ],
         )
-        model.connect("optiwindnet_coll.graph", "orbit.graph")
+        model.connect("collection.graph", "orbit.graph")
 
         model.set_input_defaults(
             "x_turbines", modeling_options["layout"]["x_turbines"], units="km"
@@ -501,7 +501,7 @@ class TestORBITApproxBranch:
         # create an OM model and problem
         self.model = om.Group()
         self.coll = self.model.add_subsystem(  # collection component
-            "optiwindnet_coll",
+            "collection",
             ard.collection.OptiwindnetCollection(
                 modeling_options=self.modeling_options,
             ),
@@ -526,7 +526,7 @@ class TestORBITApproxBranch:
                 "y_substations",
             ],
         )
-        self.model.connect("optiwindnet_coll.graph", "orbit.graph")
+        self.model.connect("collection.graph", "orbit.graph")
 
         self.model.set_input_defaults(
             "x_turbines", self.modeling_options["layout"]["x_turbines"], units="km"

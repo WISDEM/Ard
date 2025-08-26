@@ -107,7 +107,7 @@ class TestoptiwindnetLayout:
             promotes=["x_turbines", "y_turbines", "AEP_farm"],
         )
         self.model.add_subsystem(
-            "optiwindnet_coll",
+            "collection",
             inter.OptiwindnetCollection(modeling_options=self.modeling_options),
             promotes=["x_turbines", "y_turbines"],
         )
@@ -119,8 +119,8 @@ class TestoptiwindnetLayout:
 
         # set up the working/design variables
         self.prob.set_val("spacing_target", 7.0)
-        self.prob.set_val("optiwindnet_coll.x_substations", [0.0])
-        self.prob.set_val("optiwindnet_coll.y_substations", [0.0])
+        self.prob.set_val("collection.x_substations", [0.0])
+        self.prob.set_val("collection.y_substations", [0.0])
 
         # run the model
         self.prob.run_model()
@@ -140,13 +140,13 @@ class TestoptiwindnetLayout:
 
         # collect optiwindnet data to validate
         validation_data = {
-            "terse_links": self.prob.get_val("optiwindnet_coll.terse_links"),
-            "length_cables": self.prob.get_val("optiwindnet_coll.length_cables"),
-            "load_cables": self.prob.get_val("optiwindnet_coll.load_cables"),
+            "terse_links": self.prob.get_val("collection.terse_links"),
+            "length_cables": self.prob.get_val("collection.length_cables"),
+            "load_cables": self.prob.get_val("collection.load_cables"),
             "total_length_cables": self.prob.get_val(
-                "optiwindnet_coll.total_length_cables"
+                "collection.total_length_cables"
             ),
-            "max_load_cables": self.prob.get_val("optiwindnet_coll.max_load_cables"),
+            "max_load_cables": self.prob.get_val("collection.max_load_cables"),
         }
 
         with subtests.test("pyrite validator"):

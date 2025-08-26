@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 import optiwindnet.plotting
 from ard.utils.io import load_yaml
 from ard.api import set_up_ard_model
+from ard.viz.layout import plot_layout
+
 import openmdao.api as om
 
 
@@ -109,10 +111,7 @@ def run_example():
         plt.grid()
         plt.show()
 
-    optiwindnet.plotting.gplot(prob.model.collection.graph)
-
-    plt.show()
-
+    plot_layout(prob, input_dict=input_dict, show_image=True, include_cable_routing=True)
 
 if __name__ == "__main__":
 

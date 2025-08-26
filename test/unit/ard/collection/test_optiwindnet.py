@@ -86,8 +86,8 @@ class TestOptiWindNetCollection:
 
         # create the OpenMDAO model
         model = om.Group()
-        self.optiwindnet_coll = model.add_subsystem(
-            "optiwindnet_coll",
+        self.collection = model.add_subsystem(
+            "collection",
             ard_own.OptiwindnetCollection(
                 modeling_options=modeling_options,
             ),
@@ -103,25 +103,25 @@ class TestOptiWindNetCollection:
 
         with subtests.test("modeling_options"):
             assert "modeling_options" in [
-                k for k, _ in self.optiwindnet_coll.options.items()
+                k for k, _ in self.collection.options.items()
             ]
         with subtests.test("layout"):
-            assert "layout" in self.optiwindnet_coll.options["modeling_options"].keys()
+            assert "layout" in self.collection.options["modeling_options"].keys()
         with subtests.test("N_turbines"):
             assert (
                 "N_turbines"
-                in self.optiwindnet_coll.options["modeling_options"]["layout"].keys()
+                in self.collection.options["modeling_options"]["layout"].keys()
             )
         with subtests.test("N_substations"):
             assert (
                 "N_substations"
-                in self.optiwindnet_coll.options["modeling_options"]["layout"].keys()
+                in self.collection.options["modeling_options"]["layout"].keys()
             )
 
         # context manager to spike the warning since we aren't running the model yet
         with pytest.warns(Warning) as warning:
             # make sure that the inputs in the component match what we planned
-            input_list = [k for k, v in self.optiwindnet_coll.list_inputs()]
+            input_list = [k for k, v in self.collection.list_inputs()]
             for var_to_check in [
                 "x_turbines",
                 "y_turbines",
@@ -132,7 +132,7 @@ class TestOptiWindNetCollection:
                     assert var_to_check in input_list
 
             # make sure that the outputs in the component match what we planned
-            output_list = [k for k, v in self.optiwindnet_coll.list_outputs()]
+            output_list = [k for k, v in self.collection.list_outputs()]
             for var_to_check in [
                 "total_length_cables",
             ]:
@@ -140,7 +140,7 @@ class TestOptiWindNetCollection:
 
             # make sure that the outputs in the component match what we planned
             discrete_output_list = [
-                k for k, v in self.optiwindnet_coll._discrete_outputs.items()
+                k for k, v in self.collection._discrete_outputs.items()
             ]
             for var_to_check in [
                 "length_cables",
@@ -157,13 +157,13 @@ class TestOptiWindNetCollection:
 
         # collect data to validate
         validation_data = {
-            "terse_links": self.prob.get_val("optiwindnet_coll.terse_links"),
-            "length_cables": self.prob.get_val("optiwindnet_coll.length_cables"),
-            "load_cables": self.prob.get_val("optiwindnet_coll.load_cables"),
+            "terse_links": self.prob.get_val("collection.terse_links"),
+            "length_cables": self.prob.get_val("collection.length_cables"),
+            "load_cables": self.prob.get_val("collection.load_cables"),
             "total_length_cables": self.prob.get_val(
-                "optiwindnet_coll.total_length_cables"
+                "collection.total_length_cables"
             ),
-            "max_load_cables": self.prob.get_val("optiwindnet_coll.max_load_cables"),
+            "max_load_cables": self.prob.get_val("collection.max_load_cables"),
         }
 
         # validate data against pyrite file
@@ -204,8 +204,8 @@ class TestOptiWindNetCollection12Turbines:
 
         # create the OpenMDAO model
         model = om.Group()
-        self.optiwindnet_coll = model.add_subsystem(
-            "optiwindnet_coll",
+        self.collection = model.add_subsystem(
+            "collection",
             ard_own.OptiwindnetCollection(
                 modeling_options=self.modeling_options,
             ),
@@ -222,8 +222,8 @@ class TestOptiWindNetCollection12Turbines:
 
         # create the OpenMDAO model
         model = om.Group()
-        optiwindnet_coll_example = model.add_subsystem(
-            "optiwindnet_coll",
+        collection_example = model.add_subsystem(
+            "collection",
             ard_own.OptiwindnetCollection(
                 modeling_options=modeling_options,
             ),
@@ -232,13 +232,13 @@ class TestOptiWindNetCollection12Turbines:
         prob.setup()
 
         prob.set_val(
-            "optiwindnet_coll.x_border",
+            "collection.x_border",
             np.array(
                 [1951, 1951, 386, 650, 624, 4, 4, 1152, 917, 957], dtype=np.float64
             ),
         )
         prob.set_val(
-            "optiwindnet_coll.y_border",
+            "collection.y_border",
             np.array(
                 [200, 1383, 1383, 708, 678, 1036, 3, 3, 819, 854], dtype=np.float64
             ),
@@ -249,7 +249,7 @@ class TestOptiWindNetCollection12Turbines:
 
         assert (
             abs(
-                prob.get_val("optiwindnet_coll.total_length_cables")
+                prob.get_val("collection.total_length_cables")
                 - 6564.7653295074515
             )
             < 1e-7
@@ -273,8 +273,8 @@ class TestOptiWindNetCollection5Turbines:
 
         # create the OpenMDAO model
         model = om.Group()
-        self.optiwindnet_coll = model.add_subsystem(
-            "optiwindnet_coll",
+        self.collection = model.add_subsystem(
+            "collection",
             ard_own.OptiwindnetCollection(
                 modeling_options=self.modeling_options,
             ),
@@ -305,8 +305,8 @@ class TestOptiWindNetCollection5Turbines:
 
         # create the OpenMDAO model
         model = om.Group()
-        optiwindnet_coll_mini = model.add_subsystem(
-            "optiwindnet_coll",
+        collection_mini = model.add_subsystem(
+            "collection",
             ard_own.OptiwindnetCollection(
                 modeling_options=modeling_options,
             ),
@@ -320,11 +320,11 @@ class TestOptiWindNetCollection5Turbines:
 
         if False:  # for hand-debugging
             J0 = prob.compute_totals(
-                "optiwindnet_coll.length_cables", "optiwindnet_coll.x_turbines"
+                "collection.length_cables", "collection.x_turbines"
             )
             prob.model.approx_totals()
             J0p = prob.compute_totals(
-                "optiwindnet_coll.length_cables", "optiwindnet_coll.x_turbines"
+                "collection.length_cables", "collection.x_turbines"
             )
 
             print("J0:")
@@ -360,8 +360,8 @@ class TestOptiWindNetCollection5Turbines:
 
         # create the OpenMDAO model
         model = om.Group()
-        optiwindnet_coll_mini = model.add_subsystem(
-            "optiwindnet_coll",
+        collection_mini = model.add_subsystem(
+            "collection",
             ard_own.OptiwindnetCollection(
                 modeling_options=modeling_options,
             ),
@@ -375,21 +375,21 @@ class TestOptiWindNetCollection5Turbines:
         Y_turbines = np.log(7.0 * 130.0 * s_turbines)
         X_substations = np.array([-3.5 * 130.0])
         Y_substations = np.array([-3.5 * 130.0])
-        prob.set_val("optiwindnet_coll.x_turbines", X_turbines)
-        prob.set_val("optiwindnet_coll.y_turbines", Y_turbines)
-        prob.set_val("optiwindnet_coll.x_substations", X_substations)
-        prob.set_val("optiwindnet_coll.y_substations", Y_substations)
+        prob.set_val("collection.x_turbines", X_turbines)
+        prob.set_val("collection.y_turbines", Y_turbines)
+        prob.set_val("collection.x_substations", X_substations)
+        prob.set_val("collection.y_substations", Y_substations)
 
         # run optiwindnet
         prob.run_model()
 
         if False:  # for hand-debugging
             J0 = prob.compute_totals(
-                "optiwindnet_coll.length_cables", "optiwindnet_coll.x_turbines"
+                "collection.length_cables", "collection.x_turbines"
             )
             prob.model.approx_totals()
             J0p = prob.compute_totals(
-                "optiwindnet_coll.length_cables", "optiwindnet_coll.x_turbines"
+                "collection.length_cables", "collection.x_turbines"
             )
 
             print("J0:")
