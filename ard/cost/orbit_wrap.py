@@ -402,7 +402,9 @@ class ORBITDetailedGroup(om.Group):
                 self.add_subsystem(f"IVC_orbit_{key}", comp, promotes=["*"])
             else:
                 self.add_subsystem(
-                    f"IVC_orbit_{key}", om.IndepVarComp(key, val=meta["val"], units=meta["units"]), promotes=["*"]
+                    f"IVC_orbit_{key}",
+                    om.IndepVarComp(key, val=meta["val"], units=meta["units"]),
+                    promotes=["*"],
                 )
 
         # add orbit

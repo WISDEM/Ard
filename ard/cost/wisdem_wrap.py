@@ -132,7 +132,9 @@ class ORBITGroup(om.Group):
                 self.add_subsystem(f"IVC_orbit_{key}", comp, promotes=["*"])
             else:
                 self.add_subsystem(
-                    f"IVC_orbit_{key}", om.IndepVarComp(key, val=meta["val"], units=meta["units"]), promotes=["*"]
+                    f"IVC_orbit_{key}",
+                    om.IndepVarComp(key, val=meta["val"], units=meta["units"]),
+                    promotes=["*"],
                 )
 
         # add orbit
@@ -326,23 +328,45 @@ def LandBOSSE_setup_latents(modeling_options: dict) -> None:
 
     def _base_common():
         return {
-            "num_turbines": {"val": modeling_options["layout"]["N_turbines"], "units": None},
+            "num_turbines": {
+                "val": modeling_options["layout"]["N_turbines"],
+                "units": None,
+            },
             "turbine_rating_MW": {
-                "val": modeling_options["windIO_plant"]["wind_farm"]["turbine"]["performance"]["rated_power"]/1.0e6,
+                "val": modeling_options["windIO_plant"]["wind_farm"]["turbine"][
+                    "performance"
+                ]["rated_power"]
+                / 1.0e6,
                 "units": "MW",
             },
             "hub_height_meters": {
-                "val": modeling_options["windIO_plant"]["wind_farm"]["turbine"]["hub_height"],
+                "val": modeling_options["windIO_plant"]["wind_farm"]["turbine"][
+                    "hub_height"
+                ],
                 "units": "m",
             },
             "rotor_diameter_m": {
-                "val": modeling_options["windIO_plant"]["wind_farm"]["turbine"]["rotor_diameter"],
+                "val": modeling_options["windIO_plant"]["wind_farm"]["turbine"][
+                    "rotor_diameter"
+                ],
                 "units": "m",
             },
-            "number_of_blades": {"val": modeling_options["costs"]["num_blades"], "units": None},
-            "tower_mass": {"val": modeling_options["costs"]["tower_mass"], "units": "t"},
-            "nacelle_mass": {"val": modeling_options["costs"]["nacelle_mass"], "units": "t"},
-            "blade_mass": {"val": modeling_options["costs"]["blade_mass"], "units": "t"},
+            "number_of_blades": {
+                "val": modeling_options["costs"]["num_blades"],
+                "units": None,
+            },
+            "tower_mass": {
+                "val": modeling_options["costs"]["tower_mass"],
+                "units": "t",
+            },
+            "nacelle_mass": {
+                "val": modeling_options["costs"]["nacelle_mass"],
+                "units": "t",
+            },
+            "blade_mass": {
+                "val": modeling_options["costs"]["blade_mass"],
+                "units": "t",
+            },
             "commissioning_cost_kW": {
                 "val": modeling_options["costs"]["commissioning_cost_kW"],
                 "units": "USD/kW",
@@ -357,16 +381,28 @@ def LandBOSSE_setup_latents(modeling_options: dict) -> None:
         variable_mapping = _base_common()
         variable_mapping.update(
             {
-                "monopile_mass": {"val": modeling_options["costs"]["monopile_mass"], "units": "kg"},
-                "monopile_cost": {"val": modeling_options["costs"]["monopile_cost"], "units": "USD"},
+                "monopile_mass": {
+                    "val": modeling_options["costs"]["monopile_mass"],
+                    "units": "kg",
+                },
+                "monopile_cost": {
+                    "val": modeling_options["costs"]["monopile_cost"],
+                    "units": "USD",
+                },
             }
         )
     elif any(key in modeling_options["costs"] for key in offshore_floating_keys):
         variable_mapping = _base_common()
         variable_mapping.update(
             {
-                "num_mooring_lines": {"val": modeling_options["costs"]["num_mooring_lines"], "units": None},
-                "mooring_line_mass": {"val": modeling_options["costs"]["mooring_line_mass"], "units": "kg"},
+                "num_mooring_lines": {
+                    "val": modeling_options["costs"]["num_mooring_lines"],
+                    "units": None,
+                },
+                "mooring_line_mass": {
+                    "val": modeling_options["costs"]["mooring_line_mass"],
+                    "units": "kg",
+                },
                 "mooring_line_diameter": {
                     "val": modeling_options["costs"]["mooring_line_diameter"],
                     "units": "m",
@@ -375,7 +411,10 @@ def LandBOSSE_setup_latents(modeling_options: dict) -> None:
                     "val": modeling_options["costs"]["mooring_line_length"],
                     "units": "m",
                 },
-                "anchor_mass": {"val": modeling_options["costs"]["anchor_mass"], "units": "kg"},
+                "anchor_mass": {
+                    "val": modeling_options["costs"]["anchor_mass"],
+                    "units": "kg",
+                },
                 "floating_substructure_cost": {
                     "val": modeling_options["costs"]["floating_substructure_cost"],
                     "units": "USD",
@@ -386,7 +425,10 @@ def LandBOSSE_setup_latents(modeling_options: dict) -> None:
         variable_mapping = _base_common()
         variable_mapping.update(
             {
-                "rated_thrust_N": {"val": modeling_options["costs"]["rated_thrust_N"], "units": "N"},
+                "rated_thrust_N": {
+                    "val": modeling_options["costs"]["rated_thrust_N"],
+                    "units": "N",
+                },
                 "gust_velocity_m_per_s": {
                     "val": modeling_options["costs"]["gust_velocity_m_per_s"],
                     "units": "m/s",
@@ -395,7 +437,10 @@ def LandBOSSE_setup_latents(modeling_options: dict) -> None:
                     "val": modeling_options["costs"]["blade_surface_area"],
                     "units": "m**2",
                 },
-                "hub_mass": {"val": modeling_options["costs"]["hub_mass"], "units": "kg"},
+                "hub_mass": {
+                    "val": modeling_options["costs"]["hub_mass"],
+                    "units": "kg",
+                },
                 "foundation_height": {
                     "val": modeling_options["costs"]["foundation_height"],
                     "units": "m",
@@ -433,7 +478,9 @@ def ORBIT_setup_latents(modeling_options: dict) -> None:
 
     variable_mapping = {
         "turbine_rating": {
-            "val": modeling_options["windIO_plant"]["wind_farm"]["turbine"]["performance"]["rated_power"],
+            "val": modeling_options["windIO_plant"]["wind_farm"]["turbine"][
+                "performance"
+            ]["rated_power"],
             "units": "W",
         },
         "site_depth": {"val": modeling_options["site_depth"], "units": "m"},
@@ -441,20 +488,36 @@ def ORBIT_setup_latents(modeling_options: dict) -> None:
             "val": modeling_options["layout"]["N_turbines"],
             "units": None,
         },
-        "number_of_blades": {"val": modeling_options["costs"]["num_blades"], "units": None},
+        "number_of_blades": {
+            "val": modeling_options["costs"]["num_blades"],
+            "units": None,
+        },
         "hub_height": {
-            "val": modeling_options["windIO_plant"]["wind_farm"]["turbine"]["hub_height"],
+            "val": modeling_options["windIO_plant"]["wind_farm"]["turbine"][
+                "hub_height"
+            ],
             "units": "m",
         },
         "turbine_rotor_diameter": {
-            "val": modeling_options["windIO_plant"]["wind_farm"]["turbine"]["rotor_diameter"],
+            "val": modeling_options["windIO_plant"]["wind_farm"]["turbine"][
+                "rotor_diameter"
+            ],
             "units": "m",
         },
-        "tower_length": {"val": modeling_options["costs"]["tower_length"], "units": "m"},
+        "tower_length": {
+            "val": modeling_options["costs"]["tower_length"],
+            "units": "m",
+        },
         "tower_mass": {"val": modeling_options["costs"]["tower_mass"], "units": "t"},
-        "nacelle_mass": {"val": modeling_options["costs"]["nacelle_mass"], "units": "t"},
+        "nacelle_mass": {
+            "val": modeling_options["costs"]["nacelle_mass"],
+            "units": "t",
+        },
         "blade_mass": {"val": modeling_options["costs"]["blade_mass"], "units": "t"},
-        "turbine_capex": {"val": modeling_options["costs"]["turbine_capex"], "units": "USD/kW"},
+        "turbine_capex": {
+            "val": modeling_options["costs"]["turbine_capex"],
+            "units": "USD/kW",
+        },
         "site_mean_windspeed": {
             "val": modeling_options["costs"]["site_mean_windspeed"],
             "units": "m/s",
@@ -479,7 +542,10 @@ def ORBIT_setup_latents(modeling_options: dict) -> None:
             "val": modeling_options["costs"]["interconnection_distance"],
             "units": "km",
         },
-        "site_distance": {"val": modeling_options["costs"]["site_distance"], "units": "km"},
+        "site_distance": {
+            "val": modeling_options["costs"]["site_distance"],
+            "units": "km",
+        },
         "site_distance_to_landfall": {
             "val": modeling_options["costs"]["site_distance_to_landfall"],
             "units": "km",
@@ -496,8 +562,14 @@ def ORBIT_setup_latents(modeling_options: dict) -> None:
             "val": modeling_options["costs"]["construction_financing"],
             "units": "USD/kW",
         },
-        "contingency": {"val": modeling_options["costs"]["contingency"], "units": "USD/kW"},
-        "site_auction_price": {"val": modeling_options["costs"]["site_auction_price"], "units": "USD"},
+        "contingency": {
+            "val": modeling_options["costs"]["contingency"],
+            "units": "USD/kW",
+        },
+        "site_auction_price": {
+            "val": modeling_options["costs"]["site_auction_price"],
+            "units": "USD",
+        },
         "site_assessment_cost": {
             "val": modeling_options["costs"]["site_assessment_cost"],
             "units": "USD",
@@ -510,7 +582,10 @@ def ORBIT_setup_latents(modeling_options: dict) -> None:
             "val": modeling_options["costs"]["installation_plan_cost"],
             "units": "USD",
         },
-        "boem_review_cost": {"val": modeling_options["costs"]["boem_review_cost"], "units": "USD"},
+        "boem_review_cost": {
+            "val": modeling_options["costs"]["boem_review_cost"],
+            "units": "USD",
+        },
     }
 
     # Add floating-foundation specific keys if applicable
@@ -533,7 +608,10 @@ def ORBIT_setup_latents(modeling_options: dict) -> None:
                     "val": modeling_options["costs"]["mooring_line_length"],
                     "units": "m",
                 },
-                "anchor_mass": {"val": modeling_options["costs"]["anchor_mass"], "units": "kg"},
+                "anchor_mass": {
+                    "val": modeling_options["costs"]["anchor_mass"],
+                    "units": "kg",
+                },
                 "transition_piece_mass": {
                     "val": modeling_options["costs"]["transition_piece_mass"],
                     "units": "t",
@@ -552,9 +630,18 @@ def ORBIT_setup_latents(modeling_options: dict) -> None:
     else:
         variable_mapping.update(
             {
-                "monopile_mass": {"val": modeling_options["costs"]["monopile_mass"], "units": "t"},
-                "monopile_cost": {"val": modeling_options["costs"]["monopile_cost"], "units": "USD"},
-                "monopile_length": {"val": modeling_options["costs"]["monopile_length"], "units": "m"},
+                "monopile_mass": {
+                    "val": modeling_options["costs"]["monopile_mass"],
+                    "units": "t",
+                },
+                "monopile_cost": {
+                    "val": modeling_options["costs"]["monopile_cost"],
+                    "units": "USD",
+                },
+                "monopile_length": {
+                    "val": modeling_options["costs"]["monopile_length"],
+                    "units": "m",
+                },
                 "monopile_diameter": {
                     "val": modeling_options["costs"]["monopile_diameter"],
                     "units": "m",
@@ -611,10 +698,11 @@ def FinanceSE_setup_latents(modeling_options):
         "turbine_number": {
             "val": int(modeling_options["layout"]["N_turbines"]),
             "units": None,
-        }
-            ,
+        },
         "machine_rating": {
-            "val": modeling_options["windIO_plant"]["wind_farm"]["turbine"]["performance"]["rated_power"],
+            "val": modeling_options["windIO_plant"]["wind_farm"]["turbine"][
+                "performance"
+            ]["rated_power"],
             "units": "W",
         },
         "tcc_per_kW": {
