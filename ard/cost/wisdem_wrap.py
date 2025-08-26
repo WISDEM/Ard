@@ -623,7 +623,7 @@ def FinanceSE_setup_latents(modeling_options):
         },
         "opex_per_kW": {
             "val": modeling_options["costs"]["opex_per_kW"],
-            "units": "USD/MW/year",
+            "units": "USD/kW/year",
         },
     }
 

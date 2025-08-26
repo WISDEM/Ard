@@ -161,7 +161,7 @@ class TestORBIT:
                 # monopile_mass: 2097.21115974 # (t)
                 # monopile_cost: 4744119.28172591 # (USD)
                 # tcc_per_kW: 1397.17046735 # (USD/kW)
-                # opex_per_kW: 110. # (USD/kWh)
+                # opex_per_kW: 110. # (USD/kW)
                 # # Floating configuration
                 "num_mooring_lines": 3,  # (-)
                 "mooring_line_mass": 843225.1875,  # (kg)
