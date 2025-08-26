@@ -42,7 +42,7 @@ costs:
     tower_mass: 620.4407337521 # (t (metric))
     nacelle_mass: 101.98582836439 # (t (metric))
     hub_mass: 8.38407517646 # (t (metric))
-    blade_mass: 14563.41339641 # (kg)
+    blade_mass: 14.56341339641 # (kg)
     foundation_height: 0. # (m)
     commissioning_cost_kW: 44. # ($/kW)
     decommissioning_cost_kW: 58. # ($/kW)

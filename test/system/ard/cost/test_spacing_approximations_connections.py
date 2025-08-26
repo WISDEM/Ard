@@ -48,7 +48,7 @@ class TestLandBOSSEWithSpacingApproximations:
                 "tower_mass": 620.4407337521,
                 "nacelle_mass": 101.98582836439,
                 "hub_mass": 8.38407517646,
-                "blade_mass": 14563.41339641,
+                "blade_mass": 14.56341339641,
                 "foundation_height": 0.0,
                 "commissioning_cost_kW": 44.0,
                 "decommissioning_cost_kW": 58.0,
