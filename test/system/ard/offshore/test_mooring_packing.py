@@ -105,7 +105,7 @@ class TestMooringPacking:
         )
 
         model.add_subsystem(
-            "optiwindnet_coll",
+            "collection",
             ard.collection.OptiwindnetCollection(
                 modeling_options=self.modeling_options,
             ),
@@ -164,7 +164,7 @@ class TestMooringPacking:
                 "rotor_diameter"
             ],
         )
-        self.prob.model.add_objective("optiwindnet_coll.total_length_cables")
+        self.prob.model.add_objective("collection.total_length_cables")
 
         # configure the driver
         self.prob.driver = om.ScipyOptimizeDriver(optimizer="SLSQP")

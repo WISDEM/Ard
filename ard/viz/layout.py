@@ -61,7 +61,7 @@ def plot_layout(
 
     if include_cable_routing:
         optiwindnet.plotting.gplot(
-            ard_prob.model.optiwindnet_coll.graph,
+            ard_prob.model.collection.graph,
             ax=ax,
             dark=False,
             legend=False,
