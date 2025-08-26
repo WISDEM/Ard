@@ -77,7 +77,7 @@ class TestORBITNoApproxBranch:
                 ),
             },
             "costs": {
-                "rated_power": 22.0,  # MW
+                "rated_power": 22000000.0,  # W
                 "num_blades": 3,
                 "tower_length": 149.386,
                 "tower_mass": 1574044.87111,
@@ -107,7 +107,7 @@ class TestORBITNoApproxBranch:
                 # monopile_mass: 2097.21115974 # (t)
                 # monopile_cost: 4744119.28172591 # (USD)
                 # tcc_per_kW: 1397.17046735 # (USD/kW)
-                # opex_per_kW: 110. # (USD/kWh)
+                # opex_per_kW: 110. # (USD/kW)
                 # # Floating configuration
                 "num_mooring_lines": 3,  # (-)
                 "mooring_line_mass": 843225.1875,  # (kg)
@@ -260,7 +260,7 @@ class TestORBITNoApproxBranch:
                 ),
             },
             "costs": {
-                "rated_power": 22.0,  # MW
+                "rated_power": 22000000.0,  # W
                 "num_blades": 3,
                 "tower_length": 149.386,
                 "tower_mass": 1574044.87111,
@@ -290,7 +290,7 @@ class TestORBITNoApproxBranch:
                 # monopile_mass: 2097.21115974 # (t)
                 # monopile_cost: 4744119.28172591 # (USD)
                 # tcc_per_kW: 1397.17046735 # (USD/kW)
-                # opex_per_kW: 110. # (USD/kWh)
+                # opex_per_kW: 110. # (USD/kW)
                 # # Floating configuration
                 "num_mooring_lines": 3,  # (-)
                 "mooring_line_mass": 843225.1875,  # (kg)
@@ -457,7 +457,7 @@ class TestORBITApproxBranch:
                 ),
             },
             "costs": {
-                "rated_power": 22.0,  # MW
+                "rated_power": 22000000.0,  # W
                 "num_blades": 3,
                 "tower_length": 149.386,
                 "tower_mass": 1574044.87111,
@@ -487,7 +487,7 @@ class TestORBITApproxBranch:
                 # monopile_mass: 2097.21115974 # (t)
                 # monopile_cost: 4744119.28172591 # (USD)
                 # tcc_per_kW: 1397.17046735 # (USD/kW)
-                # opex_per_kW: 110. # (USD/kWh)
+                # opex_per_kW: 110. # (USD/kW)
                 # # Floating configuration
                 "num_mooring_lines": 3,  # (-)
                 "mooring_line_mass": 843225.1875,  # (kg)

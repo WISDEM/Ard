@@ -1,15 +1,15 @@
-name: Ard example onshore wind plant
+name: Ard Example 01 onshore wind plant
 site:
-    name: Great wind farm
+    name: Ard Example 01 offshore wind site
     boundaries:
         polygons:
             - x: [ 1.5,  3.0,  3.0,  1.5, -1.5, -3.0, -3.0, -1.5]
               y: [ 3.0,  1.5, -1.5, -3.0, -3.0, -1.5,  1.5,  3.0]
     energy_resource:
-        name: Great resource
+        name: Ard Example 01 offshore energy resource
         wind_resource: !include ../../data/windIO-plant_wind-resource_wrg-example.yaml
 wind_farm:
-    name: Great farm
+    name: Ard Example 01 offshore wind farm
     layouts:
         coordinates:
             x: [

@@ -395,14 +395,14 @@ class ORBITDetailedGroup(om.Group):
         )
 
         # create source independent variable components for LandBOSSE inputs
-        for key, val in variable_mapping.items():
+        for key, meta in variable_mapping.items():
             if key in ["number_of_turbines", "number_of_blades", "num_mooring_lines"]:
                 comp = om.IndepVarComp()
-                comp.add_discrete_output(name=key, val=val)
+                comp.add_discrete_output(name=key, val=meta["val"])
                 self.add_subsystem(f"IVC_orbit_{key}", comp, promotes=["*"])
             else:
                 self.add_subsystem(
-                    f"IVC_orbit_{key}", om.IndepVarComp(key, val=val), promotes=["*"]
+                    f"IVC_orbit_{key}", om.IndepVarComp(key, val=meta["val"], units=meta["units"]), promotes=["*"]
                 )
 
         # add orbit
@@ -429,5 +429,5 @@ class ORBITDetailedGroup(om.Group):
         )
 
         # connect
-        for key, val in variable_mapping.items():
+        for key in variable_mapping.keys():
             self.connect(key, f"orbit.{key}")

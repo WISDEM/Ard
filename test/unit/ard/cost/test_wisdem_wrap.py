@@ -42,15 +42,15 @@ class TestLandBOSSE:
                 "angle_skew": 0.0,  # reset in test_setup
             },
             "costs": {
-                "rated_power": 3.4,  # MW
+                "rated_power": 3400000.0,  # W
                 "num_blades": 3,
                 "rated_thrust_N": 645645.83964671,
                 "gust_velocity_m_per_s": 52.5,
                 "blade_surface_area": 69.7974979,
-                "tower_mass": 620440.7337521,
-                "nacelle_mass": 101985.82836439,
-                "hub_mass": 8384.07517646,
-                "blade_mass": 14563.41339641,
+                "tower_mass": 620.4407337521,
+                "nacelle_mass": 101.98582836439,
+                "hub_mass": 8.38407517646,
+                "blade_mass": 14.56341339641,
                 "foundation_height": 0.0,
                 "commissioning_cost_kW": 44.0,
                 "decommissioning_cost_kW": 58.0,
@@ -131,7 +131,7 @@ class TestORBIT:
                 "angle_skew": 0.0,  # reset in test
             },
             "costs": {
-                "rated_power": 22.0,  # MW
+                "rated_power": 22000000.0,  # W
                 "num_blades": 3,
                 "tower_length": 149.386,
                 "tower_mass": 1574044.87111,
@@ -161,7 +161,7 @@ class TestORBIT:
                 # monopile_mass: 2097.21115974 # (t)
                 # monopile_cost: 4744119.28172591 # (USD)
                 # tcc_per_kW: 1397.17046735 # (USD/kW)
-                # opex_per_kW: 110. # (USD/kWh)
+                # opex_per_kW: 110. # (USD/kW)
                 # # Floating configuration
                 "num_mooring_lines": 3,  # (-)
                 "mooring_line_mass": 843225.1875,  # (kg)
