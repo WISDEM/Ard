@@ -7,7 +7,7 @@ site:
               y: [ 5.0,  5.0, -5.0, -5.0]
     energy_resource:
         name: Ard Example 03 offshore energy resource
-        wind_resource: !include windIO_plant-wind_resource.yaml
+        wind_resource: !include ../../data/windIO-plant_wind-resource_wrg-example.yaml
 wind_farm:
     name: Ard Example 03 offshore wind farm
     layouts:
@@ -26,7 +26,7 @@ wind_farm:
                  1250.0,  1250.0,  1250.0,  1250.0,  1250.0,
                  2500.0,  2500.0,  2500.0,  2500.0,  2500.0
             ]
-    turbine: !include windIO_plant-turbine.yaml
+    turbine: !include ../../data/windIO-plant_turbine_IEA-3.4MW-130m-RWT.yaml
     electrical_substations:
         - electrical_substation:
             coordinates:
