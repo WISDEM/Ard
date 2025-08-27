@@ -13,12 +13,6 @@ modeling_options:
   floris:
     peak_shaving_fraction: 0.2
     peak_shaving_TI_threshold: 0.0
-  wind_rose:
-    file: wrg_example.wrg
-    wd_step: 90.0
-    wind_speeds: [5.0, 10.0, 15.0, 20.0]
-    point: [0.0, 0.0]
-  turbine: !include turbine_spec_IEA-3p4-130-RWT.yaml
   collection:
     max_turbines_per_string: 8
     solver_name: "highs"
