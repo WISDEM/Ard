@@ -12,7 +12,31 @@ def create_windresource_from_windIO(
     resource_type: str = None,  # ["probability", "timeseries", "weibull_sector"]
 ):
     """
-    break out the windIO wind resource specification
+    takes a windIO plant specification and creates an appropriate wind resource
+
+    Parameters
+    ----------
+    windIOdict : dict
+        a full, presumed validated, windIO plant specification file
+    resource_type : str, optional
+        one of "probability", "timeseries", "weibull_sector" indicating, either
+        a "probability"-based representation by a FLORIS WindRose object, a
+        "timeseries" representation using a FLORIS TimeSeries object, or a
+        "weibull_sector" representation which has not yet been implemented
+
+    Returns
+    -------
+    floris.WindDataBase
+        a FLORIS wind resource object that encodes the windIO wind resource
+
+    Raises
+    ------
+    KeyError
+        if the input file is not read correctly
+    ValueError
+        if values found in the input file have an issue
+    NotImplementedError
+        if an unimplemented case is found
     """
 
     if not "site" in windIOdict:  # make sure the site is specified
