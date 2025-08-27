@@ -1,10 +1,35 @@
 import numpy as np
+import matplotlib.axes
 import matplotlib.pyplot as plt
+
+import openmdao
+
 import optiwindnet.plotting
 
 
 # get plot limits based on the farm boundaries
-def get_limits(windIOdict, lim_buffer=0.05):
+def get_limits(
+    windIOdict : dict,
+    lim_buffer : float = 0.05,
+):
+    """
+    generate plot limits based on the expected values found in the windIO file
+
+    Parameters
+    ----------
+    windIOplant : dict
+        a full, presumed validated, windIO plant specification file
+    lim_buffer : float, optional
+        a percent buffer for plot edges, by default 0.05 (5%)
+
+    Returns
+    -------
+    x_lim : np.ndarray
+        the two-valued limits for the x-axis based on the windIO
+    y_lim : np.ndarray
+        the two-valued limits for the y-axis based on the windIO
+    """
+
     x_lim = [
         np.min(windIOdict["site"]["boundaries"]["polygons"][0]["x"])
         - lim_buffer * np.ptp(windIOdict["site"]["boundaries"]["polygons"][0]["x"]),
@@ -21,14 +46,39 @@ def get_limits(windIOdict, lim_buffer=0.05):
 
 
 def plot_layout(
-    ard_prob,
-    input_dict,
-    ax=None,
-    show_image=False,
-    save_path=None,
-    save_kwargs={},
-    include_cable_routing=False,
+    ard_prob : openmdao.api.Problem,
+    input_dict : dict,
+    ax : matplotlib.axes.Axes = None,
+    show_image : bool = False,
+    save_path : bool = None,
+    save_kwargs : bool = {},
+    include_cable_routing : bool = False,
 ):
+    """
+    plot the layout of a farm
+
+    Parameters
+    ----------
+    ard_prob : openmdao.api.Problem
+        the active Ard/OpenMDAO problem
+    input_dict : dict
+        the active Ard input dictionary
+    ax : matplotlib.axes.Axes, optional
+        an already-active pyplot Axes, by default None
+    show_image : bool, optional
+        to show the image, rather than just saving, by default False
+    save_path : bool, optional
+        should the image be saved, by default None
+    save_kwargs : bool, optional
+        optional keyword arguments for plt.savefig, by default {}
+    include_cable_routing : bool, optional
+        should the collection system routing be plotted also, by default False
+
+    Returns
+    -------
+    matplotlib.axes.Axes
+        the matplotlib Axes that have been generated (or modified)
+    """
 
     # get the turbine locations to plot
     x_turbines = ard_prob.get_val("x_turbines", units="m")
