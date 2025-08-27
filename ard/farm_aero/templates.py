@@ -15,9 +15,14 @@ def create_windresource_from_windIO(
     break out the windIO wind resource specification
     """
 
-    assert "site" in windIOdict  # make sure the site is specified
-    assert "energy_resource" in windIOdict["site"]
-    assert "wind_resource" in windIOdict["site"]["energy_resource"]
+    if not "site" in windIOdict:  # make sure the site is specified
+        raise KeyError("No site specified in windIO plant dictionary.")
+    if "energy_resource" not in windIOdict["site"]:
+        raise KeyError("Missing 'energy_resource' in windIOdict['site'].")
+    if "wind_resource" not in windIOdict["site"]["energy_resource"]:
+        raise KeyError(
+            "Missing 'wind_resource' in windIOdict['site']['energy_resource']."
+        )
 
     # get the wind resource specification out of the dictionary
     wind_resource = windIOdict["site"]["energy_resource"]["wind_resource"]
@@ -72,10 +77,17 @@ def create_windresource_from_windIO(
             else wind_resource["wind_speed"]
         )
         probabilities = np.array(wind_resource["probability"]["data"])
-        turbulence_intensities = (
-            np.array(wind_resource["turbulence_intensity"]["data"])
-            if "turbulence_intensity" in wind_resource
-            else 0.06
+
+        if "turbulence_intensity" not in wind_resource:
+            raise KeyError(
+                "windIO does not require turbulence intensities to be set, but "
+                "FLORIS requires turbulence intensities; please set the "
+                "turbulence intensities in the windIO file."
+            )
+        turbulence_intensities = np.array(
+            wind_resource["turbulence_intensity"]["data"]
+            if "data" in wind_resource["turbulence_intensity"]
+            else wind_resource["turbulence_intensity"]
         )
 
         # create FLORIS representation
@@ -111,7 +123,6 @@ def create_windresource_from_windIO(
             if type(wind_resource["wind_speed"]) is dict
             else wind_resource["wind_speed"]
         )
-        turbulence_intensities = 0.06
         if "turbulence_intensity" in wind_resource:
             if "data" in wind_resource["turbulence_intensity"]:
                 turbulence_intensities = np.array(
@@ -119,6 +130,10 @@ def create_windresource_from_windIO(
                 )
             else:
                 turbulence_intensities = np.array(wind_resource["turbulence_intensity"])
+        else:
+            raise KeyError(
+                "Missing 'turbulence_intensity' in time-series wind resource."
+            )
 
         wind_resource_representation = floris.TimeSeries(
             wind_directions=wind_directions,

@@ -6,7 +6,6 @@ from wisdem.plant_financese.plant_finance import PlantFinance as PlantFinance_or
 from wisdem.landbosse.landbosse_omdao.landbosse import LandBOSSE as LandBOSSE_orig
 from wisdem.orbit.orbit_api import Orbit as Orbit_orig
 
-# from ard.cost.orbit_wrap import ORBITDetail as OrbitDetail_orig
 from ard.cost.approximate_turbine_spacing import SpacingApproximations
 
 
@@ -142,8 +141,8 @@ class ORBITGroup(om.Group):
             "orbit",
             Orbit_orig(
                 floating=self.options["modeling_options"]["floating"],
-                jacket=self.options["modeling_options"].get("jacket", False),
-                jacket_legs=self.options["modeling_options"].get("jacket_legs", 0),
+                jacket=self.options["modeling_options"].get("jacket"),
+                jacket_legs=self.options["modeling_options"].get("jacket_legs"),
             ),
             promotes=[
                 "total_capex",

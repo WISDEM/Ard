@@ -49,7 +49,9 @@ def create_FLORIS_turbine_from_windIO(
                 "Reconciliation has not been implemented yet."
             )
         tdd["wind_speed"] = wind_speeds_power_curve
-        tdd["power"] = values_power_curve / 1e3
+        tdd["power"] = (
+            values_power_curve / 1e3
+        )  # windIO data comes in in W and FLORIS takes kW
         tdd["thrust_coefficient"] = values_Ct_curve
     elif all(
         val in windIOturbine["performance"]
@@ -82,7 +84,9 @@ def create_FLORIS_turbine_from_windIO(
 
         # pack and ship
         tdd["wind_speed"] = wind_speeds_Ct_curve
-        tdd["power"] = values_power_curve / 1e3
+        tdd["power"] = (
+            values_power_curve / 1e3
+        )  # windIO data comes in in W and FLORIS takes kW
         tdd["thrust_coefficient"] = values_Ct_curve
     else:
         raise IndexError(

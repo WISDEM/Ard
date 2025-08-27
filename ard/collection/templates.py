@@ -83,14 +83,18 @@ class CollectionTemplate(om.ExplicitComponent):
             )
         self.x_substations = np.array(
             [
-                li["electrical_substation"]["coordinates"]["x"]
-                for li in self.windIO_plant["wind_farm"]["electrical_substations"]
+                substation["electrical_substation"]["coordinates"]["x"]
+                for substation in self.windIO_plant["wind_farm"][
+                    "electrical_substations"
+                ]
             ]
         )
         self.y_substations = np.array(
             [
-                li["electrical_substation"]["coordinates"]["y"]
-                for li in self.windIO_plant["wind_farm"]["electrical_substations"]
+                substation["electrical_substation"]["coordinates"]["y"]
+                for substation in self.windIO_plant["wind_farm"][
+                    "electrical_substations"
+                ]
             ]
         )
 

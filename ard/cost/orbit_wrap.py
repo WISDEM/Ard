@@ -248,8 +248,8 @@ class ORBITDetail(orbit_wisdem.Orbit):
                 case_title=self.options["case_title"],
                 approximate_branches=self.options["approximate_branches"],
                 floating=self.modeling_options["floating"],
-                jacket=self.modeling_options.get("jacket", False),
-                jacket_legs=self.modeling_options.get("jacket_legs", 0),
+                jacket=self.modeling_options.get("jacket"),
+                jacket_legs=self.modeling_options.get("jacket_legs"),
             ),
             promotes=["*"],
         )
