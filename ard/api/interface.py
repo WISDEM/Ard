@@ -6,6 +6,7 @@ from ard.cost.wisdem_wrap import (
     ORBIT_setup_latents,
     FinanceSE_setup_latents,
 )
+import windIO
 from ard import ASSET_DIR
 from typing import Union
 
@@ -92,6 +93,10 @@ def set_up_ard_model(input_dict: Union[str, dict], root_data_path: str = None):
         new_value=root_data_path,
         replace_none_only=True,
     )
+
+    # validate windIO dictionary
+    windIO_dict = input_dict["modeling_options"]["windIO_plant"]
+    windIO.validate(windIO_dict, schema_type="plant/wind_energy_system")
 
     # set up the openmdao problem
     prob = set_up_system_recursive(
