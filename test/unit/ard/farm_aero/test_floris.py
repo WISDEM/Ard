@@ -194,6 +194,13 @@ class TestFLORISAEP:
                                     "wind_speed",
                                 ],
                             },
+                            "turbulence_intensity": {
+                                "data": wind_rose.ti_table.tolist(),
+                                "dim": [
+                                    "wind_direction",
+                                    "wind_speed",
+                                ],
+                            },
                             "shear": 0.585,
                             "reference_height": 110.0,
                         },

@@ -93,6 +93,7 @@ class TestBatchFarmPowerTemplate:
                         "wind_resource": {
                             "wind_direction": self.wq.get_directions().tolist(),
                             "wind_speed": self.wq.get_speeds().tolist(),
+                            "turbulence_intensity": self.wq.get_TIs().tolist(),
                             "time": np.zeros_like(self.wq.get_speeds().tolist()),
                         },
                     },
