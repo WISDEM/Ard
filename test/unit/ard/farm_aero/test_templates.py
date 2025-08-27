@@ -186,6 +186,10 @@ class TestFarmAEPTemplate:
                                 "data": self.wr.freq_table.tolist(),
                                 "dims": ["wind_direction", "wind_speed"],
                             },
+                            "turbulence_intensity": {
+                                "data": self.wr.ti_table.tolist(),
+                                "dims": ["wind_direction", "wind_speed"],
+                            },
                         },
                     },
                 },
