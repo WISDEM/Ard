@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 import matplotlib.axes
 import matplotlib.pyplot as plt
@@ -50,8 +52,8 @@ def plot_layout(
     input_dict: dict,
     ax: matplotlib.axes.Axes = None,
     show_image: bool = False,
-    save_path: bool = None,
-    save_kwargs: bool = {},
+    save_path: os.PathLike = None,
+    save_kwargs: dict = {},
     include_cable_routing: bool = False,
 ):
     """
@@ -67,9 +69,9 @@ def plot_layout(
         an already-active pyplot Axes, by default None
     show_image : bool, optional
         to show the image, rather than just saving, by default False
-    save_path : bool, optional
-        should the image be saved, by default None
-    save_kwargs : bool, optional
+    save_path : os.PathLike, optional
+        location where the image be saved, by default None
+    save_kwargs : dict, optional
         optional keyword arguments for plt.savefig, by default {}
     include_cable_routing : bool, optional
         should the collection system routing be plotted also, by default False
