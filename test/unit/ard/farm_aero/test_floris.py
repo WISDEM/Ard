@@ -280,7 +280,6 @@ class TestFLORISAEP:
             load_only=True,
         )
 
-        print(f"DEBUG!!!!! power_farm shape: {test_data['power_farm'].shape}")
 
         for key in test_data:
             with subtests.test(key):
