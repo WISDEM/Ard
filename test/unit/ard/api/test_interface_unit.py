@@ -7,6 +7,7 @@ from ard.api import set_up_ard_model
 
 import jsonschema.exceptions
 
+
 class TestSetUpArdModel:
     def setup_method(self):
         pass
@@ -24,14 +25,19 @@ class TestSetUpArdModel:
         ):
             set_up_ard_model(input_dict)
 
+
 class TestSetUpArdModelInvalidWindIO:
     def setup_method(self):
 
         self.input_dict_path = str(
-            Path(__file__).parent.absolute() / "inputs_onshore" / "ard_system_bad_windio.yaml"
+            Path(__file__).parent.absolute()
+            / "inputs_onshore"
+            / "ard_system_bad_windio.yaml"
         )
 
     def test_windIO_validation_error(self):
 
-        with pytest.raises(jsonschema.exceptions.ValidationError, match="'y' is a required property"):
+        with pytest.raises(
+            jsonschema.exceptions.ValidationError, match="'y' is a required property"
+        ):
             self.prob = set_up_ard_model(input_dict=self.input_dict_path)

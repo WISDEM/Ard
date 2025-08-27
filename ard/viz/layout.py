@@ -9,8 +9,8 @@ import optiwindnet.plotting
 
 # get plot limits based on the farm boundaries
 def get_limits(
-    windIOdict : dict,
-    lim_buffer : float = 0.05,
+    windIOdict: dict,
+    lim_buffer: float = 0.05,
 ):
     """
     generate plot limits based on the expected values found in the windIO file
@@ -46,13 +46,13 @@ def get_limits(
 
 
 def plot_layout(
-    ard_prob : openmdao.api.Problem,
-    input_dict : dict,
-    ax : matplotlib.axes.Axes = None,
-    show_image : bool = False,
-    save_path : bool = None,
-    save_kwargs : bool = {},
-    include_cable_routing : bool = False,
+    ard_prob: openmdao.api.Problem,
+    input_dict: dict,
+    ax: matplotlib.axes.Axes = None,
+    show_image: bool = False,
+    save_path: bool = None,
+    save_kwargs: bool = {},
+    include_cable_routing: bool = False,
 ):
     """
     plot the layout of a farm

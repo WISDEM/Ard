@@ -77,7 +77,6 @@ class TestORBITNoApproxBranch:
                 ),
             },
             "costs": {
-                "rated_power": 22000000.0,  # W
                 "num_blades": 3,
                 "tower_length": 149.386,
                 "tower_mass": 1574044.87111,
@@ -86,25 +85,25 @@ class TestORBITNoApproxBranch:
                 "turbine_capex": 1397.17046735,
                 "site_mean_windspeed": 10.0,  # (m/s)
                 "turbine_rated_windspeed": 11.13484394,  # (m/s)
-                "commissioning_cost_kW": 44.0,  # ($/kW)
-                "decommissioning_cost_kW": 58.0,  # ($/kW)
+                "commissioning_cost_kW": 44.0,  # (USD/kW)
+                "decommissioning_cost_kW": 58.0,  # (USD/kW)
                 "plant_substation_distance": 1.0,  # (km)
                 "interconnection_distance": 8.5,  # (km)
-                "site_distance": 115.0,  # km
-                "site_distance_to_landfall": 50.0,  # km
-                "port_cost_per_month": 2000000.0,  # $/mo
-                "construction_insurance": 44.0,  # $/kW
-                "construction_financing": 183.0,  # $/kW
-                "contingency": 316.0,  # $/kW
-                "site_auction_price": 100000000.0,  # $
-                "site_assessment_cost": 50000000.0,  # $
-                "construction_plan_cost": 250000.0,  # $
-                "installation_plan_cost": 1000000.0,  # $
-                "boem_review_cost": 0.0,  # $
-                "transition_piece_mass": 100.0e3,  # kg
+                "site_distance": 115.0,  # (km)
+                "site_distance_to_landfall": 50.0,  # (km)
+                "port_cost_per_month": 2000000.0,  # (USD/mo)
+                "construction_insurance": 44.0,  # (USD/kW)
+                "construction_financing": 183.0,  # (USD/kW)
+                "contingency": 316.0,  # (USD/kW)
+                "site_auction_price": 100000000.0,  # (USD)
+                "site_assessment_cost": 50000000.0,  # (USD)
+                "construction_plan_cost": 250000.0,  # (USD)
+                "installation_plan_cost": 1000000.0,  # (USD)
+                "boem_review_cost": 0.0,  # (USD)
+                "transition_piece_mass": 100.0e3,  # (kg)
                 "transition_piece_cost": 0.0,  # (USD)
                 # # Fixed bottom configuration
-                # monopile_mass: 2097.21115974 # (t)
+                # monopile_mass: 2097.21115974 # (tonne)
                 # monopile_cost: 4744119.28172591 # (USD)
                 # tcc_per_kW: 1397.17046735 # (USD/kW)
                 # opex_per_kW: 110. # (USD/kW)
@@ -260,34 +259,34 @@ class TestORBITNoApproxBranch:
                 ),
             },
             "costs": {
-                "rated_power": 22000000.0,  # W
+                "rated_power": 22000000.0,  # (W)
                 "num_blades": 3,
-                "tower_length": 149.386,
-                "tower_mass": 1574044.87111,
-                "nacelle_mass": 849143.2357,
-                "blade_mass": 83308.31171,
-                "turbine_capex": 1397.17046735,
+                "tower_length": 149.386,  # (m)
+                "tower_mass": 1574044.87111,  # (tonne)
+                "nacelle_mass": 849143.2357,  # (tonne)
+                "blade_mass": 83308.31171,  # (tonne)
+                "turbine_capex": 1397.17046735,  # (tonne)
                 "site_mean_windspeed": 10.0,  # (m/s)
                 "turbine_rated_windspeed": 11.13484394,  # (m/s)
-                "commissioning_cost_kW": 44.0,  # ($/kW)
-                "decommissioning_cost_kW": 58.0,  # ($/kW)
+                "commissioning_cost_kW": 44.0,  # (USD/kW)
+                "decommissioning_cost_kW": 58.0,  # (USD/kW)
                 "plant_substation_distance": 1.0,  # (km)
                 "interconnection_distance": 8.5,  # (km)
-                "site_distance": 115.0,  # km
-                "site_distance_to_landfall": 50.0,  # km
-                "port_cost_per_month": 2000000.0,  # $/mo
-                "construction_insurance": 44.0,  # $/kW
-                "construction_financing": 183.0,  # $/kW
-                "contingency": 316.0,  # $/kW
-                "site_auction_price": 100000000.0,  # $
-                "site_assessment_cost": 50000000.0,  # $
-                "construction_plan_cost": 250000.0,  # $
-                "installation_plan_cost": 1000000.0,  # $
-                "boem_review_cost": 0.0,  # $
-                "transition_piece_mass": 100.0e3,  # kg
+                "site_distance": 115.0,  # (km)
+                "site_distance_to_landfall": 50.0,  # (km)
+                "port_cost_per_month": 2000000.0,  # (USD/mo)
+                "construction_insurance": 44.0,  # (USD/kW)
+                "construction_financing": 183.0,  # (USD/kW)
+                "contingency": 316.0,  # (USD/kW)
+                "site_auction_price": 100000000.0,  # (USD)
+                "site_assessment_cost": 50000000.0,  # (USD)
+                "construction_plan_cost": 250000.0,  # (USD)
+                "installation_plan_cost": 1000000.0,  # (USD)
+                "boem_review_cost": 0.0,  # (USD)
+                "transition_piece_mass": 100.0e3,  # (kg)
                 "transition_piece_cost": 0.0,  # (USD)
                 # # Fixed bottom configuration
-                # monopile_mass: 2097.21115974 # (t)
+                # monopile_mass: 2097.21115974 # (tonne)
                 # monopile_cost: 4744119.28172591 # (USD)
                 # tcc_per_kW: 1397.17046735 # (USD/kW)
                 # opex_per_kW: 110. # (USD/kW)
@@ -466,25 +465,25 @@ class TestORBITApproxBranch:
                 "turbine_capex": 1397.17046735,
                 "site_mean_windspeed": 10.0,  # (m/s)
                 "turbine_rated_windspeed": 11.13484394,  # (m/s)
-                "commissioning_cost_kW": 44.0,  # ($/kW)
-                "decommissioning_cost_kW": 58.0,  # ($/kW)
+                "commissioning_cost_kW": 44.0,  # (USD/kW)
+                "decommissioning_cost_kW": 58.0,  # (USD/kW)
                 "plant_substation_distance": 1.0,  # (km)
                 "interconnection_distance": 8.5,  # (km)
                 "site_distance": 115.0,  # km
                 "site_distance_to_landfall": 50.0,  # km
-                "port_cost_per_month": 2000000.0,  # $/mo
-                "construction_insurance": 44.0,  # $/kW
-                "construction_financing": 183.0,  # $/kW
-                "contingency": 316.0,  # $/kW
-                "site_auction_price": 100000000.0,  # $
-                "site_assessment_cost": 50000000.0,  # $
-                "construction_plan_cost": 250000.0,  # $
-                "installation_plan_cost": 1000000.0,  # $
-                "boem_review_cost": 0.0,  # $
+                "port_cost_per_month": 2000000.0,  # (USD/mo)
+                "construction_insurance": 44.0,  # (USD/kW)
+                "construction_financing": 183.0,  # (USD/kW)
+                "contingency": 316.0,  # (USD/kW)
+                "site_auction_price": 100000000.0,  # (USD)
+                "site_assessment_cost": 50000000.0,  # (USD)
+                "construction_plan_cost": 250000.0,  # (USD)
+                "installation_plan_cost": 1000000.0,  # (USD)
+                "boem_review_cost": 0.0,  # (USD)
                 "transition_piece_mass": 100.0e3,  # kg
                 "transition_piece_cost": 0.0,  # (USD)
                 # # Fixed bottom configuration
-                # monopile_mass: 2097.21115974 # (t)
+                # monopile_mass: 2097.21115974 # (tonne)
                 # monopile_cost: 4744119.28172591 # (USD)
                 # tcc_per_kW: 1397.17046735 # (USD/kW)
                 # opex_per_kW: 110. # (USD/kW)
