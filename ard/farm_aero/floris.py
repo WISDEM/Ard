@@ -13,6 +13,30 @@ def create_FLORIS_turbine_from_windIO(
     windIOplant: dict,
     modeling_options: dict = {},
 ) -> dict:
+    """
+    takes a windIO plant specification and creates a FLORIS turbine dictionary
+
+    Parameters
+    ----------
+    windIOplant : dict
+        a full, presumed validated, windIO plant specification file
+    modeling_options : dict, optional
+        an Ard modeling options dictionary, which can contain FLORIS options for
+        configuring the FLORIS turbine
+
+    Returns
+    -------
+    dict
+        the FLORIS dictionary that was created, with references deep copied
+
+    Raises
+    ------
+    NotImplementedError
+        if a valid windIO configuration for which reconciliation with the
+        FLORIS specification has not been implemented yet
+    IndexError
+        if the windIO file is in an apparently invalid state
+    """
 
     # extract the turbine... assuming a single one for now
     windIOturbine = windIOplant["wind_farm"]["turbine"]

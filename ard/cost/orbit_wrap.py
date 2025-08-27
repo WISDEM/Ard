@@ -378,6 +378,7 @@ class ORBITWisdemDetail(orbit_wisdem.OrbitWisdem):
 
 
 class ORBITDetailedGroup(om.Group):
+    """wrapper for ORBIT-WISDEM Fixed Substructure API, allowing manual IVC incorporation"""
 
     def initialize(self):
         """Initialize the group and declare options."""
