@@ -280,7 +280,6 @@ class TestFLORISAEP:
             load_only=True,
         )
 
-
         for key in test_data:
             with subtests.test(key):
                 assert np.allclose(test_data[key], pyrite_data[key], rtol=5e-3)
