@@ -92,7 +92,22 @@ def create_FLORIS_turbine_from_windIO(
         cutin_wind_speed = windIOturbine["cutin_wind_speed"]
         cutout_wind_speed = windIOturbine["cutout_wind_speed"]
 
-        # compute based on reg. I, II, III, IV textbook behaviors
+        # ### SYNTHETIC POWER CURVE ###
+        # for this section, we assume synthetic behavior based on the values
+        # specified in a windIO plant turbine specification, based on region:
+        #
+        # - region I: before cut-in, $V < `cutin_wind_speed`$
+        #       $P(V) = 0$
+        # - region II: harvest all available power, $`cutin_wind_speed` < V < `rated_wind_speed`$
+        #       $P(V) = 0.5 * rho * A * V^3 * C_{P,\max}$
+        #   for $P_{\mathrm{rated}} = 0.5 * rho * A * V_{\mathrm{rated}}^3 * C_{P,\max}$,
+        #   it follows that $P(V) = P_{\mathrm{rated}} \\left( \frac{V}{V_{\mathrm{rated}}} \\right)^3$
+        # - region III: throttle power to rated, $`rated_wind_speed` < V < `cutout_wind_speed`$
+        #       $P(V) = P_{\mathrm{rated}}$
+        # - region IV: after cut-out, $V > `cutout_wind_speed`$
+        #       $P(V) = 0$
+
+        # compute based on reg. I, II, III, IV of synthetic power curve
         values_power_curve = (
             wind_speeds_Ct_curve**3 / rated_wind_speed**3 * rated_power
         )  # scales proportionally in reg. II
