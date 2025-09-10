@@ -4,7 +4,7 @@ import numpy as np
 from optiwindnet.mesh import make_planar_embedding
 from optiwindnet.interarraylib import L_from_site
 from optiwindnet.heuristics import EW_presolver
-from optiwindnet.MILP import solver_factory, ModelOptions
+from optiwindnet.MILP import OWNWarmupFailed, solver_factory, ModelOptions
 
 from . import templates
 
@@ -89,6 +89,7 @@ class OptiwindnetCollection(templates.CollectionTemplate):
     def initialize(self):
         """Initialization of OM component."""
         super().initialize()
+        self.S_previous: nx.Graph | None = None
 
     def setup(self):
         """Setup of OM component."""
@@ -126,20 +127,41 @@ class OptiwindnetCollection(templates.CollectionTemplate):
         # create planar embedding and set of available links
         P, A = make_planar_embedding(L)
 
-        # presolve
-        S_warm = EW_presolver(A, capacity=max_turbines_per_string)
+        solver = solver_factory(solver_name)
+
+        model_options = self.modeling_options["collection"]["model_options"]
+        # start from previous solution if available, else from heuristic if it fits
+        if self.S_previous is not None:
+            S_warm = self.S_previous
+        elif (
+            model_options.get("topology") == "branched"
+            and model_options.get("feeder_limit") == "unlimited"
+        ):
+            S_warm = EW_presolver(A, capacity=max_turbines_per_string)
+        else:
+            S_warm = None
+
+        try:
+            solver.set_problem(
+                P,
+                A,
+                max_turbines_per_string,
+                ModelOptions(**model_options),
+                warmstart=S_warm,
+            )
+        except OWNWarmupFailed:
+            # the previous solution is no longer feasible
+            solver.set_problem(
+                P,
+                A,
+                max_turbines_per_string,
+                ModelOptions(**model_options),
+            )
 
         # do the branch-and-bound MILP search
-        solver = solver_factory(solver_name)
-        solver.set_problem(
-            P,
-            A,
-            max_turbines_per_string,
-            ModelOptions(**self.modeling_options["collection"]["model_options"]),
-            warmstart=S_warm,
-        )
         info = solver.solve(**self.modeling_options["collection"]["solver_options"])
         S, G = solver.get_solution()
+        self.S_previous = S
 
         # extract the outputs
         terse_links = np.zeros((T,), dtype=np.int_)
