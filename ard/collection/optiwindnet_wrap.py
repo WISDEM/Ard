@@ -136,6 +136,7 @@ class OptiwindnetCollection(templates.CollectionTemplate):
         elif (
             model_options.get("topology") == "branched"
             and model_options.get("feeder_limit") == "unlimited"
+            and model_options.get("feeder_route") == "segmented"
         ):
             S_warm = EW_presolver(A, capacity=max_turbines_per_string)
         else:
