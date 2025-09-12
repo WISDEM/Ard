@@ -14,9 +14,9 @@ Each type of component will be defined below, and each type of component will ha
 
 ## Layout DV Components (`layout`)
 
-Wind farm layout optimization is a significantly challenging problem for global optimization, due to the existence of many local minima.
-One strategy for reducing the dimensionality of the design space is the use of layout models.
-`layout` components are for connecting some reduced layout variables to the turbine location variables, `x_turbines` and `y_turbines`, which explicitly describe the layout of a farm for the purposes of disciplinary analysis computing the farm aerodynamics.
+In order to reduce the dimensionality of farm layout problems, `Ard` is designed to use layout models.
+`layout` components are for connecting some reduced layout variables to the turbine location variables, `x_turbines` and `y_turbines`.
+These reduced-dimensional variables can be passed to downstream analyses or the full $(x,y)$ set of coordinates can be used for downstream analyses.
 
 The default `layout` component is the grid farm layout defined in `ard/layout/gridfarm.py`, which parameterizes a structured rectilinear farm in terms of a primary axis, aligned with respect to North by an orientation angle coincident with compass rose angles, with rows spaced along this axis by a constant spacing measured in rotor diameters; and a secondary axis, skewed from orthagonal by a skew angle in the direction of compass angles, with rows spaced along this axis by a constant spacing.
 This results in four parameters, two nondimensional spacing values and two angles.
