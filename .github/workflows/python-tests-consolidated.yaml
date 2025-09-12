@@ -206,7 +206,7 @@ jobs:
 
   find-examples_nb:
     name: Find all example notebooks
-    # needs: [test-unit, test-system]
+    needs: [test-unit, test-system]
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
