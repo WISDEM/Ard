@@ -23,10 +23,10 @@ modeling_options: &modeling_options
   site_depth: 50.0
   costs:
     num_blades: 3
-    tower_mass: 1574.04487111 # (t)
+    tower_mass: 1574.04487111 # (tonne)
     tower_length: 149.386 # (m)
-    nacelle_mass: 849.1432357 # (t)
-    blade_mass: 83.30831171 # (t)
+    nacelle_mass: 849.1432357 # (tonne)
+    blade_mass: 83.30831171 # (tonne)
     turbine_capex: 1397.17046735 # (USD/kW)
     site_mean_windspeed: 10. # (m/s)
     turbine_rated_windspeed: 11.13484394 # (m/s)
@@ -46,11 +46,11 @@ modeling_options: &modeling_options
     installation_plan_cost: 1000000.0  # (USD)
     boem_review_cost: 0.0  # (USD)
 
-    transition_piece_mass: 100. # (ton)
+    transition_piece_mass: 100. # (tonne)
     transition_piece_cost: 0. # (USD)
 
     # Fixed bottom configuration
-    monopile_mass: 2097.21115974 # (t)
+    monopile_mass: 2097.21115974 # (tonne)
     monopile_cost: 4744119.28172591 # (USD)
     monopile_length: 94. # (m)
     monopile_diameter: 10. # (m) (max)
