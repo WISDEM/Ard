@@ -8,7 +8,7 @@ Each type of component will be defined below, and each type of component will ha
 
 `Ard` has a set of fundamental variables, that we expect to be used in (almost) every simulation:
 - `x_turbines`: a vector of $x$-location of each turbine, i.e. in an East-West local coordinate frame
-- `y_turbines`: a vector of $y$-location of each turbine, i.e. in an East-West local coordinate frame
+- `y_turbines`: a vector of $y$-location of each turbine, i.e. in an North-South local coordinate frame
 - `power_farm`: a float-valued estimate of the farm's power at a set of wind conditions
 - `AEP_farm`: a float-valued estimate of the farm's annual energy production ($\\mathrm{AEP}$), when full wind rose data is provided
 
