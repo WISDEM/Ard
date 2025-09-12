@@ -10,27 +10,27 @@ Each type of component will be defined below, and each type of component will ha
 - `x_turbines`: a vector of $x$-location of each turbine, i.e. in an East-West local coordinate frame
 - `y_turbines`: a vector of $y$-location of each turbine, i.e. in an North-South local coordinate frame
 - `power_farm`: a float-valued estimate of the farm's power at a set of wind conditions
-- `AEP_farm`: a float-valued estimate of the farm's annual energy production ($\\mathrm{AEP}$), when full wind rose data is provided
+- `AEP_farm`: a float-valued estimate of the farm's annual energy production ($\mathrm{AEP}$), when full wind rose data is provided
 
 ## Layout DV Components (`layout`)
 
-In order to reduce the dimensionality of farm layout problems, `Ard` is designed to use layout models.
+Wind farm layout optimization is known to be a significantly challenging problem for global optimization, due to the existence of many local minima (see, e.g., [Stanley and Ning, 2019](https://doi.org/10.5194/wes-4-663-2019), among many others).
+One strategy for reducing the dimensionality of the design space is to use layout models.
 `layout` components are for connecting some reduced layout variables to the turbine location variables, `x_turbines` and `y_turbines`.
 These reduced-dimensional variables can be passed to downstream analyses or the full $(x,y)$ set of coordinates can be used for downstream analyses.
 
-The default `layout` component is the grid farm layout defined in `ard/layout/gridfarm.py`, which parameterizes a structured rectilinear farm in terms of a primary axis, aligned with respect to North by an orientation angle coincident with compass rose angles, with rows spaced along this axis by a constant spacing measured in rotor diameters; and a secondary axis, skewed from orthagonal by a skew angle in the direction of compass angles, with rows spaced along this axis by a constant spacing.
+The default `layout` component is the grid farm layout defined in `ard/layout/gridfarm.py`, which parameterizes a structured rectilinear farm in terms of a primary axis, aligned with respect to North by an orientation angle coincident with compass rose angles, with rows spaced along this axis by a constant spacing measured in rotor diameters; and a secondary axis, skewed from orthogonal by a skew angle in the direction of compass angles, with rows spaced along this axis by a constant spacing.
 This results in four parameters, two nondimensional spacing values and two angles.
 
 **tl;dr:** `layout` components map from a simplified parameter set to Cartesian farm coordinates
 
 ## Farm Aero Components (`farm_aero`)
 
-Fundamentally, `farm_aero` components will take in a set of farm layout design variables, in terms the turbine location variables, `x_turbines` and `y_turbines`, and potentially some control command input, namely `yaw_turbines`.
+`farm_aero` components take in a set of farm layout design variables, in terms the turbine location variables, `x_turbines` and `y_turbines`, and potentially some control command input, namely `yaw_turbines`.
 
-In addition to these design variables, the turbine definitions to be used and some (possibly comprehensive) set of wind conditions to be queried from a [windIO plant file](https://ieawindsystems.github.io/windIO/main/source/plant_schema.html#site_energy_resource_wind_resource) will also be provided to a given `farm_aero` component.
+In addition to these design variables, the turbine definitions to be used and some (possibly comprehensive) set of wind conditions to be queried from a [windIO plant file](https://ieawindsystems.github.io/windIO/main/source/plant_schema.html#site_energy_resource_wind_resource) are also provided to a given `farm_aero` component.
 
-The result of a `farm_aero` component will be a power or energy production quantity of interest.
-Typically, these will be a power output estimate for the set of provided conditions or annual energy production estimate for the farm given the wind resource.
+The result of a `farm_aero` component is the power or energy production quantity of interest given the wind resource.
 
 The default `farm_aero` component is [NREL's FLORIS tool](https://nrel.github.io/floris), which can be found at `ard/farm_aero/floris.py`.
 We wrap FLORIS to map from `x_turbines`, `y_turbines`, and `yaw_turbines` to turbine powers, turbine thrusts, farm power, and, optionally, farm AEP.
