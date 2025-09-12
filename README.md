@@ -94,7 +94,7 @@ This starts from our software development goals, which are that `Ard` should be:
    - build yourself the ones we don't have
 3) effective
     - robustly tested and testable at the unit and system level
-This allows us to implement, using `OpenMDAO` an MDAO model of the the wind farm layout problem, a toolset to accomplish the capability goals of `Ard`, to:
+This allows us to implement, using `OpenMDAO` an MDAO model of the wind farm layout problem, a toolset to accomplish the capability goals of `Ard`, to:
 1) allow optimization of wind farm layouts for specific wind resource profiles
 2) enable the incorporation of realistic but well-posed constraints
 3) target wholistic and complex system-level optimization objectives like LCOE and beyond-LCOE metrics

@@ -20,8 +20,9 @@ parts:
   # Examples
   - caption: Examples
     chapters:
-    - file: example_01.ipynb
-    - file: example_02.ipynb
+    - file: examples/01_onshore/optimization_demo.ipynb
+    - file: examples/02_offshore_fixed/optimization_demo.ipynb
+    - file: examples/03_offshore_floating_custom_system/optimization_demo.ipynb
   # Reference Material
   - caption: Reference
     chapters:
