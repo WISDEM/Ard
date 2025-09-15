@@ -55,6 +55,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
   "black[jupyter]",
+  "jupyter",
   "pytest",
   "pytest-cov",
   "pytest-subtests",

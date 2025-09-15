@@ -73,16 +73,16 @@ class FarmBoundaryDistancePolygon(om.ExplicitComponent):
 
         # set up inputs and outputs for mooring system
         self.add_input(
-            "x_turbines", jnp.zeros((self.N_turbines,)), units="km"
-        )  # x location of the mooring platform in km w.r.t. reference coordinates
+            "x_turbines", jnp.zeros((self.N_turbines,)), units="m"
+        )  # x location of the mooring platform in m w.r.t. reference coordinates
         self.add_input(
-            "y_turbines", jnp.zeros((self.N_turbines,)), units="km"
-        )  # y location of the mooring platform in km w.r.t. reference coordinates
+            "y_turbines", jnp.zeros((self.N_turbines,)), units="m"
+        )  # y location of the mooring platform in m w.r.t. reference coordinates
 
         self.add_output(
             "boundary_distances",
             jnp.zeros(self.N_turbines),
-            units="km",
+            units="m",
         )
 
     def setup_partials(self):

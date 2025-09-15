@@ -3,8 +3,8 @@ site:
     name: Ard Example 01 offshore wind site
     boundaries:
         polygons:
-            - x: [ 1.5,  3.0,  3.0,  1.5, -1.5, -3.0, -3.0, -1.5]
-              y: [ 3.0,  1.5, -1.5, -3.0, -3.0, -1.5,  1.5,  3.0]
+            - x: [ 1500.0,  3000.0,  3000.0,  1500.0, -1500.0, -3000.0, -3000.0, -1500.0]
+              y: [ 3000.0,  1500.0, -1500.0, -3000.0, -3000.0, -1500.0,  1500.0,  3000.0]
     energy_resource:
         name: Ard Example 01 offshore energy resource
         wind_resource: !include ../../data/windIO-plant_wind-resource_wrg-example.yaml

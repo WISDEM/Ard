@@ -1,5 +1,6 @@
 import importlib
 import openmdao.api as om
+from openmdao.drivers.doe_driver import DOEGenerator
 from ard.utils.io import load_yaml, replace_key_value
 from ard.cost.wisdem_wrap import (
     LandBOSSE_setup_latents,
@@ -111,6 +112,7 @@ def set_up_ard_model(input_dict: Union[str, dict], root_data_path: str = None):
 def set_up_system_recursive(
     input_dict: dict,
     system_name: str = "top_level",
+    work_dir: str = "ard_prob_out",
     parent_group=None,
     modeling_options: dict = None,
     analysis_options: dict = None,
@@ -129,7 +131,7 @@ def set_up_system_recursive(
     """
     # Initialize the top-level problem if no parent group is provided
     if parent_group is None:
-        prob = om.Problem()
+        prob = om.Problem(work_dir=work_dir)
         parent_group = prob.model
         # parent_group.name = "ard_model"
     else:
@@ -199,7 +201,30 @@ def set_up_system_recursive(
             # set up driver
             if "driver" in analysis_options:
                 Driver = getattr(om, analysis_options["driver"]["name"])
-                prob.driver = Driver()
+
+                # handle DOE drivers with special treatment
+                if Driver == om.DOEDriver:
+                    generator = None
+                    if "generator" in analysis_options["driver"]:
+                        if type(analysis_options["driver"]["generator"]) == dict:
+                            gen_dict = analysis_options["driver"]["generator"]
+                            generator = getattr(om, gen_dict["name"])(
+                                **gen_dict["args"]
+                            )
+                        elif isinstance(
+                            analysis_options["driver"]["generator"], DOEGenerator
+                        ):
+                            generator = analysis_options["driver"]["generator"]
+                        else:
+                            raise NotImplementedError(
+                                "Only dictionary-specified or OpenMDAO "
+                                "DOEGenerator generators have been implemented."
+                            )
+                    prob.driver = Driver(generator)
+                else:
+                    prob.driver = Driver()
+
+                # handle the options now
                 if "options" in analysis_options["driver"]:
                     for option, value_driver_option in analysis_options["driver"][
                         "options"
@@ -241,6 +266,17 @@ def set_up_system_recursive(
                     recorder = om.SqliteRecorder(recorder_filepath)
                     prob.add_recorder(recorder)
                     prob.driver.add_recorder(recorder)
+
+        prob.model.set_input_defaults(
+            "x_turbines",
+            # input_dict["modeling_options"]["windIO_plant"]["wind_farm"]["layouts"]["coordinates"]["x"],
+            units="m",
+        )
+        prob.model.set_input_defaults(
+            "y_turbines",
+            # input_dict["modeling_options"]["windIO_plant"]["wind_farm"]["layouts"]["coordinates"]["y"],
+            units="m",
+        )
 
         prob.setup()
 

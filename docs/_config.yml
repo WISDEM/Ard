@@ -3,7 +3,7 @@
 
 title: Ard
 author: National Renewable Energy Laboratory
-# logo: logo.png
+logo: logo.png
 copyright: '2024'
 
 # If there's a file that is linked in the project but not explicitly listed in the TOC, uncomment this line
@@ -13,6 +13,7 @@ copyright: '2024'
 # See https://jupyterbook.org/content/execute.html
 execute:
   execute_notebooks: auto
+  timeout: 120
   # timeout: 420 # Give each notebook cell 7 minutes to execute
 
 # Define the name of the latex output file for PDF builds

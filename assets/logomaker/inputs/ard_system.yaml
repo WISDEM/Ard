@@ -1,0 +1,83 @@
+modeling_options: &modeling_options
+  windIO_plant: !include windio.yaml
+  layout:
+    N_turbines: 25
+    N_substations: 1
+  site_depth: 200.0
+  collection:
+    max_turbines_per_string: 8
+    solver_name: "highs"
+    solver_options:
+      time_limit: 60
+      mip_gap: 0.02
+    model_options:
+      topology: "branched"
+      feeder_route: "segmented"
+      feeder_limit: "unlimited"
+
+system:
+  type: group
+  systems:
+    aepFLORIS:
+      type: component
+      module: ard.farm_aero.floris
+      object: FLORISAEP
+      promotes: ["x_turbines", "y_turbines", "AEP_farm"]
+      kwargs:
+        modeling_options: *modeling_options
+        case_title: "offshore-floating"
+        data_path:
+    collection:
+      type: component
+      module: ard.collection
+      object: OptiwindnetCollection
+      promotes: ["x_turbines", "y_turbines"]
+      kwargs:
+        modeling_options: *modeling_options
+    spacing_constraint:
+      type: component
+      module: ard.layout.spacing
+      object: TurbineSpacing
+      promotes: ["x_turbines", "y_turbines"]
+      kwargs:
+        modeling_options: *modeling_options
+    boundary:
+      type: component
+      module: ard.layout.boundary
+      object: FarmBoundaryDistancePolygon
+      promotes: ["*"]
+      kwargs:
+        modeling_options: *modeling_options
+
+analysis_options:
+  driver:
+    name: ScipyOptimizeDriver
+    options:
+      optimizer: COBYLA  # SLSQP
+      # maxiter: 100
+  design_variables:
+    x_turbines:
+      units: "m"
+      lower:    -0.0
+      upper:  3000.0
+      scaler: 0.0005897339121  # 1/(7*D_rotor)
+    y_turbines:
+      units: "m"
+      lower:    -0.0
+      upper:  1250.0
+      scaler: 0.0005897339121  # 1/(7*D_rotor)
+  constraints:
+    spacing_constraint.turbine_spacing:
+      units: "m"
+      lower: 0.001376045795  # 1/(3*D_rotor)
+      scaler: 0.004128137384  # 1/D_rotor
+    boundary_distances:
+      units: "m"
+      upper: 0.0
+      scaler: 0.004128137384  # 1/D_rotor
+  objective:
+    name: AEP_farm
+    options:
+      scaler: -1.0e-9
+  recorder:
+    filepath: opt_results.sql

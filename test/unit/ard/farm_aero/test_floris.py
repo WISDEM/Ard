@@ -282,7 +282,7 @@ class TestFLORISAEP:
         pyrite_data = ard.utils.test_utils.pyrite_validator(
             test_data,
             Path(__file__).parent / "test_floris_aep_pyrite.npz",
-            # rtol_val=5e-3, # check tol not needed when just loading data
+            # rtol_val=5e-3, # this parameter sets the relative tolerance for validation checks. Uncomment if needed.
             # rewrite=True,  # uncomment to write new pyrite file
             load_only=True,
         )

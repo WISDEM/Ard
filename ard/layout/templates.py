@@ -16,8 +16,6 @@ class LayoutTemplate(om.ExplicitComponent):
     -------
     modeling_options : dict
         a modeling options dictionary
-    N_turbines : int
-        the number of turbines that should be in the farm layout
 
     Inputs
     ------
@@ -104,8 +102,6 @@ class LanduseTemplate(om.ExplicitComponent):
     -------
     modeling_options : dict
         a modeling options dictionary
-    N_turbines : int
-        the number of turbines that should be in the farm layout
 
     Inputs
     ------

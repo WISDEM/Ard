@@ -4,18 +4,25 @@
 format: jb-book
 root: intro
 parts:
-  # introductory material
+  # Introductory material
   - caption: Getting Started
     chapters:
     - file: installation
-  # Tutorials
-  - caption: Tutorials
+    - file: testing
+  # # Tutorials
+  # - caption: Tutorials
+  #   chapters:
+  #   - file: LCOE_analysis
+  # # How-to Guides
+  # - caption: How-to Guides
+  #   chapters:
+  #   - file: multi_fidelity_aep
+  # Examples
+  - caption: Examples
     chapters:
-    - file: LCOE_analysis
-  # How-to Guides
-  - caption: How-to Guides
-    chapters:
-    - file: multi_fidelity_aep
+    - file: examples/01_onshore/optimization_demo.ipynb
+    - file: examples/02_offshore_fixed/optimization_demo.ipynb
+    - file: examples/03_offshore_floating_custom_system/optimization_demo.ipynb
   # Reference Material
   - caption: Reference
     chapters:

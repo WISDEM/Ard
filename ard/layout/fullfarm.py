@@ -19,9 +19,6 @@ class FullFarmLanduse(ard.layout.templates.LanduseTemplate):
     modeling_options : dict
         a modeling options dictionary (inherited from
         `templates.LanduseTemplate`)
-    N_turbines : int
-        the number of turbines that should be in the farm layout (inherited from
-        `templates.LanduseTemplate`)
 
     Inputs
     ------

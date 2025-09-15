@@ -225,7 +225,7 @@ class TestORBIT:
         # Validate each key-value pair using subtests
         for key, value in test_data.items():
             with subtests.test(key=key):
-                assert np.isclose(value, pyrite_data[key], rtol=5e-3), (
+                assert np.allclose(value, pyrite_data[key], rtol=5e-3), (
                     f"Mismatch for {key}: " f"expected {pyrite_data[key]}, got {value}"
                 )
 

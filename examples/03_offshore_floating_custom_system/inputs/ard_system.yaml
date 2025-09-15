@@ -1,6 +1,7 @@
 modeling_options: &modeling_options
   windIO_plant: !include windio.yaml
   layout:
+    type: gridfarm
     N_turbines: 25
     N_substations: 1
     spacing_primary: 7.0
@@ -14,14 +15,17 @@ modeling_options: &modeling_options
   site_depth: 50.0
   collection:
     max_turbines_per_string: 8
-    solver_name: "highs"
+    solver_name: highs
     solver_options:
       time_limit: 60
       mip_gap: 0.02
     model_options:
-      topology: "radial"  # "radial", "branched"
-      feeder_route: "segmented"
-      feeder_limit: "unlimited"
+      topology: radial  # radial, branched
+      feeder_route: segmented
+      feeder_limit: unlimited
+  offshore: true
+  floating: true
+  site_depth: 50.0
   costs:
     num_blades: 3
     tower_mass: 1574.04487111 # (tonne)
@@ -65,42 +69,49 @@ modeling_options: &modeling_options
     mooring_line_length: 837. # (m)
     anchor_mass: 0. # (kg)
     floating_substructure_cost: 11803978.242949858 # (USD)
-  offshore: true
-  floating: true
 
-system: "offshore_floating"
+system: offshore_floating
 
 analysis_options:
   driver:
     name: ScipyOptimizeDriver
     options:
-      optimizer: "SLSQP"
+      optimizer: SLSQP
+      opt_settings:
+        maxiter: 10
+      debug_print:
+      - "desvars"
+      - "objs"
   design_variables:
     spacing_primary:
       lower:  3.0
       upper: 10.0
+      scaler: 2.0
     spacing_secondary:
       lower:  3.0
       upper: 10.0
+      scaler: 2.0
     angle_orientation:
       lower: -180.0
       upper:  180.0
+      scaler: 0.2
     angle_skew:
       lower: -45.0
       upper:  45.0
-    phi_platform:
-      lower: -30.0
-      upper:  30.0
+      scaler: 0.2
   constraints:
-    mooring_constraint.mooring_spacing:
-      units: "m"
-      lower: 50.0
+    AEP_farm:
+      units: GW*h
+      lower: 2200.0
+      scaler: 2.0
     spacing_constraint.turbine_spacing:
-      units: "m"
+      units: m
       lower: 852.0
+      scaler: 0.0005  # 1/(7D)
   objective:
     name: collection.total_length_cables
     options:
-      scaler: 1.0
+      units: km
+      scaler: 0.05
   recorder:
-    filepath: "opt_results.sql"
+    filepath: opt_results.sql
