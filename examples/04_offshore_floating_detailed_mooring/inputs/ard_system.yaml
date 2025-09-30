@@ -30,7 +30,7 @@ modeling_options: &modeling_options
       time_limit: 60
       mip_gap: 0.02
     model_options:
-      topology: "branched"
+      topology: "radial"  # "branched"
       feeder_route: "segmented"
       feeder_limit: "unlimited"
   costs:
@@ -76,6 +76,9 @@ modeling_options: &modeling_options
     mooring_line_length: 837. # (m)
     anchor_mass: 0. # (kg)
     floating_substructure_cost: 11803978.242949858 # (USD)
+
+    # override settings for ORBIT
+    override_mooring_lines: True
   offshore: true
   floating: true
 
@@ -151,6 +154,13 @@ system:
       promotes: ["*"]
       kwargs:
         modeling_options: *modeling_options
+    anchor_boundary:
+      type: component
+      module: ard.offshore.mooring_boundary
+      object: FarmBoundaryAnchorDistancePolygon
+      promotes: ["*"]
+      kwargs:
+        modeling_options: *modeling_options
     tcc:
       type: component
       module: ard.cost.wisdem_wrap
@@ -163,11 +173,13 @@ system:
       ]
     orbit:
       type: component
-      module: ard.cost.wisdem_wrap
-      object: ORBITGroup
+      module: ard.cost.orbit_wrap
+      object: ORBITDetailedGroup
       promotes: [
-        ["plant_turbine_spacing", "spacing_effective_primary"],
-        ["plant_row_spacing", "spacing_effective_secondary"],
+        "x_turbines",
+        "y_turbines",
+        "x_substations",
+        "y_substations",
         # "installation_capex",
       ]
       kwargs:
@@ -197,7 +209,7 @@ system:
   connections:
     - ["AEP_farm", "financese.plant_aep_in"]
     - ["orbit.total_capex_kW", "financese.bos_per_kW"]  # For offshore systems
-
+    - ["collection.graph", "orbit.graph"]
 
 analysis_options:
   driver:
@@ -221,26 +233,31 @@ analysis_options:
       lower: -45.0
       upper:  45.0
       scaler: 0.111111
-    phi_platform:
-      lower: -30.0
-      upper:  30.0
-      scaler: 0.166666
+    # phi_platform:
+    #   lower: -30.0
+    #   upper:  30.0
+    #   scaler: 0.166666
   constraints:
     mooring_constraint.mooring_spacing:
       units: "m"
       lower: 50.0
-      scaler: 242.24  # D_rotor
+      scaler: 0.004128137384  # 1/D_rotor
     spacing_constraint.turbine_spacing:
       units: "m"
-      lower: 726.72  # 3*D_rotor
-      scaler: 242.24  # D_rotor
+      lower: 0.001376045795  # 1/(3*D_rotor)
+      scaler: 0.004128137384  # 1/D_rotor
     boundary_distances:
       units: "m"
-      lower: 0.0
-      scaler: 242.24  # D_rotor
+      upper: -50.0
+      scaler: 0.004128137384  # 1/D_rotor
   objective:
-    name: AEP_farm
+    # name: AEP_farm
+    # options:
+    #   units: GW*h
+    #   scaler: -1.0e-12
+    name: financese.lcoe
     options:
-      scaler: -1.0e-12
+      units: USD/MW/h
+      scaler: 1.0
   recorder:
     filepath: opt_results.sql

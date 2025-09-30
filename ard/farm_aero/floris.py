@@ -141,6 +141,9 @@ def create_FLORIS_turbine_from_windIO(
             rotor_diameter=windIOturbine["rotor_diameter"],
             TSR=windIOturbine.get("TSR"),
             generator_efficiency=windIOturbine.get("generator_efficiency", 1.0),
+            ref_air_density=modeling_options.get("floris", {}).get(
+                "ref_air_density", 1.225
+            ),
         )
     )
 
@@ -200,8 +203,12 @@ class FLORISFarmComponent:
             wind_shear=self.windIO["site"]["energy_resource"]["wind_resource"].get(
                 "shear"
             ),
+            reference_wind_height=(
+                self.wind_query.reference_height
+                if hasattr(self.wind_query, "reference_height")
+                else None
+            ),
         )
-        self.fmodel.assign_hub_height_to_ref_height()
 
         self.case_title = self.options["case_title"]
         self.dir_floris = Path("case_files", self.case_title, "floris_inputs")

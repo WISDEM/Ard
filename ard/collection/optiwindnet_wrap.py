@@ -4,7 +4,7 @@ import numpy as np
 from optiwindnet.mesh import make_planar_embedding
 from optiwindnet.interarraylib import L_from_site
 from optiwindnet.heuristics import EW_presolver
-from optiwindnet.MILP import solver_factory, ModelOptions
+from optiwindnet.MILP import OWNWarmupFailed, solver_factory, ModelOptions
 
 from . import templates
 
@@ -69,6 +69,9 @@ class OptiwindnetCollection(templates.CollectionTemplate):
     -------
     total_length_cables : float
         the total length of cables used in the collection system network
+    terse_links : np.ndarray
+        a 1D numpy int array encoding the electrical connections of the collection
+        system (tree topology), with length `N_turbines`
 
     Discrete Outputs
     -------
@@ -81,14 +84,12 @@ class OptiwindnetCollection(templates.CollectionTemplate):
         length `N_turbines`
     max_load_cables : int
         the maximum cable capacity required by the collection system
-    terse_links : np.ndarray
-        a 1D numpy int array encoding the electrical connections of the collection
-        system (tree topology), with length `N_turbines`
     """
 
     def initialize(self):
         """Initialization of OM component."""
         super().initialize()
+        self.S_previous: nx.Graph | None = None
 
     def setup(self):
         """Setup of OM component."""
@@ -101,6 +102,13 @@ class OptiwindnetCollection(templates.CollectionTemplate):
             ["total_length_cables"],
             ["x_turbines", "y_turbines", "x_substations", "y_substations"],
             method="exact",
+        )
+        self.declare_partials(
+            ["terse_links"],
+            ["x_turbines", "y_turbines", "x_substations", "y_substations"],
+            method="exact",
+            val=0.0,
+            dependent=False,
         )
 
     def compute(
@@ -126,20 +134,42 @@ class OptiwindnetCollection(templates.CollectionTemplate):
         # create planar embedding and set of available links
         P, A = make_planar_embedding(L)
 
-        # presolve
-        S_warm = EW_presolver(A, capacity=max_turbines_per_string)
+        solver = solver_factory(solver_name)
+
+        model_options = self.modeling_options["collection"]["model_options"]
+        # start from previous solution if available, else from heuristic if it fits
+        if self.S_previous is not None:
+            S_warm = self.S_previous
+        elif (
+            model_options.get("topology") == "branched"
+            and model_options.get("feeder_limit") == "unlimited"
+            and model_options.get("feeder_route") == "segmented"
+        ):
+            S_warm = EW_presolver(A, capacity=max_turbines_per_string)
+        else:
+            S_warm = None
+
+        try:
+            solver.set_problem(
+                P,
+                A,
+                max_turbines_per_string,
+                ModelOptions(**model_options),
+                warmstart=S_warm,
+            )
+        except OWNWarmupFailed:
+            # the previous solution is no longer feasible
+            solver.set_problem(
+                P,
+                A,
+                max_turbines_per_string,
+                ModelOptions(**model_options),
+            )
 
         # do the branch-and-bound MILP search
-        solver = solver_factory(solver_name)
-        solver.set_problem(
-            P,
-            A,
-            max_turbines_per_string,
-            ModelOptions(**self.modeling_options["collection"]["model_options"]),
-            warmstart=S_warm,
-        )
         info = solver.solve(**self.modeling_options["collection"]["solver_options"])
         S, G = solver.get_solution()
+        self.S_previous = S
 
         # extract the outputs
         terse_links = np.zeros((T,), dtype=np.int_)
@@ -178,7 +208,6 @@ class OptiwindnetCollection(templates.CollectionTemplate):
         # pack and ship
         self.graph = G
         discrete_outputs["graph"] = G  # TODO: remove for terse links, below!
-        discrete_outputs["terse_links"] = terse_links
         discrete_outputs["length_cables"] = length_cables
         discrete_outputs["load_cables"] = load_cables
         discrete_outputs["max_load_cables"] = S.graph["max_load"]
@@ -186,6 +215,7 @@ class OptiwindnetCollection(templates.CollectionTemplate):
         assert (
             abs(length_cables.sum() - G.size(weight="length")) < 1e-7
         ), f"difference: {length_cables.sum() - G.size(weight='length')}"
+        outputs["terse_links"] = terse_links
         outputs["total_length_cables"] = length_cables.sum()
 
     def compute_partials(self, inputs, J, discrete_inputs=None):

@@ -107,6 +107,8 @@ def set_up_ard_model(input_dict: Union[str, dict], root_data_path: str = None):
         analysis_options=input_dict["analysis_options"],
     )
 
+    prob.setup()
+
     return prob
 
 
@@ -203,6 +205,7 @@ def set_up_system_recursive(
             if "driver" in analysis_options:
                 Driver = getattr(om, analysis_options["driver"]["name"])
 
+                # handle DOE drivers with special treatment
                 if Driver == om.DOEDriver:
                     generator = None
                     if "generator" in analysis_options["driver"]:
@@ -277,7 +280,5 @@ def set_up_system_recursive(
             # input_dict["modeling_options"]["windIO_plant"]["wind_farm"]["layouts"]["coordinates"]["y"],
             units="m",
         )
-
-        prob.setup()
 
     return prob

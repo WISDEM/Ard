@@ -18,11 +18,6 @@ class MooringConstraint(om.ExplicitComponent):
     -------
     modeling_options : dict
         a modeling options dictionary (inherited from `FarmAeroTemplate`)
-    wind_query : floris.wind_data.WindRose
-        a WindQuery objects that specifies the wind conditions that are to be
-        computed
-    bathymetry_data : ard.geographic.BathymetryData
-        a BathymetryData object to specify the bathymetry mesh/sampling
 
     Inputs
     ------

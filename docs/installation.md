@@ -1,4 +1,5 @@
-# Installation instructions
+# Installation
+
 `Ard` is currently in pre-release and is only available as a source-code installation.
 The source can be cloned from github using the following command in your preferred location:
 ```shell
@@ -22,7 +23,6 @@ For a basic and static installation, type:
 ```shell
 pip install .
 ```
-
 For development (and really for everyone during pre-release), we recommend a full development installation:
 ```shell
 pip install -e .[dev,docs]
@@ -33,16 +33,6 @@ There can be some hardware-software mis-specification issues with WISDEM install
 In the event of issues, WISDEM can be installed manually or using `conda` without issues, then `pip` installation can proceed.
 
 ```shell
-mamba install wisdem=3.18.1 -y
+mamba install wisdem -y
 pip install -e .[dev,docs]
 ```
-
-To test the installation, from the `Ard` folder run unit and regression tests:
-```shell
-source test/run_local_test_unit.sh
-source test/run_local_test_system.sh
-```
-
-For user information, in pre-release, we are using some co-developed changes to the `FLORIS` library.
-
-If the installation fails, please open a new issue [here](https://github.com/WISDEM/Ard/issues).

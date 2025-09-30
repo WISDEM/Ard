@@ -185,7 +185,10 @@ class DetailedMooringDesign(om.ExplicitComponent):
 
         # set up inputs and outputs for mooring system
         self.add_input(
-            "phi_platform", np.zeros((self.N_turbines,)), units="deg"
+            "phi_platform",
+            self.modeling_options["layout"]["phi_platform"]
+            * np.ones((self.N_turbines,)),
+            units="deg",
         )  # cardinal direction of the mooring platform orientation
         self.add_input(
             "x_turbines", np.zeros((self.N_turbines,)), units="km"
@@ -227,7 +230,7 @@ class DetailedMooringDesign(om.ExplicitComponent):
         """Computation for the OpenMDAO component."""
 
         # unpack the working variables
-        phi_platform = inputs["phi_platform"]
+        phi_platform = np.radians(inputs["phi_platform"])
         x_turbines = inputs["x_turbines"] * 1000
         y_turbines = inputs["y_turbines"] * 1000
         # thrust_turbines = inputs["thrust_turbines"]  # future-proofing
@@ -435,3 +438,60 @@ class DetailedMooringDesign(om.ExplicitComponent):
         FAM.getMoorPyArray()
 
         return FAM
+
+
+class DetailedMooringBOSInterface(om.ExplicitComponent):
+
+    def initialize(self):
+
+        self.options.declare(
+            "modeling_options",
+            types=dict,
+            desc="Ard modeling options",
+        )
+
+    def setup(self):
+
+        # load modeling options
+        self.modeling_options = self.options["modeling_options"]
+
+        # add the inputs and outputs to the adder
+        self.add_input("bos_per_kW_base", 0.0, units="USD/kW")
+        self.add_input("machine_rating", 0.0, units="W")
+        self.add_input("bos_mooring", 0.0, units="USD")
+        self.add_input("bos_anchor", 0.0, units="USD")
+
+        self.add_output("bos_per_kW_full", 0.0, units="USD/kW")
+
+    def setup_partials(self):
+
+        self.declare_partials("*", "*", method="exact")
+
+    def compute(self, inputs, outputs, discrete_inputs=None, discrete_outputs=None):
+
+        bos_per_kW_base = inputs["bos_per_kW_base"]
+        machine_rating = inputs["machine_rating"]
+        bos_mooring = inputs["bos_mooring"]
+        bos_anchor = inputs["bos_anchor"]
+
+        outputs["bos_per_kW_full"] = (
+            bos_per_kW_base + (bos_mooring + bos_anchor) / machine_rating
+        )
+
+    def compute_partials(self, inputs, J, discrete_inputs=None):
+
+        bos_per_kW_base = inputs["bos_per_kW_base"]
+        machine_rating = inputs["machine_rating"]
+        bos_mooring = inputs["bos_mooring"]
+        bos_anchor = inputs["bos_anchor"]
+
+        J["bos_per_kW_full", "bos_per_kW_base"] = 1.0 + 0.0
+        J["bos_per_kW_full", "machine_rating"] = 0.0 - (bos_mooring + bos_anchor) / (
+            machine_rating**2
+        )
+        J["bos_per_kW_full", "bos_mooring"] = (
+            0.0 + 1.0 / machine_rating + 0.0 / machine_rating
+        )
+        J["bos_per_kW_full", "bos_anchor"] = (
+            0.0 + 0.0 / machine_rating + 1.0 / machine_rating
+        )

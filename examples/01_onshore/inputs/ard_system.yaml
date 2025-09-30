@@ -1,9 +1,7 @@
-system: "onshore"
-
 modeling_options:
   windIO_plant: !include windio.yaml
   layout:
-    type: "gridfarm"
+    type: gridfarm
     N_turbines: 25
     N_substations: 1
     spacing_primary: 7.0
@@ -15,14 +13,14 @@ modeling_options:
     peak_shaving_TI_threshold: 0.0
   collection:
     max_turbines_per_string: 8
-    solver_name: "highs"
+    solver_name: highs
     solver_options:
       time_limit: 60
       mip_gap: 0.02
     model_options:
-      topology: "radial"  # "radial", "branched"
-      feeder_route: "segmented"
-      feeder_limit: "unlimited"
+      topology: radial  # radial, branched
+      feeder_route: segmented
+      feeder_limit: unlimited
   offshore: false
   floating: false
   costs:
@@ -44,16 +42,19 @@ modeling_options:
     tcc_per_kW: 1300.00  # (USD/kW)
     opex_per_kW: 44.00  # (USD/kWh)
 
+system: onshore
+
 analysis_options:
   driver:
     name: ScipyOptimizeDriver
     options:
-      optimizer: "COBYLA"
+      optimizer: COBYLA
       opt_settings:
         rhobeg: 2.0
+        maxiter: 50
       debug_print:
-        - "desvars"
-        - "objs"
+        - desvars
+        - objs
   design_variables:
     spacing_primary:
       lower:  3.0
@@ -69,15 +70,15 @@ analysis_options:
       upper:  45.0
   constraints:
     boundary_distances:
-      units: "km"
+      units: km
       upper: 0.0
       scaler: 2.0
     spacing_constraint.turbine_spacing:
-      units: "km"
+      units: km
       lower: 0.552
   objective:
     name: financese.lcoe
     options:
       scaler: 1.0
   recorder:
-    filepath: "cases.sql"
+    filepath: cases.sql

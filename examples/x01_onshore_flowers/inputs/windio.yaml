@@ -1,15 +1,15 @@
-name: Ard Example 03 offshore floating wind plant
+name: Ard Example 01 onshore wind plant
 site:
-    name: Ard Example 03 offshore wind site
+    name: Ard Example 01 offshore wind site
     boundaries:
         polygons:
-            - x: [ 5000.0, -5000.0, -5000.0,  5000.0]
-              y: [ 5000.0,  5000.0, -5000.0, -5000.0]
+            - x: [ 1.5,  3.0,  3.0,  1.5, -1.5, -3.0, -3.0, -1.5]
+              y: [ 3.0,  1.5, -1.5, -3.0, -3.0, -1.5,  1.5,  3.0]
     energy_resource:
-        name: Ard Example 03 offshore energy resource
+        name: Ard Example 01 offshore energy resource
         wind_resource: !include ../../data/windIO-plant_wind-resource_wrg-example.yaml
 wind_farm:
-    name: Ard Example 03 offshore wind farm
+    name: Ard Example 01 offshore wind farm
     layouts:
         coordinates:
             x: [
