@@ -1,6 +1,5 @@
 [run]
 omit = 
-    ard/glue/prototype.py
     ard/utils/test_utils.py
     ard/farm_aero/placeholder.py
     

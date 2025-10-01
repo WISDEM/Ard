@@ -1,6 +1,5 @@
 [run]
 omit = 
-    ard/glue/prototype.py
     ard/test_utils.py
     ard/collection/optiwindnet_wrap.py
     
