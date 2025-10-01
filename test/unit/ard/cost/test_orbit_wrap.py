@@ -114,6 +114,7 @@ class TestORBITNoApproxBranch:
                 "mooring_line_length": 837.0,  # (m)
                 "anchor_mass": 0.0,  # (kg)
                 "floating_substructure_cost": 11803978.242949858,  # (USD)
+                "override_mooring_lines": False,
             },
         }
 

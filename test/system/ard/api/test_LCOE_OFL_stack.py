@@ -71,3 +71,54 @@ class TestLCOE_OFL_stack:
         for key, value in test_data.items():
             with subtests.test(key=key):
                 assert np.isclose(value, pyrite_data[key], rtol=5e-3)
+
+
+class TestLCOE_OFL_stack_detailed_mooring:
+
+    def setup_method(self):
+
+        # get the input paths and load
+        root_path = Path(__file__).parent.absolute()
+        input_path = Path(root_path, "./inputs_offshore_floating_detailed_mooring/")
+        input_dict = load_yaml(Path(input_path, "ard_system.yaml"))
+
+        # set up system
+        self.prob = glue.set_up_ard_model(
+            input_dict=input_dict,
+            root_data_path=input_path,
+        )
+
+    def test_model(self, subtests):
+
+        # run the model
+        self.prob.run_model()
+
+        # collapse the test result data
+        test_data = {
+            "AEP_val": float(self.prob.get_val("AEP_farm", units="GW*h")[0]),
+            "CapEx_val": float(self.prob.get_val("tcc.tcc", units="MUSD")[0]),
+            "BOS_val": float(
+                self.prob.get_val("orbit.installation_capex", units="MUSD")[0]
+            ),
+            "OpEx_val": float(self.prob.get_val("opex.opex", units="MUSD/yr")[0]),
+            "LCOE_val": float(self.prob.get_val("financese.lcoe", units="USD/MW/h")[0]),
+        }
+
+        # check the data against a pyrite file
+        pyrite_data = ard.utils.test_utils.pyrite_validator(
+            test_data,
+            Path(ard.__file__).parents[1]
+            / "test"
+            / "system"
+            / "ard"
+            / "api"
+            / "test_LCOE_OFL_stack_detailed_mooring_pyrite.npz",
+            # rewrite=True,  # uncomment to write new pyrite file
+            # rtol_val=5e-3,  # Temporarily disabled; adjust tolerance for validation if needed
+            load_only=True,
+        )
+
+        # Validate each key-value pair using subtests
+        for key, value in test_data.items():
+            with subtests.test(key=key):
+                assert np.isclose(value, pyrite_data[key], rtol=5e-3)

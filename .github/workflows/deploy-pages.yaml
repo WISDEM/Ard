@@ -18,11 +18,11 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: "3.11"
+        python-version: "3.12"
 
     - name: Install dependencies
       run: |
-        pip install -e ".[docs]"
+        pip install -e ".[dev,docs,floating]"
 
     # Build the book
     - name: Build the book

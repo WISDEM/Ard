@@ -66,6 +66,10 @@ docs = [
   "sphinx-book-theme",
   "sphinx-autodoc-typehints",
 ]
+floating = [
+  "moorpy @ git+https://github.com/NREL/MoorPy.git@dev",
+  "famodel @ git+https://github.com/FloatingArrayDesign/FAModel.git@main",
+]
 [project.urls]
 # Homepage = "https://example.com"
 Documentation = "https://wisdem.github.io/Ard"

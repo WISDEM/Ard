@@ -26,7 +26,7 @@ wind_farm:
                  1250.0,  1250.0,  1250.0,  1250.0,  1250.0,
                  2500.0,  2500.0,  2500.0,  2500.0,  2500.0
             ]
-    turbine: !include ../../data/windIO-plant_turbine_IEA-3.4MW-130m-RWT.yaml
+    turbine: !include ../../data/windIO-plant_turbine_IEA-22MW-284m-RWT.yaml
     electrical_substations:
         - electrical_substation:
             coordinates:

@@ -68,6 +68,7 @@ def set_up_ard_model(input_dict: Union[str, dict], root_data_path: str = None):
         "offshore_monopile",
         "offshore_monopile_no_cable_design",
         "offshore_floating",
+        "offshore_floating_detailed_mooring",
         "offshore_floating_no_cable_design",
     ]
 
@@ -105,6 +106,8 @@ def set_up_ard_model(input_dict: Union[str, dict], root_data_path: str = None):
         modeling_options=input_dict["modeling_options"],
         analysis_options=input_dict["analysis_options"],
     )
+
+    prob.setup()
 
     return prob
 
@@ -277,7 +280,5 @@ def set_up_system_recursive(
             # input_dict["modeling_options"]["windIO_plant"]["wind_farm"]["layouts"]["coordinates"]["y"],
             units="m",
         )
-
-        prob.setup()
 
     return prob

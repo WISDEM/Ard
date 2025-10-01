@@ -39,8 +39,8 @@ modeling_options:
   layout:
     N_turbines: 25
     N_substations: 1
-    spacing_primary: 7
-    spacing_secondary: 7
+    spacing_primary: 7.0
+    spacing_secondary: 7.0
     angle_orientation: 0.0
     angle_skew: 0.0
   floris:
@@ -105,6 +105,7 @@ modeling_options:
     mooring_line_length: 837. # (m)
     anchor_mass: 0. # (kg)
     floating_substructure_cost: 11803978.242949858 # (USD)
+    override_mooring_lines: False
   offshore: true
   floating: true
   site_depth: 50.0
@@ -116,17 +117,17 @@ analysis_options:
       optimizer: "SLSQP"
   design_variables:
     spacing_primary:
-      lower: 3.0
+      lower:  3.0
       upper: 10.0
     spacing_secondary:
-      lower: 3.0
+      lower:  3.0
       upper: 10.0
     angle_orientation:
       lower: -180.0
-      upper: 180.0
+      upper:  180.0
     angle_skew:
-      lower: -75.0
-      upper: 180.0
+      lower: -45.0
+      upper:  45.0
   constraints:
     spacing_constraint.turbine_spacing:
       units: "m"

@@ -121,6 +121,7 @@ def plot_layout(
             hide_ST=True,
             infobox=False,
             landscape=False,
+            axis_off=False,
         )
 
     if include_mooring_system:

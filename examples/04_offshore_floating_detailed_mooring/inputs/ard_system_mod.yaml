@@ -1,0 +1,272 @@
+modeling_options: &modeling_options
+  windIO_plant: !include windio.yaml
+  layout:
+    N_turbines: 10
+    N_substations: 1
+    # spacing_primary: 3.0
+    # spacing_secondary: 3.0
+    # angle_orientation: 0.0
+    # angle_skew: 0.0
+    phi_platform: 90.0
+  wind_rose:
+    windrose_resample:
+      wd_step: 2.0
+      ws_step: 0.5
+  flowers:
+    num_terms: 50
+    k: 0.05
+    windrose_resample:
+      wd_step: 1.0
+      ws_step: 0.5
+  platform:
+    N_anchors: 3
+    min_mooring_line_length_m: 500.0
+    N_anchor_dimensions: 2
+  mooring_setup:
+    site_conds:
+      bathymetry:
+        file: GulfOfMaine_bathymetry_100x99.txt
+      seabed:
+        file: GulfOfMaine_soil_100x99.txt
+    mooring_info: OntologySample200m.yaml
+    adjuster_settings:
+      adjuster: adjustMooring
+      method: horizontal
+      i_line: 1
+  site_depth: 200.0
+  collection:
+    max_turbines_per_string: 3
+    solver_name: "highs"
+    solver_options:
+      time_limit: 60
+      mip_gap: 0.02
+    model_options:
+      topology: "radial"  # "branched"
+      feeder_route: "segmented"
+      feeder_limit: "unlimited"
+  costs:
+    num_blades: 3
+    tower_mass: 1574.04487111 # (tonne)
+    tower_length: 149.386 # (m)
+    nacelle_mass: 849.1432357 # (tonne)
+    blade_mass: 83.30831171 # (tonne)
+    turbine_capex: 1397.17046735 # (USD/kW)
+    site_mean_windspeed: 10. # (m/s)
+    turbine_rated_windspeed: 11.13484394 # (m/s)
+    commissioning_cost_kW: 44. # (USD/kW)
+    decommissioning_cost_kW: 58. # (USD/kW)
+    plant_substation_distance: 1. # (km)
+    interconnection_distance: 8.5 # (km)
+    site_distance: 115.  # (km)
+    site_distance_to_landfall: 50.  # (km)
+    port_cost_per_month: 2000000.0 # (USD/mo)
+    construction_insurance: 44.  # (USD/kW)
+    construction_financing: 183. # (USD/kW)
+    contingency: 316.  # (USD/kW)
+    site_auction_price: 100000000.0  # (USD)
+    site_assessment_cost: 50000000.0  # (USD)
+    construction_plan_cost: 250000.0  # (USD)
+    installation_plan_cost: 1000000.0  # (USD)
+    boem_review_cost: 0.0  # (USD)
+
+    transition_piece_mass: 100. # (tonne)
+    transition_piece_cost: 0. # (USD)
+
+    # Fixed bottom configuration
+    monopile_mass: 2097.21115974 # (tonne)
+    monopile_cost: 4744119.28172591 # (USD)
+    monopile_length: 94. # (m)
+    monopile_diameter: 10. # (m) (max)
+    tcc_per_kW: 1397.17046735 # (USD/kW)
+    opex_per_kW: 110. # (USD/kWh)
+
+    # Floating configuration
+    num_mooring_lines: 3 # (-)
+    mooring_line_mass: 0.0  # 843225.1875 # (kg)
+    mooring_line_diameter: 0.225 # (m)
+    mooring_line_length: 837. # (m)
+    anchor_mass: 0. # (kg)
+    floating_substructure_cost: 11803978.242949858 # (USD)
+
+    # # override settings for ORBIT
+    # override_mooring_lines: True
+    # override_mooring_lines: True
+  offshore: true
+  floating: true
+
+system:
+  type: group
+  systems:
+    aepFLOWERS:
+      type: component
+      module: ard.farm_aero.flowers
+      object: FLOWERSAEP
+      promotes: ["x_turbines", "y_turbines", "AEP_farm"]
+      kwargs:
+        modeling_options: *modeling_options
+    aepFLORIS:
+      type: component
+      module: ard.farm_aero.floris
+      object: FLORISAEP
+      promotes: ["x_turbines", "y_turbines", ["AEP_farm", "AEP_FLORIS"]]
+      kwargs:
+        modeling_options: *modeling_options
+        case_title: "offshore-floating"
+        data_path:
+    collection:
+      type: component
+      module: ard.collection
+      object: OptiwindnetCollection
+      promotes: ["x_turbines", "y_turbines"]
+      kwargs:
+        modeling_options: *modeling_options
+    mooring_design:
+      type: component
+      module: ard.offshore.mooring_design_detailed
+      object: DetailedMooringDesign
+      promotes: ["x_turbines", "y_turbines", "x_anchors", "y_anchors", "phi_platform"]
+      kwargs:
+        modeling_options: *modeling_options
+        wind_query:
+        data_path:
+    mooring_constraint:
+      type: component
+      module: ard.offshore.mooring_constraint
+      object: MooringConstraint
+      promotes: ["x_turbines", "y_turbines", "x_anchors", "y_anchors"]
+      kwargs:
+        modeling_options: *modeling_options
+    spacing_constraint:
+      type: component
+      module: ard.layout.spacing
+      object: TurbineSpacing
+      promotes: ["x_turbines", "y_turbines"]
+      kwargs:
+        modeling_options: *modeling_options
+    boundary:
+      type: component
+      module: ard.layout.boundary
+      object: FarmBoundaryDistancePolygon
+      promotes: ["*"]
+      kwargs:
+        modeling_options: *modeling_options
+    anchor_boundary:
+      type: component
+      module: ard.offshore.mooring_boundary
+      object: FarmBoundaryAnchorDistancePolygon
+      promotes: ["*"]
+      kwargs:
+        modeling_options: *modeling_options
+    tcc:
+      type: component
+      module: ard.cost.wisdem_wrap
+      object: TurbineCapitalCosts
+      promotes: [
+        "turbine_number",
+        "machine_rating",
+        "tcc_per_kW",
+        "offset_tcc_per_kW",
+      ]
+    orbit:
+      type: component
+      module: ard.cost.orbit_wrap
+      object: ORBITDetailedGroup
+      promotes: [
+        "x_turbines",
+        "y_turbines",
+        "x_substations",
+        "y_substations",
+      ]
+      kwargs:
+        modeling_options: *modeling_options
+    bos_combiner:
+      type: component
+      module: ard.offshore.mooring_design_detailed
+      object: DetailedMooringBOSInterface
+      promotes: ["machine_rating"]
+      kwargs:
+        modeling_options: *modeling_options
+    opex:
+      type: component
+      module: ard.cost.wisdem_wrap
+      object: OperatingExpenses
+      promotes: [
+        "turbine_number",
+        "machine_rating",
+        "opex_per_kW"
+      ]
+    financese:
+      type: component
+      module: ard.cost.wisdem_wrap
+      object: FinanceSEGroup
+      promotes: [
+        "turbine_number",
+        "machine_rating",
+        "tcc_per_kW",
+        "offset_tcc_per_kW",
+        "opex_per_kW",
+      ]
+      kwargs:
+        modeling_options: *modeling_options
+  approx_totals:
+    method: "fd"
+    step: 1.0E-5
+    form: "central"
+    step_calc: "rel_avg"
+  connections:
+    - ["AEP_farm", "financese.plant_aep_in"]
+    - ["orbit.total_capex_kW", "bos_combiner.bos_per_kW_base"]  # For offshore systems
+    - ["mooring_design.cost_mooring", "bos_combiner.bos_mooring"]  # For offshore systems
+    - ["bos_combiner.bos_per_kW_full", "financese.bos_per_kW"]  # For offshore systems
+    # - ["orbit.total_capex_kW", "financese.bos_per_kW"]  # For offshore systems
+    - ["collection.terse_links", "orbit.terse_links"]
+
+analysis_options:
+  driver:
+    name: ScipyOptimizeDriver
+    options:
+      optimizer: SLSQP  # SLSQP
+      maxiter: 35
+  design_variables:
+    x_turbines:
+      units: "m"
+      lower: -7000.0
+      upper:  7000.0
+      scaler: 0.0005897339121  # 1/(7*D_rotor)
+    y_turbines:
+      units: "m"
+      lower: -7000.0
+      upper:  7000.0
+      scaler: 0.0005897339121  # 1/(7*D_rotor)
+    # phi_platform:
+    #   lower: -30.0
+    #   upper:  30.0
+    #   scaler: 0.166666
+  constraints:
+    mooring_constraint.mooring_spacing:
+      units: "m"
+      lower: 50.0
+      scaler: 0.004128137384  # 1/D_rotor
+    spacing_constraint.turbine_spacing:
+      units: "m"
+      lower: 726.72  # 3*D_rotor
+      scaler: 0.004128137384  # 1/D_rotor
+    boundary_distances:
+      units: "m"
+      upper: -50.0
+      scaler: 0.004128137384  # 1/D_rotor
+    anchor_boundary_distances:
+      units: "m"
+      upper: -50.0
+      scaler: 0.004128137384  # 1/D_rotor
+  objective:
+    # name: AEP_farm
+    # options:
+    #   units: GW*h
+    #   scaler: -1.0e-12
+    name: financese.lcoe
+    options:
+      units: USD/MW/h
+      scaler: 0.01
+  recorder:
+    filepath: opt_results.sql

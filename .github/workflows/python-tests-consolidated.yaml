@@ -44,7 +44,7 @@ jobs:
         python -m pip install --upgrade pip
     - name: Install Ard
       run: |
-        pip install .[dev]
+        pip install .[dev,doc,floating]
 
   test-unit:
     name: Run unit tests
@@ -81,7 +81,7 @@ jobs:
         python -m pip install --upgrade pip
     - name: Install Ard
       run: |
-        pip install .[dev]
+        pip install .[dev,doc,floating]
     - name: Run unit tests with coverage
       run: |
         pytest --cov=ard --cov-fail-under=80 test/unit
@@ -121,7 +121,7 @@ jobs:
         python -m pip install --upgrade pip
     - name: Install Ard
       run: |
-        pip install .[dev]
+        pip install .[dev,doc,floating]
     - name: Run system tests with coverage
       run: |
         pytest --cov=ard --cov-fail-under=50 test/system
@@ -184,7 +184,7 @@ jobs:
         python -m pip install --upgrade pip
     - name: Install Ard
       run: |
-        pip install .[dev]
+        pip install .[dev,doc,floating]
     - name: Run examples
       shell: python
       run: |

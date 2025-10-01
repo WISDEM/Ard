@@ -12,11 +12,25 @@ import wisdem.orbit.orbit_api as orbit_wisdem
 from ORBIT.core.library import default_library
 from ORBIT.core.library import initialize_library
 
+import networkx as nx
+from optiwindnet.interarraylib import calcload
 from ard.cost.wisdem_wrap import ORBIT_setup_latents
+
+from ard.collection.optiwindnet_wrap import _own_L_from_inputs
+
+
+def S_from_terse_links(terse_links, **kwargs):
+    T = terse_links.shape[0]
+    S = nx.Graph(T=T, R=abs(terse_links.min()), **kwargs)
+    S.add_edges_from(tuple(zip(range(T), terse_links)))
+    calcload(S)
+    if "capacity" not in kwargs:
+        S.graph["capacity"] = S.graph["max_load"]
+    return S
 
 
 def generate_orbit_location_from_graph(
-    graph,  # TODO: replace with a terse_links representation
+    terse_links,  # TODO: replace with a terse_links representation
     X_turbines,
     Y_turbines,
     X_substations,
@@ -56,6 +70,22 @@ def generate_orbit_location_from_graph(
     RecursionError
         if the recursive setup seems to be stuck in a loop
     """
+
+    # create graph from terse links
+    tlm = np.astype(terse_links, np.int_)
+    L = _own_L_from_inputs(
+        {
+            "x_turbines": X_turbines,
+            "y_turbines": Y_turbines,
+            "x_substations": X_substations,
+            "y_substations": Y_substations,
+        },
+        {
+            "x_border": None,
+            "y_border": None,
+        },
+    )
+    graph = S_from_terse_links(tlm)
 
     # get all edges, sorted by the first node then the second node
     edges_to_process = [edge for edge in graph.edges]
@@ -209,8 +239,11 @@ class ORBITDetail(orbit_wisdem.Orbit):
         super().initialize()
 
         self.options.declare("case_title", default="working")
-        self.options.declare("modeling_options")
+        self.options.declare(
+            "modeling_options", types=dict, desc="Ard modeling options"
+        )
         self.options.declare("approximate_branches", default=False)
+        self.options.declare("override_mooring_lines", default=False)
 
     def setup(self):
         """Define all input variables from all models."""
@@ -255,6 +288,14 @@ class ORBITDetail(orbit_wisdem.Orbit):
                 modeling_options=self.modeling_options,
                 case_title=self.options["case_title"],
                 approximate_branches=self.options["approximate_branches"],
+                override_mooring_lines=self.modeling_options["costs"].get(
+                    "override_mooring_lines",
+                    False,
+                ),
+                override_mooring_anchors=self.modeling_options["costs"].get(
+                    "override_mooring_anchors",
+                    False,
+                ),
                 floating=self.modeling_options["floating"],
                 jacket=self.modeling_options.get("jacket"),
                 jacket_legs=self.modeling_options.get("jacket_legs"),
@@ -274,6 +315,8 @@ class ORBITWisdemDetail(orbit_wisdem.OrbitWisdem):
         self.options.declare("case_title", default="working")
         self.options.declare("modeling_options")
         self.options.declare("approximate_branches", default=False)
+        self.options.declare("override_mooring_lines", default=False)
+        self.options.declare("override_mooring_anchors", default=False)
 
     def setup(self):
         """Define all the inputs."""
@@ -287,7 +330,7 @@ class ORBITWisdemDetail(orbit_wisdem.OrbitWisdem):
         self.N_substations = self.modeling_options["layout"]["N_substations"]
 
         # bring in collection system design
-        self.add_discrete_input("graph", None)
+        self.add_input("terse_links", np.full((self.N_turbines,), -1))
 
         # add the detailed turbine and substation locations
         self.add_input("x_turbines", np.zeros((self.N_turbines,)), units="km")
@@ -332,6 +375,14 @@ class ORBITWisdemDetail(orbit_wisdem.OrbitWisdem):
             "row_spacing": inputs["plant_row_spacing"],
         }
 
+        # override the mooring line values
+        if self.options["override_mooring_lines"]:
+            # if mooring lines will be calculated in detail
+            # zero their ORBIT cost contributions
+            config["mooring_system"]["line_cost"] = 0.0
+            # the standard diameter and mass can still be used to approximate
+            # construction times and costs, etc.
+
         # switch to the custom array system design
         if not ("ArraySystemDesign" in config["design_phases"]):
             raise KeyError(
@@ -359,7 +410,7 @@ class ORBITWisdemDetail(orbit_wisdem.OrbitWisdem):
 
         # generate the csv data needed to locate the farm elements
         generate_orbit_location_from_graph(
-            discrete_inputs["graph"],
+            inputs["terse_links"],
             inputs["x_turbines"],
             inputs["y_turbines"],
             inputs["x_substations"],
@@ -396,6 +447,7 @@ class ORBITDetailedGroup(om.Group):
             "modeling_options", types=dict, desc="Ard modeling options"
         )
         self.options.declare("approximate_branches", default=False)
+        self.options.declare("override_mooring_lines", default=False)
 
     def setup(self):
 
@@ -430,7 +482,7 @@ class ORBITDetailedGroup(om.Group):
                 "total_capex_kW",
                 "bos_capex",
                 "installation_capex",
-                "graph",
+                "terse_links",
                 "x_turbines",
                 "y_turbines",
                 "x_substations",
@@ -443,3 +495,17 @@ class ORBITDetailedGroup(om.Group):
         # connect
         for key in variable_mapping.keys():
             self.connect(key, f"orbit.{key}")
+
+    def setup_partials(self):
+
+        self.declare_partials(
+            "*",
+            "*",
+            method="fd",
+            step=1.0e-5,
+            form="central",
+            step_calc="rel_avg",
+        )
+        self.declare_partials(
+            "terse_links", "*", method="exact", val=0.0, dependent=False
+        )

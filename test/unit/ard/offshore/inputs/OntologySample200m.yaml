@@ -1,0 +1,50 @@
+
+# ----- Mooring system -----
+
+# Mooring system descriptions (each for an individual FOWT with no sharing)
+mooring_systems:
+
+    ms3:
+        name: 3-line semi-taut polyester mooring system
+        
+        keys: [MooringConfigID,  heading, anchorType, lengthAdjust] 
+        data:
+          - [  semitaut-poly_1,  150 ,    drag-embedment1,   0 ]
+          - [  semitaut-poly_1,  30 ,     drag-embedment1,   0 ]
+          - [  semitaut-poly_1,  270,     drag-embedment1,   0 ]
+
+
+# Mooring line configurations
+mooring_line_configs:
+                
+    semitaut-poly_1:  # mooring line configuration identifier
+    
+        name: Semitaut polyester configuration 1  # descriptive name
+        
+        span: 642
+        
+        sections:                 #in order from anchor to fairlead
+          - mooringFamily: chain      # ID of a mooring line section type
+            d_nom: .1549
+            length: 497.7            # [m] usntretched length of line section
+            adjustable: True      # flags that this section could be adjusted to accommodate different spacings...
+          - connectorType: h_link   
+          - mooringFamily: polyester        # ID of a mooring line section type
+            d_nom: .182
+            length: 199.8           # [m] length (unstretched)
+
+
+# Mooring connector properties
+mooring_connector_types:
+    
+    h_link:
+        m  : 140    # [kg]  component mass
+        v : 0.13   # [m^3] component volumetric displacement
+
+# Anchor type properties
+anchor_types:
+
+    drag-embedment1:
+        type   :  DEA   # type of anchor
+        A      :    10 # net area of anchor's fluke [m^2]
+        zlug   :    20 # embedded depth of padeye [m]

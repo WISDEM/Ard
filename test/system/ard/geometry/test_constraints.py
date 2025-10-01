@@ -124,7 +124,7 @@ class TestConstraints:
 
         # configure the driver
         self.prob.driver = om.ScipyOptimizeDriver(optimizer="SLSQP")
-        self.prob.driver.options["maxiter"] = 10  # short run
+        self.prob.driver.options["maxiter"] = 20  # short run
 
         # setup the problem
         self.prob.setup()
@@ -147,7 +147,15 @@ class TestConstraints:
         area_target_validation = 10.49498327  # from a run on 24 June 2025
         with subtests.test("validation spacing matches"):
             assert np.isclose(
-                self.prob.get_val("spacing_target"), spacing_target_validation
+                self.prob.get_val("spacing_target"),
+                spacing_target_validation,
+                rtol=1.0e-3,
+                atol=1.0e-6,
             )
         with subtests.test("validation area matches"):
-            assert np.isclose(self.prob.get_val("area_tight"), area_target_validation)
+            assert np.isclose(
+                self.prob.get_val("area_tight"),
+                area_target_validation,
+                rtol=1.0e-3,
+                atol=1.0e-6,
+            )

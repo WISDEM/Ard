@@ -40,7 +40,7 @@ class TestGeomorphologyGridData:
 
             # do a setup that should fail because of check_valid
             with subtests.test(f"check_valid bad build assertion test {idx_case}"):
-                with pytest.raises(AssertionError):
+                with pytest.raises(ValueError):
                     self.geomorphology.set_data_values(
                         x_data_in=(
                             x_data.copy() if idx_case != 0 else x_data.copy()[:1, :]
@@ -92,7 +92,7 @@ class TestGeomorphologyGridData:
 
             # make sure check valid raises an exception
             with subtests.test(f"check_valid bad override assertion test {idx_case}"):
-                with pytest.raises(AssertionError):
+                with pytest.raises(ValueError):
                     if idx_case == 3:
                         assert self.geomorphology.check_valid_material()
                     else:
@@ -357,3 +357,96 @@ class TestBathymetryGridData(TestGeomorphologyGridData):
             assert np.isclose(np.mean(self.bathymetry.z_data), 172.50993464646467)
         with subtests.test(f"moorpy load statistics test: std"):
             assert np.isclose(np.std(self.bathymetry.z_data), 4.555364127422273)
+
+    def test_load_moorpy_soil(self, subtests):
+
+        # path to the example MoorPy bathymetry grid file
+        file_bathy = (
+            Path(ard.__file__).parents[1]
+            / "examples"
+            / "data"
+            / "offshore"
+            / "GulfOfMaine_bathymetry_100x99.txt"
+        )
+        # path to the example MoorPy bathymetry grid file
+        file_soil = (
+            Path(ard.__file__).parents[1]
+            / "examples"
+            / "data"
+            / "offshore"
+            / "GulfOfMaine_soil_100x99.txt"
+        )
+
+        # load the bathymetry data
+        self.bathymetry.load_moorpy_bathymetry(file_bathymetry=file_bathy)
+
+        # load the soil data
+        self.bathymetry.load_moorpy_soil(file_soil=file_soil)
+
+        # check the shape of the data
+        with subtests.test(f"moorpy load shape test"):
+            assert np.all(self.bathymetry.get_material_shape() == np.array([100, 99]))
+            assert np.all(self.bathymetry.material_data.shape == np.array([100, 99]))
+            assert np.all(self.bathymetry.x_material_data.shape == np.array([100, 99]))
+            assert np.all(self.bathymetry.y_material_data.shape == np.array([100, 99]))
+
+        # make sure the data matches the some properties of the original data
+        with subtests.test(f"moorpy soil coordinate checks: x min"):
+            assert np.isclose(np.min(self.bathymetry.x_material_data), -4757.64)
+        with subtests.test(f"moorpy soil coordinate checks: x max"):
+            assert np.isclose(np.max(self.bathymetry.x_material_data), 3340.58)
+        with subtests.test(f"moorpy soil coordinate checks: y min"):
+            assert np.isclose(np.min(self.bathymetry.y_material_data), -4336.04)
+        with subtests.test(f"moorpy soil coordinate checks: y max"):
+            assert np.isclose(np.max(self.bathymetry.y_material_data), 3453.22)
+        with subtests.test(f"moorypy type count checks"):
+            assert int(np.sum(self.bathymetry.material_data == "mud_0")) == 646
+            assert int(np.sum(self.bathymetry.material_data == "mud_1")) == 2792
+            assert int(np.sum(self.bathymetry.material_data == "mud_2")) == 3090
+            assert int(np.sum(self.bathymetry.material_data == "mud_3")) == 2656
+            assert int(np.sum(self.bathymetry.material_data == "mud_4")) == 716
+        # purely making sure the data is coming in correctly
+
+        # make sure all of the types appear
+        with subtests.test(f"moorpy soil set"):
+            # print(f"DEBUG!!!!! material_data: {self.bathymetry.material_data}")
+            umd = np.unique(self.bathymetry.material_data).tolist()
+            for mv in ["mud_4", "mud_3", "mud_2", "mud_1", "mud_0"]:
+                assert mv in umd
+                umd.remove(mv)
+            assert not umd  # no extra entries
+
+        # make sure the types and their units are pulled out correctly
+        with subtests.test(f"moorpy soil type headers"):
+
+            quantities_expected = [
+                "Class",
+                "Gamma",
+                "Su0",
+                "k",
+                "alpha",
+                "phi",
+                "UCS",
+                "Em",
+            ]
+            units_expected = dict.fromkeys(
+                quantities_expected,
+                ["name", "kN/m^3", "kPa", "kPa/m", "-", "deg", "MPa", "MPa"],
+            )
+
+            # make sure material types that appear match expected, unit storage
+            for k, v in self.bathymetry.material_types.items():
+                for kv in v.keys():
+                    assert kv in quantities_expected  # expected values
+                    assert (
+                        kv in self.bathymetry.material_type_units.keys()
+                    )  # unit holder
+                for k_quantity in v.keys():  # each QoI for a material
+                    assert (
+                        k_quantity in quantities_expected
+                    )  # make sure the quantity is eqpected
+
+            # make sure the units for the thing match up
+            for k, v in units_expected.items():
+                assert k in self.bathymetry.material_type_units.keys()
+                assert self.bathymetry.material_type_units[k] in v

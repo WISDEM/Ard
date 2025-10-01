@@ -1,0 +1,110 @@
+type: group
+systems:
+  layout2aep:
+    type: group
+    promotes: ["*"]
+    approx_totals:
+      method: "fd"
+      step: 1.0E-3
+      form: "central"
+      step_calc: "rel_avg"
+    systems:
+      layout:
+        type: component
+        module: ard.layout.gridfarm
+        object: GridFarmLayout
+        promotes: ["*"]
+        kwargs:
+          modeling_options:
+      aepFLORIS:
+        type: component
+        module: ard.farm_aero.floris
+        object: FLORISAEP
+        promotes: ["x_turbines", "y_turbines", "AEP_farm"]
+        kwargs:
+          modeling_options:
+          case_title: "offshore-floating"
+          data_path:
+  landuse:
+    type: component
+    module: ard.layout.gridfarm
+    object: GridFarmLanduse
+    promotes: ["*"]
+    kwargs:
+      modeling_options:
+  collection:
+    type: component
+    module: ard.collection
+    object: OptiwindnetCollection
+    promotes: ["x_turbines", "y_turbines"]
+    kwargs:
+      modeling_options:
+  mooring_design:
+    type: component
+    module: ard.offshore.mooring_design_detailed
+    object: DetailedMooringDesign
+    promotes: ["x_turbines", "y_turbines", "x_anchors", "y_anchors", "phi_platform"]
+    kwargs:
+      modeling_options:
+      wind_query:
+      data_path:
+  mooring_constraint:
+    type: component
+    module: ard.offshore.mooring_constraint
+    object: MooringConstraint
+    promotes: ["x_turbines", "y_turbines", "x_anchors", "y_anchors"]
+    kwargs:
+      modeling_options:
+  spacing_constraint:
+    type: component
+    module: ard.layout.spacing
+    object: TurbineSpacing
+    promotes: ["x_turbines", "y_turbines"]
+    kwargs:
+      modeling_options:
+  tcc:
+    type: component
+    module: ard.cost.wisdem_wrap
+    object: TurbineCapitalCosts
+    promotes: [
+      "turbine_number",
+      "machine_rating",
+      "tcc_per_kW",
+      "offset_tcc_per_kW",
+    ]
+  orbit:
+    type: component
+    module: ard.cost.wisdem_wrap
+    object: ORBITGroup
+    promotes: [
+      ["plant_turbine_spacing", "spacing_effective_primary"],
+      ["plant_row_spacing", "spacing_effective_secondary"],
+      # "installation_capex",
+    ]
+    kwargs:
+      modeling_options:
+  opex:
+    type: component
+    module: ard.cost.wisdem_wrap
+    object: OperatingExpenses
+    promotes: [
+      "turbine_number",
+      "machine_rating",
+      "opex_per_kW"
+    ]
+  financese:
+    type: component
+    module: ard.cost.wisdem_wrap
+    object: FinanceSEGroup
+    promotes: [
+      "turbine_number",
+      "machine_rating",
+      "tcc_per_kW",
+      "offset_tcc_per_kW",
+      "opex_per_kW",
+    ]
+    kwargs:
+      modeling_options:
+connections:
+  - ["AEP_farm", "financese.plant_aep_in"]
+  - ["orbit.total_capex_kW", "financese.bos_per_kW"]  # For offshore systems
