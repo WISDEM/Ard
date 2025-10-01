@@ -10,13 +10,16 @@ ard.cost.wisdem\_wrap
    
       FinanceSE_setup_latents
       LandBOSSE_setup_latents
+      ORBIT_setup_latents
    
    .. rubric:: Classes
 
    .. autosummary::
    
-      LandBOSSE
+      FinanceSEGroup
+      LandBOSSEGroup
+      LandBOSSEWithSpacingApproximations
+      ORBITGroup
       OperatingExpenses
-      PlantFinance
       TurbineCapitalCosts
    

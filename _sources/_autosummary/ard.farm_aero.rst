@@ -11,4 +11,5 @@
    :recursive:
 
    floris
+   placeholder
    templates

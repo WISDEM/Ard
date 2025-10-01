@@ -10,4 +10,5 @@
    :toctree:
    :recursive:
 
+   layout
    plot_layout

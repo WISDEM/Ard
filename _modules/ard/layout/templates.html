@@ -15,33 +15,30 @@
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
   </script>
-  <!--
-    this give us a css class that will be invisible only if js is disabled
-  -->
-  <noscript>
-    <style>
-      .pst-js-only { display: none !important; }
-
-    </style>
-  </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+  <link href="../../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
     <link rel="stylesheet" type="text/css" href="../../../_static/togglebutton.css?v=13237357" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-thebe.css?v=4fa983c6" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
   
-  <!-- So that users can add custom icons -->
-  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
     <script src="../../../_static/documentation_options.js?v=30a733bc"></script>
     <script src="../../../_static/doctools.js?v=9a2dae69"></script>
@@ -64,7 +61,6 @@
     <link rel="search" title="Search" href="../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="python"/>
-  <meta name="docsearch:version" content="" />
   </head>
   
   
@@ -80,8 +76,19 @@
     <i class="fa-solid fa-arrow-up"></i>Back to top</button>
 
   
-  <dialog id="pst-search-dialog">
-    
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
 <form class="bd-search d-flex align-items-center"
       action="../../../search.html"
       method="get">
@@ -89,6 +96,7 @@
   <input type="search"
          class="form-control"
          name="q"
+         id="search-input"
          placeholder="Search this book..."
          aria-label="Search this book..."
          autocomplete="off"
@@ -96,8 +104,8 @@
          autocapitalize="off"
          spellcheck="false"/>
   <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
-</form>
-  </dialog>
+</form></div>
+  </div>
 
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
@@ -115,8 +123,7 @@
       
         
       
-      <dialog id="pst-primary-sidebar-modal"></dialog>
-      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+      <div class="bd-sidebar-primary bd-sidebar">
         
 
   
@@ -140,54 +147,111 @@
   
   
   
+    
+    
+      
+    
+    
+    <img src="../../../_static/logo.png" class="logo__image only-light" alt="Ard - Home"/>
+    <script>document.write(`<img src="../../../_static/logo.png" class="logo__image only-dark" alt="Ard - Home"/>`);</script>
   
-    <p class="title logo__title">Ard</p>
   
 </a></div>
         <div class="sidebar-primary-item">
 
-<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
- <i class="fa-solid fa-magnifying-glass"></i>
- <span class="search-button__default-text">Search</span>
- <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
-</button></div>
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
         <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item navbar-nav active">
         
         <ul class="nav bd-sidenav bd-sidenav__home-link">
             <li class="toctree-l1">
                 <a class="reference internal" href="../../../intro.html">
-                    Ard
+                    Introduction
                 </a>
             </li>
         </ul>
-        <ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="../../../LCOE_analysis.html">LCOE Stack Demo</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../../reference.html">API Documentation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../testing.html">Unit and system testing</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/01_onshore/optimization_demo.html">01: Onshore layout-to-LCOE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/02_offshore_fixed/optimization_demo.html">02: Monopile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/03_offshore_floating_custom_system/optimization_demo.html">03: Simplified Floating</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../api_reference.html">API Documentation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../_autosummary/ard.api.html">ard.api</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/ard.api.interface.html">ard.api.interface</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../_autosummary/ard.collection.html">ard.collection</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/ard.collection.optiwindnet_wrap.html">ard.collection.optiwindnet_wrap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/ard.collection.templates.html">ard.collection.templates</a></li>
+</ul>
+</details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../../_autosummary/ard.cost.html">ard.cost</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/ard.cost.approximate_turbine_spacing.html">ard.cost.approximate_turbine_spacing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/ard.cost.orbit_wrap.html">ard.cost.orbit_wrap</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/ard.cost.wisdem_wrap.html">ard.cost.wisdem_wrap</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../../_autosummary/ard.farm_aero.html">ard.farm_aero</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/ard.farm_aero.floris.html">ard.farm_aero.floris</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/ard.farm_aero.placeholder.html">ard.farm_aero.placeholder</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/ard.farm_aero.templates.html">ard.farm_aero.templates</a></li>
 </ul>
 </details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../_autosummary/ard.geographic.html">ard.geographic</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/ard.geographic.geomorphology.html">ard.geographic.geomorphology</a></li>
+</ul>
+</details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../../_autosummary/ard.layout.html">ard.layout</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/ard.layout.boundary.html">ard.layout.boundary</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/ard.layout.fullfarm.html">ard.layout.fullfarm</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/ard.layout.gridfarm.html">ard.layout.gridfarm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/ard.layout.spacing.html">ard.layout.spacing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/ard.layout.sunflower.html">ard.layout.sunflower</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/ard.layout.templates.html">ard.layout.templates</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../_autosummary/ard.test_utils.html">ard.test_utils</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../_autosummary/ard.utils.html">ard.utils</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../_autosummary/ard.offshore.html">ard.offshore</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/ard.offshore.mooring_constraint.html">ard.offshore.mooring_constraint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/ard.offshore.mooring_design_constant_depth.html">ard.offshore.mooring_design_constant_depth</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../_autosummary/ard.utils.html">ard.utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/ard.utils.core.html">ard.utils.core</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/ard.utils.geometry.html">ard.utils.geometry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/ard.utils.io.html">ard.utils.io</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/ard.utils.mathematics.html">ard.utils.mathematics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/ard.utils.test_utils.html">ard.utils.test_utils</a></li>
+</ul>
+</details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../../_autosummary/ard.viz.html">ard.viz</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/ard.viz.layout.html">ard.viz.layout</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../_autosummary/ard.viz.plot_layout.html">ard.viz.plot_layout</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../_autosummary/ard.wind_query.html">ard.wind_query</a></li>
 </ul>
 </details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../structure.html">OpenMDAO Component types</a></li>
+
 </ul>
 
     </div>
@@ -196,14 +260,9 @@
   
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
-      <div class="sidebar-primary-item">
-<div id="ethical-ad-placement"
-      class="flat"
-      data-ea-publisher="readthedocs"
-      data-ea-type="readthedocs-sidebar"
-      data-ea-manual="true">
-</div></div>
   </div>
+  
+  <div id="rtd-footer-container"></div>
 
 
       </div>
@@ -299,16 +358,24 @@
 
 
 
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
-</button>
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
 
 
-<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <i class="fa-solid fa-magnifying-glass fa-lg"></i>
-</button>
+  </button>
+`);
+</script>
 
 </div></div>
       
@@ -355,8 +422,6 @@
 <span class="sd">    -------</span>
 <span class="sd">    modeling_options : dict</span>
 <span class="sd">        a modeling options dictionary</span>
-<span class="sd">    N_turbines : int</span>
-<span class="sd">        the number of turbines that should be in the farm layout</span>
 
 <span class="sd">    Inputs</span>
 <span class="sd">    ------</span>
@@ -394,7 +459,8 @@
 
         <span class="c1"># load modeling options</span>
         <span class="n">modeling_options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeling_options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;modeling_options&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">N_turbines</span> <span class="o">=</span> <span class="n">modeling_options</span><span class="p">[</span><span class="s2">&quot;farm&quot;</span><span class="p">][</span><span class="s2">&quot;N_turbines&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">windIO</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeling_options</span><span class="p">[</span><span class="s2">&quot;windIO_plant&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">N_turbines</span> <span class="o">=</span> <span class="n">modeling_options</span><span class="p">[</span><span class="s2">&quot;layout&quot;</span><span class="p">][</span><span class="s2">&quot;N_turbines&quot;</span><span class="p">]</span>
 
         <span class="c1"># add outputs that are universal</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_output</span><span class="p">(</span>
@@ -421,18 +487,11 @@
         <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="LayoutTemplate.setup_partials">
-<a class="viewcode-back" href="../../../_autosummary/ard.layout.templates.html#ard.layout.templates.LayoutTemplate.setup_partials">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">setup_partials</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Derivative setup for OM component.&quot;&quot;&quot;</span>
-
-        <span class="c1"># default complex step for the layout tools, since they&#39;re often algebraic</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">declare_partials</span><span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;cs&quot;</span><span class="p">)</span></div>
-
+    <span class="c1"># omit setup partials for template class</span>
 
 <div class="viewcode-block" id="LayoutTemplate.compute">
 <a class="viewcode-back" href="../../../_autosummary/ard.layout.templates.html#ard.layout.templates.LayoutTemplate.compute">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">compute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Computation for the OM component.</span>
 
@@ -461,8 +520,6 @@
 <span class="sd">    -------</span>
 <span class="sd">    modeling_options : dict</span>
 <span class="sd">        a modeling options dictionary</span>
-<span class="sd">    N_turbines : int</span>
-<span class="sd">        the number of turbines that should be in the farm layout</span>
 
 <span class="sd">    Inputs</span>
 <span class="sd">    ------</span>
@@ -490,7 +547,8 @@
 
         <span class="c1"># load modeling options and turbine count</span>
         <span class="n">modeling_options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeling_options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;modeling_options&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">N_turbines</span> <span class="o">=</span> <span class="n">modeling_options</span><span class="p">[</span><span class="s2">&quot;farm&quot;</span><span class="p">][</span><span class="s2">&quot;N_turbines&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">windIO</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeling_options</span><span class="p">[</span><span class="s2">&quot;windIO_plant&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">N_turbines</span> <span class="o">=</span> <span class="n">modeling_options</span><span class="p">[</span><span class="s2">&quot;layout&quot;</span><span class="p">][</span><span class="s2">&quot;N_turbines&quot;</span><span class="p">]</span>
 
         <span class="c1"># add inputs that are universal</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input</span><span class="p">(</span>
@@ -509,18 +567,11 @@
         <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="LanduseTemplate.setup_partials">
-<a class="viewcode-back" href="../../../_autosummary/ard.layout.templates.html#ard.layout.templates.LanduseTemplate.setup_partials">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">setup_partials</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Derivative setup for OM component.&quot;&quot;&quot;</span>
-
-        <span class="c1"># default complex step for the layout-landuse tools, since they&#39;re often algebraic</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">declare_partials</span><span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;cs&quot;</span><span class="p">)</span></div>
-
+    <span class="c1"># omit setup partials for template class</span>
 
 <div class="viewcode-block" id="LanduseTemplate.compute">
 <a class="viewcode-back" href="../../../_autosummary/ard.layout.templates.html#ard.layout.templates.LanduseTemplate.compute">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">compute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Computation for the OM component.</span>
 
@@ -594,8 +645,8 @@ By National Renewable Energy Laboratory
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
-<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+  <script src="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
 
   <footer class="bd-footer">
   </footer>

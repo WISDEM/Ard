@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Ard &#8212; Ard</title>
+    <title>Introduction &#8212; Ard</title>
   
   
   
@@ -16,33 +16,30 @@
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
   </script>
-  <!--
-    this give us a css class that will be invisible only if js is disabled
-  -->
-  <noscript>
-    <style>
-      .pst-js-only { display: none !important; }
-
-    </style>
-  </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+  <link href="_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=eba8b062" />
     <link rel="stylesheet" type="text/css" href="_static/togglebutton.css?v=13237357" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
-    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
     <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css?v=4fa983c6" />
     <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
   
-  <!-- So that users can add custom icons -->
-  <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
     <script src="_static/documentation_options.js?v=30a733bc"></script>
     <script src="_static/doctools.js?v=9a2dae69"></script>
@@ -65,10 +62,9 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'intro';</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="LCOE Stack Demo" href="LCOE_analysis.html" />
+    <link rel="next" title="Installation" href="installation.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="python"/>
-  <meta name="docsearch:version" content="" />
   </head>
   
   
@@ -84,8 +80,19 @@
     <i class="fa-solid fa-arrow-up"></i>Back to top</button>
 
   
-  <dialog id="pst-search-dialog">
-    
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
 <form class="bd-search d-flex align-items-center"
       action="search.html"
       method="get">
@@ -93,6 +100,7 @@
   <input type="search"
          class="form-control"
          name="q"
+         id="search-input"
          placeholder="Search this book..."
          aria-label="Search this book..."
          autocomplete="off"
@@ -100,8 +108,8 @@
          autocapitalize="off"
          spellcheck="false"/>
   <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
-</form>
-  </dialog>
+</form></div>
+  </div>
 
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
@@ -119,8 +127,7 @@
       
         
       
-      <dialog id="pst-primary-sidebar-modal"></dialog>
-      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+      <div class="bd-sidebar-primary bd-sidebar">
         
 
   
@@ -144,54 +151,111 @@
   
   
   
+    
+    
+      
+    
+    
+    <img src="_static/logo.png" class="logo__image only-light" alt="Ard - Home"/>
+    <script>document.write(`<img src="_static/logo.png" class="logo__image only-dark" alt="Ard - Home"/>`);</script>
   
-    <p class="title logo__title">Ard</p>
   
 </a></div>
         <div class="sidebar-primary-item">
 
-<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
- <i class="fa-solid fa-magnifying-glass"></i>
- <span class="search-button__default-text">Search</span>
- <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
-</button></div>
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
         <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
     <div class="bd-toc-item navbar-nav active">
         
         <ul class="nav bd-sidenav bd-sidenav__home-link">
             <li class="toctree-l1 current active">
                 <a class="reference internal" href="#">
-                    Ard
+                    Introduction
                 </a>
             </li>
         </ul>
-        <ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="LCOE_analysis.html">LCOE Stack Demo</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="reference.html">API Documentation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">Unit and system testing</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Examples</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="examples/01_onshore/optimization_demo.html">01: Onshore layout-to-LCOE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/02_offshore_fixed/optimization_demo.html">02: Monopile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/03_offshore_floating_custom_system/optimization_demo.html">03: Simplified Floating</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="api_reference.html">API Documentation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="_autosummary/ard.api.html">ard.api</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ard.api.interface.html">ard.api.interface</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="_autosummary/ard.collection.html">ard.collection</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ard.collection.optiwindnet_wrap.html">ard.collection.optiwindnet_wrap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ard.collection.templates.html">ard.collection.templates</a></li>
+</ul>
+</details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="_autosummary/ard.cost.html">ard.cost</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ard.cost.approximate_turbine_spacing.html">ard.cost.approximate_turbine_spacing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ard.cost.orbit_wrap.html">ard.cost.orbit_wrap</a></li>
 <li class="toctree-l3"><a class="reference internal" href="_autosummary/ard.cost.wisdem_wrap.html">ard.cost.wisdem_wrap</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="_autosummary/ard.farm_aero.html">ard.farm_aero</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="_autosummary/ard.farm_aero.floris.html">ard.farm_aero.floris</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ard.farm_aero.placeholder.html">ard.farm_aero.placeholder</a></li>
 <li class="toctree-l3"><a class="reference internal" href="_autosummary/ard.farm_aero.templates.html">ard.farm_aero.templates</a></li>
 </ul>
 </details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="_autosummary/ard.geographic.html">ard.geographic</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ard.geographic.geomorphology.html">ard.geographic.geomorphology</a></li>
+</ul>
+</details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="_autosummary/ard.layout.html">ard.layout</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ard.layout.boundary.html">ard.layout.boundary</a></li>
 <li class="toctree-l3"><a class="reference internal" href="_autosummary/ard.layout.fullfarm.html">ard.layout.fullfarm</a></li>
 <li class="toctree-l3"><a class="reference internal" href="_autosummary/ard.layout.gridfarm.html">ard.layout.gridfarm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ard.layout.spacing.html">ard.layout.spacing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ard.layout.sunflower.html">ard.layout.sunflower</a></li>
 <li class="toctree-l3"><a class="reference internal" href="_autosummary/ard.layout.templates.html">ard.layout.templates</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2"><a class="reference internal" href="_autosummary/ard.test_utils.html">ard.test_utils</a></li>
-<li class="toctree-l2"><a class="reference internal" href="_autosummary/ard.utils.html">ard.utils</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="_autosummary/ard.offshore.html">ard.offshore</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ard.offshore.mooring_constraint.html">ard.offshore.mooring_constraint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ard.offshore.mooring_design_constant_depth.html">ard.offshore.mooring_design_constant_depth</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="_autosummary/ard.utils.html">ard.utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ard.utils.core.html">ard.utils.core</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ard.utils.geometry.html">ard.utils.geometry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ard.utils.io.html">ard.utils.io</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ard.utils.mathematics.html">ard.utils.mathematics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ard.utils.test_utils.html">ard.utils.test_utils</a></li>
+</ul>
+</details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="_autosummary/ard.viz.html">ard.viz</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="_autosummary/ard.viz.layout.html">ard.viz.layout</a></li>
 <li class="toctree-l3"><a class="reference internal" href="_autosummary/ard.viz.plot_layout.html">ard.viz.plot_layout</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2"><a class="reference internal" href="_autosummary/ard.wind_query.html">ard.wind_query</a></li>
 </ul>
 </details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="structure.html">OpenMDAO Component types</a></li>
+
 </ul>
 
     </div>
@@ -200,14 +264,9 @@
   
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
-      <div class="sidebar-primary-item">
-<div id="ethical-ad-placement"
-      class="flat"
-      data-ea-publisher="readthedocs"
-      data-ea-type="readthedocs-sidebar"
-      data-ea-manual="true">
-</div></div>
   </div>
+  
+  <div id="rtd-footer-container"></div>
 
 
       </div>
@@ -368,16 +427,24 @@
 
 
 
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
-</button>
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
 
 
-<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <i class="fa-solid fa-magnifying-glass fa-lg"></i>
-</button>
+  </button>
+`);
+</script>
 <button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <span class="fa-solid fa-list"></span>
 </button>
@@ -391,7 +458,7 @@
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Ard</h1>
+    <h1>Introduction</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -401,9 +468,9 @@
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation-instructions">Installation instructions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation">Documentation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#design-philosophy">Design philosophy</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#current-capabilities">Current capabilities</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#roadmap-to-future-capabilities">Roadmap to future capabilities</a></li>
 </ul>
             </nav>
         </div>
@@ -415,75 +482,83 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="ard">
-<h1>Ard<a class="headerlink" href="#ard" title="Link to this heading">#</a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="introduction">
+<h1>Introduction<a class="headerlink" href="#introduction" title="Link to this heading">#</a></h1>
 <p><strong>Dig in to wind farm design.</strong></p>
 <!-- The (aspirationally) foolproof tool for preparing wind farm layouts. -->
 <p><a class="reference external" href="https://en.wikipedia.org/wiki/Ard_(plough)">An ard is a type of simple and lightweight plow</a>, used through the single-digit centuries to prepare a farm for planting.
 The intent of <code class="docutils literal notranslate"><span class="pre">Ard</span></code> is to be a modular, full-stack multi-disciplinary optimization tool for wind farms.</p>
-<p>The problem with wind farms is that they are complicated, multi-disciplinary objects.
-They are aerodynamic machines, with complicated control systems, power electronic devices, social and political objects, and the core value (and cost) of complicated financial instruments.
-Moreover, the design of <em>one</em> of these aspects affects all the rest!</p>
-<p><code class="docutils literal notranslate"><span class="pre">Ard</span></code> seeks to make plant-level design choices that can incorporate these different aspects <em>and their interactions</em> to make wind energy projects more successful.</p>
-<section id="installation-instructions">
-<h2>Installation instructions<a class="headerlink" href="#installation-instructions" title="Link to this heading">#</a></h2>
-<!-- `Ard` can be installed locally from the source code with `pip` or through a package manager from PyPI with `pip` or conda-forge with `conda`. -->
-<!-- For Windows systems, `conda` is required due to constraints in the WISDEM installation system. -->
-<!-- For macOS and Linux, any option is available. -->
-<p><code class="docutils literal notranslate"><span class="pre">Ard</span></code> is currently in pre-release and is only available as a source-code installation.
-The source can be cloned from github using the following command in your preferred location:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>git@github.com:WISDEM/Ard.git
-</pre></div>
-</div>
-<p>Once downloaded, you can enter the <code class="docutils literal notranslate"><span class="pre">Ard</span></code> root directory using</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>Ard
-</pre></div>
-</div>
-<p>From here, installation can be handled by <code class="docutils literal notranslate"><span class="pre">pip</span></code>:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>.
-</pre></div>
-</div>
-<p>will install Ard in its most basic and static configuration.
-For development (and really for everyone during pre-release), we recommend a full development installation:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.<span class="o">[</span>dev,docs<span class="o">]</span>
-</pre></div>
-</div>
-<p>which will install in &quot;editable mode&quot; (<code class="docutils literal notranslate"><span class="pre">-e</span></code>), such that changes made to the source will not require re-installation, and with additional optional packages for development and documentation (<code class="docutils literal notranslate"><span class="pre">[dev,docs]</span></code>).</p>
-<p>There can be some hardware-software mis-specification issues with WISDEM installation from <code class="docutils literal notranslate"><span class="pre">pip</span></code> for MacOS 12 and 13 on machines with Apple Silicon.
-In the event of issues, WISDEM can be installed manually or using <code class="docutils literal notranslate"><span class="pre">conda</span></code> without issues, then <code class="docutils literal notranslate"><span class="pre">pip</span></code> installation can proceed.</p>
-<p>For user information, in pre-release, we are using some co-developed changes to the <code class="docutils literal notranslate"><span class="pre">FLORIS</span></code> library.</p>
+<p>Wind farms are complicated, multi-disciplinary systems.
+They are aerodynamic machines (composed of complicated control systems, power electronic devices, etc.), social and political objects, generators of electrical power and consumers of electrical demand, and the core value generator (and cost) of complicated financial instruments.
+Moreover, the design of any <em>one</em> of these aspects affects all the rest!</p>
+<p><code class="docutils literal notranslate"><span class="pre">Ard</span></code> is a platform for wind farm layout optimization that seeks to enable plant-level design choices that can incorporate these different aspects <em>and their interactions</em> to make wind energy projects more successful.
+In brief, we are designing <code class="docutils literal notranslate"><span class="pre">Ard</span></code> to be: principled, modular, extensible, and effective, to allow resource-specific wind farm layout optimization with realistic, well-posed constraints, holistic and complex objectives, and natural incorporation of multiple fidelities and disciplines.</p>
+<section id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Link to this heading">#</a></h2>
+<p>The documentation is organized as follows:</p>
+<ul class="simple">
+<li><p><strong>Getting Started</strong>: helpful information to get you started using <code class="docutils literal notranslate"><span class="pre">Ard</span></code>, including installation instructions</p></li>
+</ul>
+<!-- - **Tutorials**: example problems with solutions
+- **How-to Guides**: instructions on solving particular problems and using specific features of `Ard` -->
+<ul class="simple">
+<li><p><strong>Reference</strong>: dry, but hopefully useful, reference material including the API reference manual</p></li>
+<li><p><strong>Explanation</strong>: discursive content on the whys, hows, and the wherefores of <code class="docutils literal notranslate"><span class="pre">Ard</span></code> for those that are interested</p></li>
+</ul>
+</section>
+<section id="design-philosophy">
+<h2>Design philosophy<a class="headerlink" href="#design-philosophy" title="Link to this heading">#</a></h2>
+<p>The design of <code class="docutils literal notranslate"><span class="pre">Ard</span></code> was inspired by two use cases in particular:</p>
+<ol class="arabic simple">
+<li><p>systems energy researchers who are focusing on one specific subdiscipline (e.g. layout strategies, social impacts, or aerodynamic modeling) but want to be able to easily keep track of how a change in one discipline impacts the entire value chain down to production, cost, value, and/or societal outcomes of energy or even optimize with respect to these, and</p></li>
+<li><p>private industry researchers who run business cases and may want to drop in proprietary analysis modules for specific disciplines while preserving some of the open-source modules of <code class="docutils literal notranslate"><span class="pre">Ard</span></code>.</p></li>
+</ol>
+<p><code class="docutils literal notranslate"><span class="pre">Ard</span></code> is being developed as a modular tool to enable these types of research queries.
+The goals during the development of <code class="docutils literal notranslate"><span class="pre">Ard</span></code> are to be:</p>
+<ol class="arabic simple">
+<li><p>principled:</p>
+<ul class="simple">
+<li><p>robustly documented</p></li>
+<li><p>adhering to <a class="reference external" href="https://doi.org/10.2172/2479115">best-practices for code development</a></p></li>
+</ul>
+</li>
+<li><p>modular and extensible:</p>
+<ul class="simple">
+<li><p>choose the analysis components you want</p></li>
+<li><p>skip the ones you don't</p></li>
+<li><p>build yourself the ones we don't have</p></li>
+</ul>
+</li>
+<li><p>effective</p>
+<ul class="simple">
+<li><p>robustly tested and testable at both unit and system levels
+These principles guide us to implement, using <a class="reference external" href="https://openmdao.org"><code class="docutils literal notranslate"><span class="pre">OpenMDAO</span></code></a> as a backbone, a multi-disciplinary design, analysis, and optimization (MDAO) model of the wind farm layout problem, a toolset to accomplish the capability goals of <code class="docutils literal notranslate"><span class="pre">Ard</span></code>, to:</p></li>
+</ul>
+</li>
+<li><p>allow optimization of wind farm layouts for specific wind resource profiles</p></li>
+<li><p>enable the incorporation of realistic but well-posed constraints</p></li>
+<li><p>target holistic and complex system-level optimization objectives like LCOE and beyond-LCOE metrics</p></li>
+<li><p>naturally incorporate analyses across fidelities to efficiently integrate advanced simulation</p></li>
+</ol>
 </section>
 <section id="current-capabilities">
 <h2>Current capabilities<a class="headerlink" href="#current-capabilities" title="Link to this heading">#</a></h2>
-<p>For the alpha pre-release of <code class="docutils literal notranslate"><span class="pre">Ard</span></code>, we have concentrated on optimization of wind plants, starting from a structured layout and optimizing to minimize the levelized cost of energy, or LCOE.
-This capability is demonstrated in <code class="docutils literal notranslate"><span class="pre">examples/LCOE_stack</span></code> and tested in an abridged form in <code class="docutils literal notranslate"><span class="pre">test/system/LCOE_stack/test_LCOE_stack.py</span></code>.
-In the alpha pre-release stage, the constituent subcomponents of these problems are known to work and fully tested; any capabilities not touched in the layout-to-LCOE stack should be treated as experimental.</p>
-<p>These cases start from a four parameter farm layout, compute landuse area, make FLORIS AEP estimates, compute turbine capital costs, balance-of-station (BOS), and operational costs using WISDEM components, and finally give summary estimates of plant finance figures.
+<p>For the beta pre-release of <code class="docutils literal notranslate"><span class="pre">Ard</span></code>, we concentrate on optimization problems for wind plants, starting from structured layouts to minimize LCOE.
+This capability is demonstrated for a land-based (LB) wind farm in <code class="docutils literal notranslate"><span class="pre">examples/01_onshore</span></code> and tested in an abridged form in <code class="docutils literal notranslate"><span class="pre">test/system/ard/api/test_LCOE_LB_stack.py</span></code>.
+In this example, the wind farm layout is parametrized with two angles, named orientation and skew, and turbine distancing for rows and columns.
+Additionally, we have offshore examples adjacent to the onshore example in the <code class="docutils literal notranslate"><span class="pre">examples</span></code> subdirectory.
+In the beta pre-release stage, the constituent subcomponents of these problems are known to work and have full testing coverage.</p>
+<p>These cases start from a four parameter farm layout, compute land use area, make FLORIS estimates of annual energy production (AEP), compute turbine capital costs, balance-of-station (BOS), and operational costs elements of NREL's turbine systems engineering tool <a class="reference external" href="https://github.com/wisdem/wisdem">WISDEM</a>, and finally give summary estimates of plant finance figures.
 The components that achieve this can be assembled to either run a single top-down analysis run, or run an optimization.</p>
-</section>
-<section id="roadmap-to-future-capabilities">
-<h2>Roadmap to future capabilities<a class="headerlink" href="#roadmap-to-future-capabilities" title="Link to this heading">#</a></h2>
-<p>The future development of <code class="docutils literal notranslate"><span class="pre">Ard</span></code> is centered around two user cases:</p>
-<ol class="arabic simple">
-<li><p>systems energy researchers who are focusing on one specific subdiscipline (e.g. layout strategies, social impacts, or aerodynamic modeling) but want to be able to easily keep track of how it impacts the entire value chain down to production, cost, and/or value of energy or even optimize with respect to it, and</p></li>
-<li><p>private industry researchers who are interested in how public-sector research results change when proprietary analysis tools are dropped in and coupled the other tools in a systems-level simulation.</p></li>
-</ol>
-<p><code class="docutils literal notranslate"><span class="pre">Ard</span></code> is being developed as a modular tool to enable these types of research queries.
-This starts from our research goals, which are that <code class="docutils literal notranslate"><span class="pre">Ard</span></code> should be:</p>
-<ol class="arabic simple">
-<li><p>principled: fully documented, and adhering to best-practices for code development</p></li>
-<li><p>modular and extensible: choose the parts you want, skip the ones you don't, build yourself the ones we don't have</p></li>
-<li><p>effective: fully tested and testable at the unit and system level, and built with a derivative-forward approach</p></li>
-</ol>
-<p>This, then, allows us to attempt to accomplish the technical goals of <code class="docutils literal notranslate"><span class="pre">Ard</span></code>, to:</p>
-<ol class="arabic simple">
-<li><p>allow optimization of wind farm layouts for specific wind resource profiles</p></li>
-<li><p>target wholistic and complex system-level optimization objectives like LCOE and beyond-LCOE metrics</p></li>
-<li><p>naturally incorporate multi-fidelity analyses to efficiently integrate physics-resolving simulation</p></li>
-</ol>
 <hr class="docutils" />
 <p>Copyright © 2024, Alliance for Sustainable Energy, LLC</p>
 </section>
+<div class="toctree-wrapper compound">
+</div>
+<div class="toctree-wrapper compound">
+</div>
+<div class="toctree-wrapper compound">
+</div>
 <div class="toctree-wrapper compound">
 </div>
 </section>
@@ -519,11 +594,11 @@ This starts from our research goals, which are that <code class="docutils litera
                   
 <div class="prev-next-area">
     <a class="right-next"
-       href="LCOE_analysis.html"
+       href="installation.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">LCOE Stack Demo</p>
+        <p class="prev-next-title">Installation</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -534,8 +609,7 @@ This starts from our research goals, which are that <code class="docutils litera
             
             
               
-                <dialog id="pst-secondary-sidebar-modal"></dialog>
-                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
 
 
   <div class="sidebar-secondary-item">
@@ -544,9 +618,9 @@ This starts from our research goals, which are that <code class="docutils litera
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation-instructions">Installation instructions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation">Documentation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#design-philosophy">Design philosophy</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#current-capabilities">Current capabilities</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#roadmap-to-future-capabilities">Roadmap to future capabilities</a></li>
 </ul>
   </nav></div>
 
@@ -595,8 +669,8 @@ By National Renewable Energy Laboratory
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
-<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+  <script src="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
 
   <footer class="bd-footer">
   </footer>

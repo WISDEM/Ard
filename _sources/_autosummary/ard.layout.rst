@@ -10,6 +10,9 @@
    :toctree:
    :recursive:
 
+   boundary
    fullfarm
    gridfarm
+   spacing
+   sunflower
    templates
