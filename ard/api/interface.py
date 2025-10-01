@@ -73,7 +73,7 @@ def set_up_ard_model(input_dict: Union[str, dict], root_data_path: str = None):
 
     if isinstance(input_dict["system"], str):
         if input_dict["system"] in available_default_systems:
-            system = load_yaml(ASSET_DIR / f"ard_system_{input_dict["system"]}.yaml")
+            system = load_yaml(ASSET_DIR / f"ard_system_{input_dict['system']}.yaml")
 
             input_dict["system"] = replace_key_value(
                 target_dict=system,
@@ -83,7 +83,7 @@ def set_up_ard_model(input_dict: Union[str, dict], root_data_path: str = None):
         else:
             raise (
                 ValueError(
-                    f"invalid default system '{input_dict["system"]}' specified. Must be one of {available_default_systems}"
+                    f"invalid default system '{input_dict['system']}' specified. Must be one of {available_default_systems}"
                 )
             )
 
