@@ -1,7 +1,7 @@
 
 # Ard
 
-[![CI/CD test suite](https://github.com/WISDEM/Ard/actions/workflows/python-tests-consolidated.yaml/badge.svg?branch=develop)](https://github.com/WISDEM/Ard/actions/workflows/python-tests-consolidated.yaml/badge.svg?branch=develop)
+[![CI/CD test suite](https://github.com/WISDEM/Ard/actions/workflows/python-tests-consolidated.yaml/badge.svg?branch=main)](https://github.com/WISDEM/Ard/actions/workflows/python-tests-consolidated.yaml)
 
 ![Ard logo](assets/logomaker/logo.png)
 
@@ -20,7 +20,7 @@ Moreover, the design of any *one* of these aspects affects all the rest!
 In brief, we are designing `Ard` to be: principled, modular, extensible, and effective, to allow resource-specific wind farm layout optimization with realistic, well-posed constraints, holistic and complex objectives, and natural incorporation of multiple fidelities and disciplines.
 
 ## Documentation
-Ard documentation is available at [https://wisdem.github.io/Ard/]()
+Ard documentation is available at [https://wisdem.github.io/Ard](https://wisdem.github.io/Ard)
 
 ## Installation instructions
 
@@ -94,6 +94,7 @@ The goals during the development of `Ard` are to be:
    - build yourself the ones we don't have
 3) effective
     - robustly tested and testable at both unit and system levels
+
 These principles guide us to implement, using [`OpenMDAO`](https://openmdao.org) as a backbone, a multi-disciplinary design, analysis, and optimization (MDAO) model of the wind farm layout problem, a toolset to accomplish the capability goals of `Ard`, to:
 1) allow optimization of wind farm layouts for specific wind resource profiles
 2) enable the incorporation of realistic but well-posed constraints

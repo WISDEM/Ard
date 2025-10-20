@@ -297,9 +297,9 @@ class FLORISBatchPower(templates.BatchFarmPowerTemplate, FLORISFarmComponent):
     case_title : str
         a "title" for the case, used to disambiguate runs in practice (inherited
         from `FLORISFarmComponent`)
-    # modeling_options : dict
-    #     a modeling options dictionary (inherited via
-    #     `templates.BatchFarmPowerTemplate`)
+    modeling_options : dict
+        a modeling options dictionary (inherited via
+        `templates.BatchFarmPowerTemplate`)
     wind_query : floris.wind_data.WindRose
         a WindQuery objects that specifies the wind conditions that are to be
         computed (inherited from `templates.BatchFarmPowerTemplate`)
@@ -398,9 +398,9 @@ class FLORISAEP(templates.FarmAEPTemplate):
     case_title : str
         a "title" for the case, used to disambiguate runs in practice (inherited
         from `FLORISFarmComponent`)
-    # modeling_options : dict
-    #     a modeling options dictionary (inherited via
-    #     `templates.FarmAEPTemplate`)
+    modeling_options : dict
+        a modeling options dictionary (inherited via
+        `templates.FarmAEPTemplate`)
     wind_query : floris.wind_data.WindRose
         a WindQuery objects that specifies the wind conditions that are to be
         computed (inherited from `templates.FarmAEPTemplate`)

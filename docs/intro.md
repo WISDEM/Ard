@@ -3,7 +3,7 @@
 
 **Dig in to wind farm design.**
 
-<!--  The (aspirationally) foolproof tool for preparing wind farm layouts.  -->
+<!-- The (aspirationally) foolproof tool for preparing wind farm layouts. -->
 
 [An ard is a type of simple and lightweight plow](https://en.wikipedia.org/wiki/Ard_\(plough\)), used through the single-digit centuries to prepare a farm for planting.
 The intent of `Ard` is to be a modular, full-stack multi-disciplinary optimization tool for wind farms.
