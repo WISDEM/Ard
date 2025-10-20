@@ -150,7 +150,7 @@ jobs:
   test-examples:
     name: Run all examples
     needs: find-examples
-    if: needs.find-examples.outputs.scripts != '[]'  # Add this line
+    if: needs.find-examples.outputs.scripts != '[]'  # skip empty
     strategy:
       fail-fast: false
       matrix:
@@ -208,7 +208,7 @@ jobs:
   find-examples_nb:
     name: Find all example notebooks
     needs: [test-unit, test-system]
-    if: needs.find-examples_nb.outputs.scripts != '[]'  # Add this line
+    if: needs.find-examples_nb.outputs.scripts != '[]'  # skip empty
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
