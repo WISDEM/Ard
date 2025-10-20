@@ -31,5 +31,5 @@ jobs:
       - name: Post pytest unit coverage comment
         uses: MishaKav/pytest-coverage-comment@main
         with:
-          pytest-xml-coverage-path: ./pytest_coverage_unit.xml
-          junitxml-path: ./pytest_unit.xml
+          pytest-xml-coverage-path: ./coverage_unit.xml
+          # junitxml-path: ./pytest_unit.xml
