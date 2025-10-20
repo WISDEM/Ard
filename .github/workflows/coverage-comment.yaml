@@ -18,7 +18,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: 3.11
+          python-version: 3.12
 
       - name: Install dependencies
         run: |
@@ -28,7 +28,7 @@ jobs:
         run: |
           pytest --junitxml=pytest_unit.xml --cov-report=term-missing:skip-covered --cov=src test/unit | tee pytest-coverage-unit.txt
 
-      - name: pytest unit coverage comment
+      - name: Post pytest unit coverage comment
         uses: MishaKav/pytest-coverage-comment@main
         with:
           pytest-coverage-path: ./pytest-coverage-unit.txt
@@ -38,7 +38,7 @@ jobs:
         run: |
           pytest --junitxml=pytest_system.xml --cov-report=term-missing:skip-covered --cov=src test/system | tee pytest-coverage-system.txt
 
-      - name: pytest system coverage comment
+      - name: Post pytest system coverage comment
         uses: MishaKav/pytest-coverage-comment@main
         with:
           pytest-coverage-path: ./pytest-coverage-system.txt
