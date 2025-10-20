@@ -8,6 +8,8 @@ modeling_options: &modeling_options
     spacing_secondary: 7.0
     angle_orientation: 0.0
     angle_skew: 0.0
+  aero:
+    return_turbine_output: True
   collection:
     max_turbines_per_string: 8
     solver_name: highs

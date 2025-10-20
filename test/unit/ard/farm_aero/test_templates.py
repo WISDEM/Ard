@@ -27,6 +27,9 @@ class TestFarmAeroTemplate:
             "layout": {
                 "N_turbines": self.N_turbines,
             },
+            "aero": {
+                "return_turbine_output": True,
+            },
         }
 
         self.model = om.Group()
@@ -106,6 +109,9 @@ class TestBatchFarmPowerTemplate:
             },
             "layout": {
                 "N_turbines": self.N_turbines,
+            },
+            "aero": {
+                "return_turbine_output": True,
             },
         }
 
@@ -201,6 +207,9 @@ class TestFarmAEPTemplate:
             },
             "layout": {
                 "N_turbines": self.N_turbines,
+            },
+            "aero": {
+                "return_turbine_output": True,
             },
         }
 

@@ -153,7 +153,7 @@ def plot_layout(
 
     # show, save, or return
     if save_path is not None:
-        plt.savefig(save_path, save_kwargs)
+        plt.savefig(save_path, **save_kwargs)
 
     if show_image:
         plt.show()

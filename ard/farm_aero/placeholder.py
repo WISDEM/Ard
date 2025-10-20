@@ -67,16 +67,17 @@ class PlaceholderBatchPower(templates.BatchFarmPowerTemplate):
             np.zeros((self.N_wind_conditions,)),
             units="W",
         )
-        self.add_output(
-            "power_turbines",
-            np.zeros((self.N_turbines, self.N_wind_conditions)),
-            units="W",
-        )
-        self.add_output(
-            "thrust_turbines",
-            np.zeros((self.N_turbines, self.N_wind_conditions)),
-            units="N",
-        )
+        if self.return_turbine_output:
+            self.add_output(
+                "power_turbines",
+                np.zeros((self.N_turbines, self.N_wind_conditions)),
+                units="W",
+            )
+            self.add_output(
+                "thrust_turbines",
+                np.zeros((self.N_turbines, self.N_wind_conditions)),
+                units="N",
+            )
 
     def setup_partials(self):
         """Derivative setup for OM component."""

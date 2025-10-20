@@ -64,6 +64,9 @@ class TestoptiwindnetLayout:
                 "x_turbines": np.zeros(25),
                 "y_turbines": np.zeros(25),
             },
+            "aero": {
+                "return_turbine_output": True,
+            },
             "floris": {
                 "peak_shaving_fraction": 0.4,
                 "peak_shaving_TI_threshold": 0.0,

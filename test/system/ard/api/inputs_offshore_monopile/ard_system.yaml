@@ -43,6 +43,8 @@ modeling_options:
     spacing_secondary: 7
     angle_orientation: 0.0
     angle_skew: 0.0
+  aero:
+    return_turbine_output: True
   floris:
     peak_shaving_fraction: 0.4
     peak_shaving_TI_threshold: 0.0

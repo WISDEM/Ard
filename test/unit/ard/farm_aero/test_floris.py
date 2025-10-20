@@ -68,6 +68,9 @@ class TestFLORISBatchPower:
             "layout": {
                 "N_turbines": len(farm_spec["xD_farm"]),
             },
+            "aero": {
+                "return_turbine_output": True,
+            },
             "floris": {
                 "peak_shaving_fraction": 0.4,
                 "peak_shaving_TI_threshold": 0.0,
@@ -209,6 +212,9 @@ class TestFLORISAEP:
             },
             "layout": {
                 "N_turbines": len(farm_spec["xD_farm"]),
+            },
+            "aero": {
+                "return_turbine_output": True,
             },
             "floris": {
                 "peak_shaving_fraction": 0.4,

@@ -13,6 +13,8 @@ modeling_options: &modeling_options
     min_mooring_line_length_m: 500.0
     N_anchor_dimensions: 2
   site_depth: 50.0
+  aero:
+    return_turbine_output: True
   collection:
     max_turbines_per_string: 8
     solver_name: highs

@@ -64,6 +64,7 @@ def set_up_ard_model(input_dict: Union[str, dict], root_data_path: str = None):
     # load default system if requested and available
     available_default_systems = [
         "onshore",
+        "onshore_batch",
         "onshore_no_cable_design",
         "offshore_monopile",
         "offshore_monopile_no_cable_design",

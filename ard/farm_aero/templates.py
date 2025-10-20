@@ -312,6 +312,12 @@ class BatchFarmPowerTemplate(FarmAeroTemplate):
         # add the outputs we want for a batched power analysis:
         #   - farm and turbine powers
         #   - turbine thrusts
+
+        # self.add_output(
+        #     "AEP_farm",
+        #     np.array([0.0]),
+        #     units="W*h",
+        # )
         self.add_output(
             "AEP_farm",
             0.0,
@@ -322,16 +328,18 @@ class BatchFarmPowerTemplate(FarmAeroTemplate):
             np.zeros((self.N_wind_conditions,)),
             units="W",
         )
-        self.add_output(
-            "power_turbines",
-            np.zeros((self.N_turbines, self.N_wind_conditions)),
-            units="W",
-        )
-        self.add_output(
-            "thrust_turbines",
-            np.zeros((self.N_turbines, self.N_wind_conditions)),
-            units="N",
-        )
+
+        if self.options["modeling_options"]["aero"]["return_turbine_output"]:
+            self.add_output(
+                "power_turbines",
+                np.zeros((self.N_turbines, self.N_wind_conditions)),
+                units="W",
+            )
+            self.add_output(
+                "thrust_turbines",
+                np.zeros((self.N_turbines, self.N_wind_conditions)),
+                units="N",
+            )
 
     def setup_partials(self):
         """Derivative setup for OM component."""
@@ -357,8 +365,13 @@ class BatchFarmPowerTemplate(FarmAeroTemplate):
 
         # the following should be set
         outputs["power_farm"] = np.zeros((self.N_wind_conditions,))
-        outputs["power_turbines"] = np.zeros((self.N_turbines, self.N_wind_conditions))
-        outputs["thrust_turbines"] = np.zeros((self.N_turbines, self.N_wind_conditions))
+        if self.options["modeling_options"]["aero"]["return_turbine_output"]:
+            outputs["power_turbines"] = np.zeros(
+                (self.N_turbines, self.N_wind_conditions)
+            )
+            outputs["thrust_turbines"] = np.zeros(
+                (self.N_turbines, self.N_wind_conditions)
+            )
 
 
 class FarmAEPTemplate(FarmAeroTemplate):
@@ -443,16 +456,17 @@ class FarmAEPTemplate(FarmAeroTemplate):
             np.zeros((self.N_wind_conditions,)),
             units="W",
         )
-        self.add_output(
-            "power_turbines",
-            np.zeros((self.N_turbines, self.N_wind_conditions)),
-            units="W",
-        )
-        self.add_output(
-            "thrust_turbines",
-            np.zeros((self.N_turbines, self.N_wind_conditions)),
-            units="N",
-        )
+        if self.options["modeling_options"]["aero"]["return_turbine_output"]:
+            self.add_output(
+                "power_turbines",
+                np.zeros((self.N_turbines, self.N_wind_conditions)),
+                units="W",
+            )
+            self.add_output(
+                "thrust_turbines",
+                np.zeros((self.N_turbines, self.N_wind_conditions)),
+                units="N",
+            )
         # ... more outputs can be added here
 
     def setup_partials(self):
