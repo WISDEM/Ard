@@ -26,7 +26,7 @@ jobs:
 
       - name: Run unit tests with coverage
         run: |
-          pytest --cov-report=xml:coverage_unit.xml --cov=src test/unit
+          pytest --cov-report=xml:coverage_unit.xml --cov=ard test/unit
 
       - name: Post pytest unit coverage comment
         uses: MishaKav/pytest-coverage-comment@main
