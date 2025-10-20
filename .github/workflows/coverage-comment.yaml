@@ -24,12 +24,22 @@ jobs:
         run: |
           pip install -e .[dev,docs]
 
-      - name: Run tests with coverage
+      - name: Run unit tests with coverage
         run: |
-          pytest --junitxml=pytest_unit.xml --cov-report=term-missing:skip-covered --cov=src tests/unit | tee pytest-coverage-unit.txt
+          pytest --junitxml=pytest_unit.xml --cov-report=term-missing:skip-covered --cov=src test/unit | tee pytest-coverage-unit.txt
 
       - name: pytest unit coverage comment
         uses: MishaKav/pytest-coverage-comment@main
         with:
           pytest-coverage-path: ./pytest-coverage-unit.txt
           junitxml-path: ./pytest_unit.xml
+
+      - name: Run system tests with coverage
+        run: |
+          pytest --junitxml=pytest_system.xml --cov-report=term-missing:skip-covered --cov=src test/system | tee pytest-coverage-system.txt
+
+      - name: pytest system coverage comment
+        uses: MishaKav/pytest-coverage-comment@main
+        with:
+          pytest-coverage-path: ./pytest-coverage-system.txt
+          junitxml-path: ./pytest_system.xml
