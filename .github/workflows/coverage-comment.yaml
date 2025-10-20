@@ -1,0 +1,35 @@
+name: pytest-coverage-comment
+on:
+  pull_request:
+    branches:
+      - '*'
+
+permissions:
+  contents: write
+  checks: write
+  pull-requests: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
+
+      - name: Install dependencies
+        run: |
+          pip install pytest pytest-cov
+
+      - name: Run tests with coverage
+        run: |
+          pytest --junitxml=pytest_unit.xml --cov-report=term-missing:skip-covered --cov=src tests/unit | tee pytest-coverage-unit.txt
+
+      - name: pytest unit coverage comment
+        uses: MishaKav/pytest-coverage-comment@main
+        with:
+          pytest-coverage-path: ./pytest-coverage-unit.txt
+          junitxml-path: ./pytest_unit.xml
