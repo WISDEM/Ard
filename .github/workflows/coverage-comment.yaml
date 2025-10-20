@@ -1,6 +1,6 @@
 name: pytest-coverage-comment
 on:
-  pull_request:
+  pull_request_target:
     branches:
       - '*'
 
@@ -12,10 +12,6 @@ permissions:
 jobs:
   test_unit:
     runs-on: ubuntu-latest
-    permissions:
-        contents: write
-        checks: write
-        pull-requests: write
     steps:
       - uses: actions/checkout@v4
 
