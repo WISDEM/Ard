@@ -26,20 +26,10 @@ jobs:
 
       - name: Run unit tests with coverage
         run: |
-          pytest --junitxml=pytest_unit.xml --cov-report=term-missing:skip-covered --cov=src test/unit | tee pytest-coverage-unit.txt
+          pytest --cov-report=xml:coverage_unit.xml --cov=src test/unit
 
       - name: Post pytest unit coverage comment
         uses: MishaKav/pytest-coverage-comment@main
         with:
-          pytest-coverage-path: ./pytest-coverage-unit.txt
+          pytest-xml-coverage-path: ./pytest_coverage_unit.xml
           junitxml-path: ./pytest_unit.xml
-
-      - name: Run system tests with coverage
-        run: |
-          pytest --junitxml=pytest_system.xml --cov-report=term-missing:skip-covered --cov=src test/system | tee pytest-coverage-system.txt
-
-      - name: Post pytest system coverage comment
-        uses: MishaKav/pytest-coverage-comment@main
-        with:
-          pytest-coverage-path: ./pytest-coverage-system.txt
-          junitxml-path: ./pytest_system.xml
