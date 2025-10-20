@@ -17,8 +17,8 @@ include = ["ard", "ard.*"]
 "ard.api.default_systems" = ["*.yaml"]
 
 [project]
-name = "Ard"
-version = "1.0.0-alpha0"
+name = "ard-nrel"
+version = "0.1.0-beta0"
 authors = [
   {name = "Cory Frontin", email = "cory.frontin@nrel.gov"},
   {name = "Rafael Mudafort", email = "rafael.mudafort@nrel.gov"},
@@ -28,7 +28,7 @@ description = "A package for multidisciplinary and/or multifidelity wind farm de
 readme= "README.md"
 requires-python = ">=3.10, <3.13"
 classifiers = [
-  "Development Status :: 3 - Alpha",
+  "Development Status :: 4 - Beta",
   "License :: OSI Approved :: Apache Software License",
   "Operating System :: OS Independent",
   "Programming Language :: Python :: 3",
