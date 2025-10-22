@@ -51,6 +51,7 @@ dependencies = [
   "highspy",
   "pyyaml",
   "windio",
+  "ipykernel",
 ]
 [project.optional-dependencies]
 dev = [
