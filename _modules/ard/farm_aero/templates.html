@@ -180,7 +180,7 @@
         </ul>
         <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation instructions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../testing.html">Unit and system testing</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Examples</span></p>
@@ -738,6 +738,12 @@ document.write(`
         <span class="c1"># add the outputs we want for a batched power analysis:</span>
         <span class="c1">#   - farm and turbine powers</span>
         <span class="c1">#   - turbine thrusts</span>
+
+        <span class="c1"># self.add_output(</span>
+        <span class="c1">#     &quot;AEP_farm&quot;,</span>
+        <span class="c1">#     np.array([0.0]),</span>
+        <span class="c1">#     units=&quot;W*h&quot;,</span>
+        <span class="c1"># )</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_output</span><span class="p">(</span>
             <span class="s2">&quot;AEP_farm&quot;</span><span class="p">,</span>
             <span class="mf">0.0</span><span class="p">,</span>
@@ -748,16 +754,18 @@ document.write(`
             <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">N_wind_conditions</span><span class="p">,)),</span>
             <span class="n">units</span><span class="o">=</span><span class="s2">&quot;W&quot;</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_output</span><span class="p">(</span>
-            <span class="s2">&quot;power_turbines&quot;</span><span class="p">,</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">N_turbines</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_wind_conditions</span><span class="p">)),</span>
-            <span class="n">units</span><span class="o">=</span><span class="s2">&quot;W&quot;</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_output</span><span class="p">(</span>
-            <span class="s2">&quot;thrust_turbines&quot;</span><span class="p">,</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">N_turbines</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_wind_conditions</span><span class="p">)),</span>
-            <span class="n">units</span><span class="o">=</span><span class="s2">&quot;N&quot;</span><span class="p">,</span>
-        <span class="p">)</span></div>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;modeling_options&quot;</span><span class="p">][</span><span class="s2">&quot;aero&quot;</span><span class="p">][</span><span class="s2">&quot;return_turbine_output&quot;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_output</span><span class="p">(</span>
+                <span class="s2">&quot;power_turbines&quot;</span><span class="p">,</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">N_turbines</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_wind_conditions</span><span class="p">)),</span>
+                <span class="n">units</span><span class="o">=</span><span class="s2">&quot;W&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_output</span><span class="p">(</span>
+                <span class="s2">&quot;thrust_turbines&quot;</span><span class="p">,</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">N_turbines</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_wind_conditions</span><span class="p">)),</span>
+                <span class="n">units</span><span class="o">=</span><span class="s2">&quot;N&quot;</span><span class="p">,</span>
+            <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="BatchFarmPowerTemplate.setup_partials">
@@ -789,8 +797,13 @@ document.write(`
 
         <span class="c1"># the following should be set</span>
         <span class="n">outputs</span><span class="p">[</span><span class="s2">&quot;power_farm&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">N_wind_conditions</span><span class="p">,))</span>
-        <span class="n">outputs</span><span class="p">[</span><span class="s2">&quot;power_turbines&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">N_turbines</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_wind_conditions</span><span class="p">))</span>
-        <span class="n">outputs</span><span class="p">[</span><span class="s2">&quot;thrust_turbines&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">N_turbines</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_wind_conditions</span><span class="p">))</span></div>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;modeling_options&quot;</span><span class="p">][</span><span class="s2">&quot;aero&quot;</span><span class="p">][</span><span class="s2">&quot;return_turbine_output&quot;</span><span class="p">]:</span>
+            <span class="n">outputs</span><span class="p">[</span><span class="s2">&quot;power_turbines&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N_turbines</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_wind_conditions</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">outputs</span><span class="p">[</span><span class="s2">&quot;thrust_turbines&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N_turbines</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_wind_conditions</span><span class="p">)</span>
+            <span class="p">)</span></div>
 </div>
 
 
@@ -884,16 +897,17 @@ document.write(`
             <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">N_wind_conditions</span><span class="p">,)),</span>
             <span class="n">units</span><span class="o">=</span><span class="s2">&quot;W&quot;</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_output</span><span class="p">(</span>
-            <span class="s2">&quot;power_turbines&quot;</span><span class="p">,</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">N_turbines</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_wind_conditions</span><span class="p">)),</span>
-            <span class="n">units</span><span class="o">=</span><span class="s2">&quot;W&quot;</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_output</span><span class="p">(</span>
-            <span class="s2">&quot;thrust_turbines&quot;</span><span class="p">,</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">N_turbines</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_wind_conditions</span><span class="p">)),</span>
-            <span class="n">units</span><span class="o">=</span><span class="s2">&quot;N&quot;</span><span class="p">,</span>
-        <span class="p">)</span></div>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;modeling_options&quot;</span><span class="p">][</span><span class="s2">&quot;aero&quot;</span><span class="p">][</span><span class="s2">&quot;return_turbine_output&quot;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_output</span><span class="p">(</span>
+                <span class="s2">&quot;power_turbines&quot;</span><span class="p">,</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">N_turbines</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_wind_conditions</span><span class="p">)),</span>
+                <span class="n">units</span><span class="o">=</span><span class="s2">&quot;W&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_output</span><span class="p">(</span>
+                <span class="s2">&quot;thrust_turbines&quot;</span><span class="p">,</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">N_turbines</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N_wind_conditions</span><span class="p">)),</span>
+                <span class="n">units</span><span class="o">=</span><span class="s2">&quot;N&quot;</span><span class="p">,</span>
+            <span class="p">)</span></div>
 
         <span class="c1"># ... more outputs can be added here</span>
 

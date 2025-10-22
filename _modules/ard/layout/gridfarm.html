@@ -180,7 +180,7 @@
         </ul>
         <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation instructions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../testing.html">Unit and system testing</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Examples</span></p>
@@ -502,8 +502,8 @@ document.write(`
         <span class="n">angle_skew</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeling_options</span><span class="p">[</span><span class="s2">&quot;layout&quot;</span><span class="p">][</span><span class="s2">&quot;angle_skew&quot;</span><span class="p">]</span>
 
         <span class="c1"># add four-parameter grid farm layout DVs</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_input</span><span class="p">(</span><span class="s2">&quot;spacing_primary&quot;</span><span class="p">,</span> <span class="n">spacing_primary</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_input</span><span class="p">(</span><span class="s2">&quot;spacing_secondary&quot;</span><span class="p">,</span> <span class="n">spacing_secondary</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input</span><span class="p">(</span><span class="s2">&quot;spacing_primary&quot;</span><span class="p">,</span> <span class="n">spacing_primary</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s2">&quot;unitless&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_input</span><span class="p">(</span><span class="s2">&quot;spacing_secondary&quot;</span><span class="p">,</span> <span class="n">spacing_secondary</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s2">&quot;unitless&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input</span><span class="p">(</span><span class="s2">&quot;angle_orientation&quot;</span><span class="p">,</span> <span class="n">angle_orientation</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s2">&quot;deg&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input</span><span class="p">(</span><span class="s2">&quot;angle_skew&quot;</span><span class="p">,</span> <span class="n">angle_skew</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s2">&quot;deg&quot;</span><span class="p">)</span></div>
 
@@ -650,20 +650,26 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input</span><span class="p">(</span>
             <span class="s2">&quot;spacing_primary&quot;</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">modeling_options</span><span class="p">[</span><span class="s2">&quot;layout&quot;</span><span class="p">][</span><span class="s2">&quot;spacing_primary&quot;</span><span class="p">],</span>
+            <span class="n">units</span><span class="o">=</span><span class="s2">&quot;unitless&quot;</span><span class="p">,</span>
+            <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;turbine row spacing in rotor diameters&quot;</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input</span><span class="p">(</span>
             <span class="s2">&quot;spacing_secondary&quot;</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">modeling_options</span><span class="p">[</span><span class="s2">&quot;layout&quot;</span><span class="p">][</span><span class="s2">&quot;spacing_secondary&quot;</span><span class="p">],</span>
+            <span class="n">units</span><span class="o">=</span><span class="s2">&quot;unitless&quot;</span><span class="p">,</span>
+            <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;turbine column spacing (along rows) in rotor diameters&quot;</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input</span><span class="p">(</span>
             <span class="s2">&quot;angle_orientation&quot;</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">modeling_options</span><span class="p">[</span><span class="s2">&quot;layout&quot;</span><span class="p">][</span><span class="s2">&quot;angle_orientation&quot;</span><span class="p">],</span>
             <span class="n">units</span><span class="o">=</span><span class="s2">&quot;deg&quot;</span><span class="p">,</span>
+            <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;orientation in degrees clockwise with respect to North&quot;</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_input</span><span class="p">(</span>
             <span class="s2">&quot;angle_skew&quot;</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">modeling_options</span><span class="p">[</span><span class="s2">&quot;layout&quot;</span><span class="p">][</span><span class="s2">&quot;angle_skew&quot;</span><span class="p">],</span>
             <span class="n">units</span><span class="o">=</span><span class="s2">&quot;deg&quot;</span><span class="p">,</span>
+            <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;clockwise skew angle of turbine rows&quot;</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_output</span><span class="p">(</span>
