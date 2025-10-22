@@ -254,11 +254,24 @@ def set_up_system_recursive(
                     prob.model.add_constraint(constraint_name, **constraint_data)
 
             # set objective
+            if all(v in analysis_options for v in ["objective", "objectives"]):
+                raise ValueError(
+                    "Both single-objective and multi-objective specifications "
+                    "have been found in the analysis options. Only one can be "
+                    "used at a time."
+                )
             if "objective" in analysis_options:
                 prob.model.add_objective(
                     analysis_options["objective"]["name"],
-                    **analysis_options["objective"]["options"],
+                    **analysis_options["objective"].get("options", {}),
                 )
+            if "objectives" in analysis_options:
+                for obj_name, obj_options in analysis_options["objectives"].items():
+                    obj_options = {} if obj_options is None else obj_options
+                    prob.model.add_objective(
+                        obj_name,
+                        **obj_options,  # **obj_item.get("options", {}),
+                    )
 
             # Set up the recorder if specified in the input dictionary
             if "recorder" in analysis_options:

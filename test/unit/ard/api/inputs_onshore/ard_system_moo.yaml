@@ -1,0 +1,62 @@
+modeling_options:
+  windIO_plant: !include windio.yaml
+  layout:
+      type: gridfarm
+      N_turbines: 25
+      N_substations: 1
+      spacing_primary: 7.0
+      spacing_secondary: 7.0
+      angle_orientation: 0.0
+      angle_skew: 0.0
+  aero:
+    return_turbine_output: True
+  floris:
+    peak_shaving_fraction: 0.2
+    peak_shaving_TI_threshold: 0.0
+
+system: onshore
+
+analysis_options:
+  driver:
+    name: ScipyOptimizeDriver
+    options:
+      optimizer: COBYLA
+      opt_settings:
+        rhobeg: 2.0
+        maxiter: 50
+      debug_print:
+        - desvars
+        - objs
+  design_variables:
+    spacing_primary:
+      lower:  3.0
+      upper: 20.0
+    spacing_secondary:
+      lower:  3.0
+      upper: 20.0
+    angle_orientation:
+      lower: -180.0
+      upper:  180.0
+    angle_skew:
+      lower: -45.0
+      upper:  45.0
+  # constraints:
+  #   boundary_distances:
+  #     units: km
+  #     upper: 0.0
+  #     scaler: 2.0
+  #   spacing_constraint.turbine_spacing:
+  #     units: km
+  #     lower: 0.552
+  # objective:
+  #   name: financese.lcoe
+  #   options:
+  #     scaler: 1.0
+  objectives:
+    AEP_farm:
+      units: GW*h
+      scaler: 1.0
+    x_turbines:
+      units: km
+  recorder:
+    filepath: cases.sql
