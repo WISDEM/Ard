@@ -48,15 +48,14 @@ analysis_options:
   #   spacing_constraint.turbine_spacing:
   #     units: km
   #     lower: 0.552
-  # objective:
-  #   name: financese.lcoe
-  #   options:
-  #     scaler: 1.0
   objectives:
     AEP_farm:
-      units: GW*h
       scaler: 1.0
+      units: GW*h
     x_turbines:
+      scaler: 1.0
       units: km
+      index: 0
+
   recorder:
     filepath: cases.sql
