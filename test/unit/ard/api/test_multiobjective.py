@@ -61,10 +61,12 @@ class TestMultiobjectiveSetUp:
     def test_raise_scipy_MOO_error(self):
 
         self.input_dict["analysis_options"]["driver"]["name"] = "ScipyOptimizeDriver"
-        self.input_dict["analysis_options"]["driver"]["options"]["optimizer"] = "COBYLA"
-        self.input_dict["analysis_options"]["driver"]["options"]["opt_settings"] = {
-            "rhobeg": 2.0,
-            "maxiter": 50,
+        self.input_dict["analysis_options"]["driver"]["options"] = {
+            "optimizer": "COBYLA",
+            "opt_settings": {
+                "rhobeg": 2.0,
+                "maxiter": 50,
+            },
         }
 
         # re-create an ard model
