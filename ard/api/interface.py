@@ -259,7 +259,7 @@ def set_up_system_recursive(
                     obj_options = {} if (obj_options is None) else obj_options
                     prob.model.add_objective(
                         obj_name,
-                        **obj_options,  # **obj_item.get("options", {}),
+                        **obj_options,
                     )
 
             # Set up the recorder if specified in the input dictionary
@@ -270,7 +270,8 @@ def set_up_system_recursive(
                     prob.add_recorder(recorder)
                     prob.driver.add_recorder(recorder)
 
-        # TODO! remove me
+        # TODO! THIS IS NECESSARY FOR SOME REASON WHEN RUNNING FREE
+        # OPTIMIZATIONS. THIS SHOULDN'T BE NEEDED...
         prob.model.set_input_defaults(
             "x_turbines",
             # input_dict["modeling_options"]["windIO_plant"]["wind_farm"]["layouts"]["coordinates"]["x"],
@@ -282,6 +283,7 @@ def set_up_system_recursive(
             units="m",
         )
 
+        # setup the openmdao problem
         prob.setup()
 
     return prob
