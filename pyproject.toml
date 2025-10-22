@@ -60,7 +60,6 @@ dev = [
   "pytest",
   "pytest-cov",
   "pytest-subtests",
-  "pyoptsparse",
 ]
 docs = [
   "pyxdsm",

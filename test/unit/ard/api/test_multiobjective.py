@@ -36,10 +36,12 @@ class TestMultiobjectiveSetUp:
             "angle_orientation",
             "angle_skew",
         }
-        constrs_expected = set()
+        constrs_expected = {
+            "boundary_distances",
+        }
         objs_expected = {
             "AEP_farm",
-            "landuse.area_tight",
+            "lug.landuse.area_tight",
         }
 
         # use set equivalence to make sure the OM problem matches expectations
