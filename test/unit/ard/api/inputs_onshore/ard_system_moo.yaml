@@ -1,4 +1,4 @@
-modeling_options:
+modeling_options: &modeling_options
   windIO_plant: !include windio.yaml
   layout:
       type: gridfarm
@@ -14,16 +14,41 @@ modeling_options:
     peak_shaving_fraction: 0.2
     peak_shaving_TI_threshold: 0.0
 
-system: onshore
+system:
+  type: group
+  systems:
+    layout:
+      type: component
+      module: ard.layout.gridfarm
+      object: GridFarmLayout
+      promotes: ["*"]
+      kwargs:
+        modeling_options: *modeling_options
+    aepFLORIS:
+      type: component
+      module: ard.farm_aero.floris
+      object: FLORISAEP
+      promotes: ["x_turbines", "y_turbines", "AEP_farm"]
+      kwargs:
+        modeling_options: *modeling_options
+        data_path:
+        case_title: "default"
+    landuse:
+      type: component
+      module: ard.layout.gridfarm
+      object: GridFarmLanduse
+      promotes: ["*"]
+      kwargs:
+        modeling_options: *modeling_options
 
 analysis_options:
   driver:
-    name: ScipyOptimizeDriver
+    name: pyOptSparseDriver
     options:
-      optimizer: COBYLA
+      optimizer: NSGA2
       opt_settings:
-        rhobeg: 2.0
-        maxiter: 50
+        PopSize: 2
+        maxGen: 2
       debug_print:
         - desvars
         - objs
@@ -52,9 +77,9 @@ analysis_options:
     AEP_farm:
       scaler: 1.0
       units: GW*h
-    x_turbines:
+    landuse.area_tight:
       scaler: 1.0
-      units: km
+      units: km**2
       index: 0
 
   recorder:
