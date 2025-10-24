@@ -9,7 +9,7 @@ modeling_options:
     spacing_secondary: 7.0
     angle_orientation: 0.0
     angle_skew: 0.0
-  aero:      
+  aero:
     return_turbine_output: False
   floris:
     peak_shaving_fraction: 0.2
@@ -84,9 +84,8 @@ analysis_options:
     spacing_constraint.turbine_spacing:
       units: "km"
       lower: 0.552
-  objective:
-    name: financese.lcoe
-    options:
+  objectives:
+    financese.lcoe:
       scaler: 1.0
   recorder:
     filepath: "cases.sql"

@@ -2,7 +2,8 @@
 ### ARD DEVELOPMENT IGNORES 
 
 .vscode
-case_files/
+case_files
+ard_prob_out
 
 ### MACOS DEFAULT IGNORES
 

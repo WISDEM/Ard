@@ -105,9 +105,8 @@ analysis_options:
       units: m
       lower: 852.0
       scaler: 0.0005  # 1/(7D)
-  objective:
-    name: collection.total_length_cables
-    options:
+  objectives:
+    collection.total_length_cables:
       units: km
       scaler: 0.05
   recorder:

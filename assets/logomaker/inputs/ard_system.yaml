@@ -75,9 +75,8 @@ analysis_options:
       units: "m"
       upper: 0.0
       scaler: 0.004128137384  # 1/D_rotor
-  objective:
-    name: AEP_farm
-    options:
+  objectives:
+    AEP_farm:
       scaler: -1.0e-9
   recorder:
     filepath: opt_results.sql
