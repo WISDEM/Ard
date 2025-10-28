@@ -13,7 +13,7 @@ class TestMultiobjectiveSetUp:
 
         # create the simplest system that will compile
         input_dict = self.input_dict = load_yaml(
-            Path(__file__).parent / "inputs_onshore" / "ard_system_moo.yaml"
+            Path(__file__).parent / "inputs_onshore" / "ard_system_multiobjective.yaml"
         )
 
         # create an ard model
