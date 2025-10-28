@@ -78,9 +78,8 @@ analysis_options:
     spacing_constraint.turbine_spacing:
       units: km
       lower: 0.552
-  objective:
-    name: financese.lcoe
-    options:
+  objectives:
+    financese.lcoe:
       scaler: 1.0
   recorder:
     filepath: cases.sql

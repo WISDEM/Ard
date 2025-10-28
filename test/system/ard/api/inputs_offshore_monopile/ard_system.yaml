@@ -127,9 +127,8 @@ analysis_options:
     spacing_constraint.turbine_spacing:
       units: "m"
       lower: 552
-  objective:
-    name: collection.total_length_cables
-    options:
+  objectives:
+    collection.total_length_cables:
       scaler: 1.0
   recorder:
     filepath: "cases.sql"
