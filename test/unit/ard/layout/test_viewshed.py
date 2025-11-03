@@ -1,6 +1,5 @@
 import pytest
 import numpy as np
-from shapely.geometry import Point
 from ard.layout import viewshed
 
 
@@ -63,7 +62,7 @@ def modeling_options():
 
 
 # make sure the viewshed of three overlapping turbines is less the sum of three
-# turbines individual viewsheds but only slighly more than the viewshed of a
+# turbines individual viewsheds but only slightly more than the viewshed of a
 # single turbine
 def test_viewshed_area_comp_overlap(modeling_options, subtests):
 
@@ -90,7 +89,7 @@ def test_viewshed_area_comp_overlap(modeling_options, subtests):
     R_viewshed = viewshed.calculate_viewshed_arc_length(D_rotor, h_hub)
     expected_area_nonoverlapping = 3 * np.pi * R_viewshed**2 / 1e6
     expected_area_single_turbine = np.pi * R_viewshed**2 / 1e6
-    expected_area_pyrite = 5211.7651786  # compute 28 Oct 2025
+    expected_area_pyrite = 5211.7651786  # computed 28 Oct 2025
 
     with subtests.test("area less than non-overlapping sum"):
         assert outputs["area_viewshed"] < expected_area_nonoverlapping
@@ -157,7 +156,7 @@ def test_viewshed_area_comp_three_nonoverlapping_turbines(modeling_options):
     n_segs = 16
     expected_area = 3 * (
         4 * n_segs * (0.5 * R_viewshed**2 * np.sin(2 * np.pi / (4 * n_segs))) / 1.0e6
-    )  # area of a equal-segmented approximation from shapely
+    )  # area of an equal-segmented approximation from shapely
     # expected_area = 3 * np.pi * R_viewshed**2 / 1e6
 
     # compute with the component and verify

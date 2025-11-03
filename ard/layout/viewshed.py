@@ -80,11 +80,10 @@ class ViewshedAreaComp(om.ExplicitComponent):
         # project onto 2D surface plane
         x_turbines = inputs["x_turbines"]
         y_turbines = inputs["y_turbines"]
-        D_rotor_turbines = D_rotor * np.ones_like(x_turbines)
-        h_hub_turbines = h_hub * np.ones_like(x_turbines)
+        # Pass scalars directly; numpy broadcasting will handle arrays as needed
         R_viewshed_turbines = calculate_viewshed_arc_length(
-            D_rotor_turbines,
-            h_hub_turbines,
+            D_rotor,
+            h_hub,
             h_terrain=h_terrain,
         )
 
